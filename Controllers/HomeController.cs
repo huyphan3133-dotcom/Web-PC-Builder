@@ -26,5 +26,9 @@ namespace Web_PC_Builder.Controllers
 
             return View();
         }
+        public ActionResult Home()
+        {
+            return View();
+        }
     }
 }
