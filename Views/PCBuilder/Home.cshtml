@@ -1,1 +1,77 @@
-﻿
+﻿@{
+    ViewBag.Title = "Xây dựng cấu hình PC";
+}
+
+<link href="~/Content/pc-builder.css" rel="stylesheet" />
+
+<div class="pcb">
+
+    <!-- Tiêu đề -->
+    <div class="pcb-head">
+        <div>
+            <h1 class="pcb-title">Xây dựng cấu hình PC</h1>
+            <p class="pcb-sub">Chọn linh kiện cho từng mục, tổng tiền được tính tự động.</p>
+        </div>
+        <div class="pcb-head-right">
+            <span class="pcb-count">Đã chọn <b id="pcb-count">0</b>/<span id="pcb-max">10</span> linh kiện</span>
+            <button type="button" class="pcb-btn pcb-btn-ghost" id="pcb-reset">Làm lại</button>
+        </div>
+    </div>
+
+    <!-- Bảng linh kiện -->
+    <div class="pcb-box">
+        <table class="pcb-table">
+            <thead>
+                <tr>
+                    <th style="width:22%">Linh kiện</th>
+                    <th>Sản phẩm đã chọn</th>
+                    <th style="width:16%">Giá</th>
+                    <th style="width:150px"></th>
+                </tr>
+            </thead>
+            <tbody id="pcb-rows"></tbody>
+        </table>
+    </div>
+
+    <!-- Thanh tổng tiền -->
+    <div class="pcb-total">
+        <div>
+            <span class="pcb-total-label">Tổng cộng</span>
+            <span class="pcb-total-price" id="pcb-total">0đ</span>
+        </div>
+        <div class="pcb-total-actions">
+            <button type="button" class="pcb-btn pcb-btn-dark" id="pcb-export">Xuất cấu hình</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal chọn linh kiện -->
+<div class="pcb-modal" id="pcb-modal" aria-hidden="true">
+    <div class="pcb-dialog" role="dialog" aria-modal="true" aria-labelledby="pcb-modal-title">
+        <div class="pcb-dialog-head">
+            <h3 id="pcb-modal-title">Chọn linh kiện</h3>
+            <button type="button" class="pcb-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <div class="pcb-dialog-search">
+            <input type="text" id="pcb-search" placeholder="Tìm theo tên hoặc hãng..." />
+        </div>
+        <div class="pcb-dialog-body" id="pcb-modal-list"></div>
+    </div>
+</div>
+
+<!-- Modal xuất cấu hình -->
+<div class="pcb-modal" id="pcb-summary" aria-hidden="true">
+    <div class="pcb-dialog" role="dialog" aria-modal="true" aria-labelledby="pcb-summary-title">
+        <div class="pcb-dialog-head">
+            <h3 id="pcb-summary-title">Cấu hình PC của bạn</h3>
+            <button type="button" class="pcb-close" data-close aria-label="Đóng">&times;</button>
+        </div>
+        <div class="pcb-dialog-body" id="pcb-summary-body"></div>
+        <div class="pcb-dialog-foot">
+            <button type="button" class="pcb-btn pcb-btn-ghost" data-close>Đóng</button>
+            <button type="button" class="pcb-btn" id="pcb-print">In cấu hình</button>
+        </div>
+    </div>
+</div>
+
+<script src="~/Scripts/Java/builder.js"></script>

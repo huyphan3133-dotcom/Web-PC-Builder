@@ -9,10 +9,7 @@ namespace Web_PC_Builder.Controllers
     public class PCBuilderController : Controller
     {
         // GET: PCBuilder
-        public ActionResult Index()
-        {
-            return View();
-        }
+        
 
         public ActionResult Home()
         {
