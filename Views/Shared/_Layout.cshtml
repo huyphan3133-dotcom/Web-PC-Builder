@@ -3,37 +3,130 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - My ASP.NET Application</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
+    <title>@ViewBag.Title - GearVN</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    @RenderSection("styles", required: false)
 </head>
 <body>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-dark">
-        <div class="container">
-            @Html.ActionLink("Application name", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
-            <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" title="Toggle navigation" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse d-sm-inline-flex justify-content-between">
-                <ul class="navbar-nav flex-grow-1">
-                    <li>@Html.ActionLink("Home", "Index", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("About", "About", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                    <li>@Html.ActionLink("Contact", "Contact", "Home", new { area = "" }, new { @class = "nav-link" })</li>
-                </ul>
+    <!-- Topbar & Header Đỏ GearVN -->
+    <header class="header">
+        <div class="header">
+            <div class="container">
+                <a href="@Url.Action("Index", "Home")" class="logo"><img src="~/Content/Images/logo-gearvn.svg" alt="GEARVN" /></a>
+
+                <a href="@Url.Action("Home", "Product")" class="cat"><i class="fas fa-bars"></i> Danh mục</a>
+
+                <form action="@Url.Action("Home", "Product")" method="get" class="search">
+                    <input type="text" name="q" placeholder="Bạn cần tìm gì?" />
+                    <button type="submit"><i class="fas fa-search"></i></button>
+                </form>
+
+
+                <a href="@Url.Action("Home", "Cart")" class="btn-dark"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
+                <a href="@Url.Action("Login", "Account")" class="btn-dark"><i class="fas fa-user"></i> Đăng nhập</a>
             </div>
         </div>
-    </nav>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - My ASP.NET Application</p>
-        </footer>
-    </div>
+    </header>
+        <div class="nav">
+            <div class="container">
+                <a href="#"><i class="fas fa-tag"></i>Tất cả khuyến mãi</a>
+                <a href="#"><i class="fas fa-newspaper"></i>Tin tức - Review</a>
+                <a href="#"><i class="fas fa-shield-alt"></i>Tra cứu bảo hành</a>
+                <a href="#"><i class="fas fa-tools"></i>Dịch vụ tận nhà</a>
+                <a href="#"><i class="fas fa-sync-alt"></i>Thu cũ đổi mới</a>
+                <a href="#"><i class="fas fa-map-marker-alt"></i>Hệ thống showroom</a>
+            </div>
+        </div>
+       
+        <!-- 3. NỘI DUNG TỪNG TRANG -->
+        <div class="content container">
+            @RenderBody()
+        </div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+        <!-- 4. FOOTER -->
+        <footer class="footer">
+            <div class="container footer-grid">
+
+                <!-- Cột 1: logo + mạng xã hội -->
+                <div>
+                    <a href="/"><img class="footer-logo" src="~/Content/Images/logo-gearvn.svg" alt="GEARVN"></a>
+                    <h4 class="mt">Kết nối với chúng tôi</h4>
+                    <div class="social">
+                        <a href="https://www.facebook.com/gearvnhcm" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://www.tiktok.com/%40gearvn.store" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                        <a href="https://www.youtube.com/%40GEARVNOfficial" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                        <a href="https://zalo.me/450955578960321912" aria-label="Messenger"><i class="fab fa-facebook-messenger"></i></a>
+                    </div>
+                </div>
+
+                <!-- Cột 2: tổng đài -->
+                <div>
+                    <h4>Tổng đài hỗ trợ (8:00 - 21:00)</h4>
+                    <p>Tư vấn mua hàng<br><strong>1900.5301</strong></p>
+                    <p>Hỗ trợ kỹ thuật, bảo hành<br><strong>1900.5325</strong></p>
+                    <p>Góp ý, khiếu nại<br><strong>1800.6173</strong></p>
+                    <p>Email<br><strong>cskh@gearvn.com</strong></p>
+                </div>
+
+                <!-- Cột 3: về GEARVN + chính sách -->
+                <div>
+                    <h4>Về GEARVN</h4>
+                    <a href="#">Giới thiệu</a>
+                    <a href="#">Tuyển dụng</a>
+                    <a href="#">Liên hệ</a>
+
+                    <h4 class="mt">Chính sách</h4>
+                    <a href="#">Chính sách bảo hành</a>
+                    <a href="#">Chính sách vận chuyển</a>
+                    <a href="#">Chính sách bảo mật</a>
+                    <a href="#">Cài đặt cookie</a>
+                </div>
+
+                <!-- Cột 4: thông tin -->
+                <div>
+                    <h4>Thông tin</h4>
+                    <a href="#">Hệ thống cửa hàng</a>
+                    <a href="#">Hướng dẫn mua hàng</a>
+                    <a href="#">Hướng dẫn thanh toán</a>
+                    <a href="#">Hướng dẫn trả góp</a>
+                    <a href="#">Tra cứu địa chỉ bảo hành</a>
+                    <a href="#">Build PC</a>
+                </div>
+
+                <!-- Cột 5: thanh toán + vận chuyển -->
+                <div>
+                    <h4>Hỗ trợ thanh toán</h4>
+                    <div class="pay">
+                        <img src="~/Content/Images/pay-1.png" alt="">
+                        <img src="~/Content/Images/pay-2.png" alt="">
+                        <img src="~/Content/Images/pay-3.png" alt="">
+                        <img src="~/Content/Images/pay-4.png" alt="">
+                        <img src="~/Content/Images/pay-5.png" alt="">
+                        <img src="~/Content/Images/pay-6.png" alt="">
+                        <img src="~/Content/Images/pay-7.png" alt="">
+                        <img src="~/Content/Images/pay-8.png" alt="">
+                    </div>
+
+                    <h4>Đơn vị vận chuyển</h4>
+                    <div class="pay">
+                        <img src="~/Content/Images/ship-1.png" alt="">
+                        <img src="~/Content/Images/ship-2.png" alt="">
+                        <img src="~/Content/Images/ship-3.png" alt="">
+                        <img src="~/Content/Images/ship-4.png" alt="">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dòng cuối: thông tin công ty + dấu bộ công thương -->
+            <div class="container footer-bottom">
+                <p>Công ty TNHH Thương Mại GearVN, địa chỉ: 82 Hoàng Hoa Thám, Phường Bảy Hiền, Thành phố Hồ Chí Minh. MST/GCN ĐKDN số: 0316517394, đăng ký lần đầu: ngày 01/10/2020. Đăng ký thay đổi lần thứ 9: ngày 23/12/2025. Đại diện pháp luật: Nguyễn Thế Anh.</p>
+                <a href="#"><img src="da-thong-bao-bct.png" alt="Đã thông báo Bộ Công Thương"></a>
+            </div>
+        </footer>
+        <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+        <script src="~/Scripts/Java/main.js"></script>
+        @RenderSection("scripts", required: false)
 </body>
 </html>

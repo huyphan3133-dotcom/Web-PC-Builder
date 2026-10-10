@@ -1,33 +1,901 @@
 ﻿@{
-    ViewBag.Title = "Home Page";
+    ViewBag.Title = "Trang chủ";
+    var sp = Url.Action("Home", "Product");   // link tạm tới trang danh mục
 }
-
 <main>
-    <section class="row" aria-labelledby="aspnetTitle">
-        <h1 id="title">ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-md">Learn more &raquo;</a></p>
+    <!-- ===== PHẦN TRÊN: danh mục - slider - banner phải ===== -->
+    <div class="hero">
+
+        <!-- Cột trái: danh mục sản phẩm -->
+        <div class="side">
+            <a href="@sp"><i class="fas fa-laptop"></i>Laptop</a>
+            <a href="@sp"><i class="fas fa-laptop-code"></i>Laptop Gaming</a>
+            <a href="@sp"><i class="fas fa-desktop"></i>PC GVN</a>
+            <a href="@sp"><i class="fas fa-microchip"></i>Main, CPU, VGA</a>
+            <a href="@sp"><i class="fas fa-server"></i>Case, Nguồn, Tản</a>
+            <a href="@sp"><i class="fas fa-hdd"></i>Ổ cứng, RAM, Thẻ nhớ</a>
+            <a href="@sp"><i class="fas fa-volume-up"></i>Loa, Micro, Webcam</a>
+            <a href="@sp"><i class="fas fa-tv"></i>Màn hình</a>
+            <a href="@sp"><i class="fas fa-keyboard"></i>Bàn phím</a>
+            <a href="@sp"><i class="fas fa-mouse"></i>Chuột + Lót chuột</a>
+            <a href="@sp"><i class="fas fa-headphones"></i>Tai nghe</a>
+            <a href="@sp"><i class="fas fa-chair"></i>Ghế - Bàn</a>
+            <a href="@sp"><i class="fas fa-wifi"></i>Phần mềm, mạng</a>
+            <a href="@sp"><i class="fas fa-gamepad"></i>Phụ kiện - Console</a>
+            <a href="@sp"><i class="fas fa-sync-alt"></i>Thu cũ đổi mới</a>
+            <a href="@sp"><i class="fas fa-concierge-bell"></i>Dịch vụ và thông tin khác</a>
+        </div>
+
+        <!-- Cột giữa: slider + 1 banner -->
+        <div class="mid">
+            <div class="slider">
+                <img src="~/Content/Images/banner1.png" alt="Banner 1" class="on" />
+                <img src="~/Content/Images/banner2.png" alt="Banner 2" />
+                <img src="~/Content/Images/banner3.png" alt="Banner 3" />
+                <img src="~/Content/Images/banner4.png" alt="Banner 4" />
+                <button class="arrow prev" onclick="doiBanner(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="arrow next" onclick="doiBanner(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+            <div class="slider">
+                <img src="~/Content/Images/banner01.png" alt="Banner 1" class="on" />
+                <img src="~/Content/Images/banner02.png" alt="Banner 2" />
+                <button class="arrow prev" onclick="doiBanner(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="arrow next" onclick="doiBanner(1)"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <!-- Cột phải: 4 banner nhỏ (đổi ảnh khi có file riêng) -->
+        <div class="right">
+            <div class="banner"><a href="@Url.Action("Index", "PCBuilder")"><img src="~/Content/Images/buildpc.png" alt="Build PC" /></a></div>
+            <div class="banner"><img src="~/Content/Images/pmco.png" alt="Phim co" /></div>
+            <div class="banner"><img src="~/Content/Images/i5.png" alt="Pc i5" /></div>
+            <div class="banner"><img src="~/Content/Images/gm.png" alt="Gaming" /></div>
+        </div>
+    </div>
+
+    <!-- Hàng 4 banner -->
+    <div class="brow">
+        <div class="banner"><img src="~/Content/Images/batbeat.png" alt="Tai Nghe" /></div>
+        <div class="banner"><img src="~/Content/Images/monitor.png" alt="Man hinh" /></div>
+        <div class="banner"><img src="~/Content/Images/gmmouse.png" alt="Gaming Mouse" /></div>
+        <div class="banner"><img src="~/Content/Images/rtx5090.png" alt="RTX 5090" /></div>
+    </div>
+
+    <!-- ===== 1. PC BÁN CHẠY (12 sản phẩm) ===== -->
+    <section class="sec">
+        <!-- Header -->
+        <div class="sec-head">
+            <div class="sec-left">
+                <h2 class="sec-title">PC bán chạy</h2>
+                <span class="sec-line"></span>
+                <span class="sec-promo"><i class="fas fa-truck"></i>Tặng Màn hình 240Hz</span>
+            </div>
+            <div class="sec-right">
+                <a class="sec-tag" href="#">PC I3</a>
+                <a class="sec-tag" href="#">PC I5</a>
+                <a class="sec-tag" href="#">PC I7</a>
+                <a class="sec-tag" href="#">PC I9</a>
+                <a class="sec-tag" href="#">PC R3</a>
+                <a class="sec-tag" href="#">PC R5</a>
+                <a class="sec-tag" href="#">PC R9</a>
+                <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="slide">
+            <button class="btn-arrow btn-prev" id="prev"><i class="fas fa-chevron-left"></i></button>
+
+            <div class="list" id="list">
+
+                <!-- Card 1 (copy khối này cho các sản phẩm khác) -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/pc1.png" alt="PC GVN i5-12400F">
+                    <a class="card-name" href="#">PC GVN Intel i5-12400F/ VGA RTX 3050 (Main H)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel Core i5-12400F</span>
+                        <span class="full"><i class="fas fa-th-large"></i>H610M &nbsp; <i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 3050 6GB</span>
+                    </div>
+                    <div>
+                        <span class="price-old">20.280.000đ</span><span class="price-sale">-9%</span>
+                    </div>
+                    <div class="price-now">18.390.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 2.250.000đ</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/pc1.png" alt="PC GVN i5-12400F RX 6500XT">
+                    <a class="card-name" href="#">PC GVN Intel i5-12400F/ VGA RX 6500XT (H610)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel Core i5-12400F</span>
+                        <span class="full"><i class="fas fa-th-large"></i>H610M &nbsp; <i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RX 6500XT 4GB</span>
+                    </div>
+                    <div>
+                        <span class="price-old">18.680.000đ</span><span class="price-sale">-10%</span>
+                    </div>
+                    <div class="price-now">16.790.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 2.250.000đ</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/pc3.png" alt="PC GVN x MSI LIGHTNING">
+                    <a class="card-name" href="#">PC GVN x MSI LIGHTNING (Intel Core Ultra 9 285K/ VGA RTX 5090)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Core Ultra 9 285K</span>
+                        <span class="full"><i class="fas fa-th-large"></i>MSI MEG Z890 &nbsp; <i class="fas fa-memory"></i>64 GB &nbsp; <i class="fas fa-hdd"></i>1024 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 5090 32GB</span>
+                    </div>
+                    <div>
+                        <span class="price-old">317.330.000đ</span><span class="price-sale">-0%</span>
+                    </div>
+                    <div class="price-now">315.990.000đ</div>
+                    <div class="card-gift gift-red"><span>Tặng Màn hình cong MSI MPG 341CQPX QD-OLED...</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/pc4.png" alt="PC GVN i7-14700F">
+                    <a class="card-name" href="#">PC GVN Intel i7-14700F/ VGA RTX 5070Ti (DDR5)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel Core i7-14700F</span>
+                        <span class="full"><i class="fas fa-th-large"></i>Z790 &nbsp; <i class="fas fa-memory"></i>32 GB &nbsp; <i class="fas fa-hdd"></i>1024 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 5070 Ti</span>
+                    </div>
+                    <div>
+                        <span class="price-old">74.020.000đ</span><span class="price-sale">-1%</span>
+                    </div>
+                    <div class="price-now">73.080.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 2.250.000đ</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/pc5.png" alt="PC GVN AMD Ryzen 7 7800X3D">
+                    <a class="card-name" href="#">PC GVN AMD Ryzen 7 7800X3D/ VGA RTX 5080</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Ryzen7-7800X3D</span>
+                        <span class="full"><i class="fas fa-th-large"></i>B650M &nbsp; <i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>1024 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 5080</span>
+                    </div>
+                    <div>
+                        <span class="price-old">91.810.000đ</span><span class="price-sale">-1%</span>
+                    </div>
+                    <div class="price-now">90.490.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: Giảm 1% tối đa 500k...</span><span>+1</span></div>
+                </div>
+
+            </div>
+
+            <button class="btn-arrow btn-next" id="next"><i class="fas fa-chevron-right"></i></button>
+        </div>
     </section>
 
-    <div class="row">
-        <section class="col-md-4" aria-labelledby="gettingStartedTitle">
-            <h2 id="gettingStartedTitle">Getting started</h2>
-            <p>
-                ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-                enables a clean separation of concerns and gives you full control over markup
-                for enjoyable, agile development.
-            </p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="librariesTitle">
-            <h2 id="librariesTitle">Get more libraries</h2>
-            <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-        </section>
-        <section class="col-md-4" aria-labelledby="hostingTitle">
-            <h2 id="hostingTitle">Web Hosting</h2>
-            <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-            <p><a class="btn btn-outline-dark" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
-        </section>
+    <!-- ===== 2. LAPTOP GAMING BÁN CHẠY (12 sản phẩm) ===== -->
+    <section class="sec">
+        <!-- Header -->
+        <div class="sec-head">
+            <div class="sec-left">
+                <h2 class="sec-title">Laptop Gaming bán chạy</h2>
+                <span class="sec-line"></span>
+                <span class="sec-promo">
+                    <i class="fas fa-truck"></i>Tặng Combo Gear đến 15 triệu
+                </span>
+            </div>
+            <div class="sec-right">
+                <a class="sec-tag" href="#">ACER</a>
+                <a class="sec-tag" href="#">MSI</a>
+                <a class="sec-tag" href="#">LENOVO</a>
+                <a class="sec-tag" href="#">GIGABYTE</a>
+                <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="slide">
+            <button class="btn-arrow btn-prev" id="prev"><i class="fas fa-chevron-left"></i></button>
+
+            <div class="list" id="list">
+
+                <!-- Card 1 (copy khối này cho các sản phẩm khác) -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/gm1.png" alt="PC GVN i5-12400F">
+                    <a class="card-name" href="#">Laptop gaming Acer Aspire 7 A715-59G-59RD (Core 5-210H/ RTX 3050 4GB/ 16GB/ 512GB/ 15.6" FHD/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Core 5-210H</span>
+                        <span class="full"><i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 3050</span>
+                    </div>
+                    <div>
+                        <span class="price-old">
+                            27.990.000đ
+                        </span><span class="price-sale">-7%</span>
+                    </div>
+                    <div class="price-now">25.990.000đ</div>
+                    <div class="card-gift gift-red"><span>Tặng ngay Balo Acer Predator SUV</span></div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/gm2.png" alt="PC GVN i5-12400F RX 6500XT">
+                    <a class="card-name" href="#">Laptop gaming Acer Aspire 7 A715-59G-53RH (Core 5-210H/ RTX 4050 6GB/ 16GB/ 512GB/ 15.6" FHD IPS 144Hz/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Core 5-210H</span>
+                        <span class="full"><i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 4050</span>
+                    </div>
+                    <div>
+                        <span class="price-old">29.990.000đ</span><span class="price-sale">-1%</span>
+                    </div>
+                    <div class="price-now">29.790.000đ</div>
+                    <div class="card-gift gift-red"><span>Tặng ngay Balo Acer Predator SUV</span></div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/gm3.png" alt="PC GVN x MSI LIGHTNING">
+                    <a class="card-name" href="#">Laptop gaming Acer Nitro ProPanel ANV15-52-556L (Core 5-210H/ RTX 5050 8GB/ 16GB/ 512GB/ 15.6" FHD/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Core 5-210H</span>
+                        <span class="full"><i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 5050</span>
+                    </div>
+                    <div>
+                        <span class="price-old">38.990.000đ</span><span class="price-sale">-0%</span>
+                    </div>
+                    <div class="price-now">38.990.000đ</div>
+                    <div class="card-gift gift-red"><span>Tặng ngay Màn hình Acer KG241Y-X1 24" IPS 200Hz Gsync chuyên game.</span></div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/gm4.png" alt="PC GVN i7-14700F">
+                    <a class="card-name" href="#">Laptop gaming ASUS V16 V3607VJ-TK189W (Core 5-210H/ RTX 3050 6GB/ 16GB/ 512GB/ 16" WUXGA 144Hz/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Core 5-210H</span>
+                        <span class="full"><i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 3050 6GB</span>
+                    </div>
+                    <div>
+                        <span class="price-old"> 29.990.000đ</span><span class="price-sale">-10%</span>
+                    </div>
+                    <div class="price-now">26.990.000đ</div>
+                    <div class="card-gift gift-blue"><span>:Mua kèm giá ưu đãi: Giảm 1% tối đa 500k cho HSSV...</span></div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/gm5.png" alt="PC GVN AMD Ryzen 7 7800X3D">
+                    <a class="card-name" href="#">Laptop gaming Lenovo LOQ 15ARP10E 83S0006RVN (Ryzen 7-7735HS/ RTX 3050 6GB/ 16GB/ 1TB/ 15.6" FHD/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Ryzen 7</span>
+                        <span class="full"><i class="fas fa-memory"></i>16 GB &nbsp; <i class="fas fa-hdd"></i>1024 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>RTX 3050</span>
+                    </div>
+                    <div>
+                        <span class="price-old">32.990.000đ</span><span class="price-sale">-6%</span>
+                    </div>
+                    <div class="price-now">30.990.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: Giảm 1% tối đa 500k cho HSSV...</span></div>
+                </div>
+
+            </div>
+
+            <button class="btn-arrow btn-next" id="next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- ===== 3. LAPTOP VĂN PHÒNG BÁN CHẠY (12 sản phẩm) ===== -->
+    <section class="sec">
+        <!-- Header -->
+        <div class="sec-head">
+            <div class="sec-left">
+                <h2 class="sec-title">Laptop văn phòng bán chạy</h2>
+                <span class="sec-line"></span>
+                <span class="sec-promo"><i class="fas fa-truck"></i>Tặng Chuột Silent không dây</span>
+            </div>
+            <div class="sec-right">
+                <a class="sec-tag" href="#">Laptop AI </a>
+                <a class="sec-tag" href="#">ASUS</a>
+                <a class="sec-tag" href="#">MSI</a>
+                <a class="sec-tag" href="#">LENOVO</a>
+                <a class="sec-tag" href="#">ACER</a>
+                <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="slide">
+            <button class="btn-arrow btn-prev" id="prev"><i class="fas fa-chevron-left"></i></button>
+
+            <div class="list" id="list">
+
+                <!-- Card 1 (copy khối này cho các sản phẩm khác) -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/vp1.png" alt="PC GVN i5-12400F">
+                    <a class="card-name" href="#">Laptop Acer Aspire Lite 15 AL15-53P-56QH (Core 5-120U/ 8GB/ 512GB/ 15.6" FHD/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel® UHD Graphics</span>
+                        <span class="full"><i class="fas fa-memory"></i>Core 5 &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>15.6 inch</span> <i class="fas fa-shapes">IPS</i>
+                    </div>
+                    <div>
+                        <span class="price-old">24.990.000đ</span><span class="price-sale">-24%</span>
+                    </div>
+                    <div class="price-now">18.890.000đ</div>
+                    <div class="card-gift gift-blue"><span>Tặng Chuột không dây Logitech M331 Silent Black</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/vp2.png" alt="PC GVN i5-12400F RX 6500XT">
+                    <a class="card-name" href="#">Laptop Asus ExpertBook P1403CVA-C5H16-50W (Core 5-210H/ 16GB/ 512GB/ 14" FHD/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel® UHD Graphics</span>
+                        <span class="full" ><i class="fas fa-memory"></i>Core 5 &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>14 inch</span> <i class="fas fa-shapes">IPS</i>
+                    </div>
+                    <div>
+                        <span class="price-old">23.390.000đ</span><span class="price-sale">-16%</span>
+                    </div>
+                    <div class="price-now">23.390.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi:  1.890.000</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/vp3.png" alt="PC GVN x MSI LIGHTNING">
+                    <a class="card-name" href="#">Laptop Acer Swift Go 14 AI SFG14-75-5264 (Ultra 5-226V/ 16GB/ 512GB/ 14.0" FHD+ OLED/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel Arc</span>
+                        <span class="full"> <i class="fas fa-memory"></i>Core Ultra 5 &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>14 inch</span> <i class="fas fa-shapes">OLED</i>
+                    </div>
+                    <div>
+                        <span class="price-old">28.890.000đ</span><span class="price-sale">-1%</span>
+                    </div>
+                    <div class="price-now">28.690.000đđ</div>
+                    <div class="card-gift gift-red"><span>Tặng Chuột không dây Logitech M331 Silent Black</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/vp4.jpg" alt="PC GVN i7-14700F">
+                    <a class="card-name" href="#">Laptop Asus Vivobook 14 X1404V (Core 5-120U/ 8GB/ 256GB/ 14" FHD/ Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel UHD Graphics</span>
+                        <span class="full"><i class="fas fa-memory"></i>Core 5 &nbsp; <i class="fas fa-hdd"></i>256 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>14 inch</span> <i class="fas fa-shapes">IPS</i>
+                    </div>
+                    <div>
+                        <span class="price-old">18.990.000đ</span><span class="price-sale">-13%</span>
+                    </div>
+                    <div class="price-now">16.590.000đ</div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 1.890.000đ</span><span>+1</span></div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/vp5.png" alt="PC GVN AMD Ryzen 7 7800X3D">
+                    <a class="card-name" href="#">Laptop Asus ExpertBook P3 P3406CCAP-U516W (Ultra 5-225H/ 16GB/ 512GB/ 14" WUXGA / Win 11)</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-microchip"></i>Intel Graphics</span>
+                        <span class="full"><i class="fas fa-th-large"></i>B650M &nbsp; <i class="fas fa-memory"></i>Core Ultra 5 &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-tv"></i>14 inch </span> <i class="fas fa-shapes">IPS</i>
+                    </div>
+                    <div>
+                        <span class="price-old">29.990.000đ</span><span class="price-sale">-7%</span>
+                    </div>
+                    <div class="price-now">27.990.000đ  </div>
+                    <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 1.890.000đ</span><span>+1</span></div>
+                </div>
+
+            </div>
+
+            <button class="btn-arrow btn-next" id="next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- ===== 4. CHUỘT BÁN CHẠY (12 sản phẩm) ===== -->
+    <section class="sec">
+        <!-- Header -->
+        <div class="sec-head">
+            <div class="sec-left">
+                <h2 class="sec-title">Chuột bán chạy</h2>
+                <span class="sec-line"></span>
+                <span class="sec-promo"><i class="fas fa-truck"></i>Giao hàng toàn quốc</span>
+            </div>
+            <div class="sec-right">
+                <a class="sec-tag" href="#">Logitech</a>
+                <a class="sec-tag" href="#">Razer</a>
+                <a class="sec-tag" href="#">Asus</a>
+                <a class="sec-tag" href="#">Corsair</a>
+                <a class="sec-tag" href="#">Dareu-U</a>
+                <a class="sec-tag" href="#"> Rapoo</a>
+              
+                <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="slide">
+            <button class="btn-arrow btn-prev" id="prev"><i class="fas fa-chevron-left"></i></button>
+
+            <div class="list" id="list">
+
+                <!-- Card 1 (copy khối này cho các sản phẩm khác) -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ch1.png" alt="PC GVN i5-12400F">
+                    <a class="card-name" href="#">Chuột AKKO AG ONE 8K Joy of Life</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>Đặc biệt</span>
+                        <span class="full"><i class="fas fa-shapes"></i>PAW3395 &nbsp; <i class="fas fa-shapes"></i>8000 &nbsp; <i class="fas fa-weight-hanging"></i>65 g</span>
+                        <span class="full"><i class="fas fa-tv"></i>26000 DPI</span>
+                    </div>
+                    <div>
+                        <span class="price-old">1.590.000đ</span><span class="price-sale">-50%</span>
+                    </div>
+                    <div class="price-now">790.000đ</div>
+                   
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ch2.png" alt="PC GVN i5-12400F RX 6500XT">
+                    <a class="card-name" href="#">Chuột gaming không dây Logitech G304 X Superlight Black</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>Đen</span>
+                        <span class="full"><i class="fas fa-shapes"></i>HERO 44K &nbsp; <i class="fas fa-shapes"></i>1000 &nbsp; <i class="fas fa-weight-hanging"></i>59 g</span>
+                        <span class="full"><i class="fas fa-tv"></i>44000 DPI</span>>
+                    </div>
+                    <div>
+                        <span class="price-old">1.790.000đ</span><span class="price-sale">-11%</span>
+                    </div>
+                    <div class="price-now">1.590.000đ</div>
+                    
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ch3.png" alt="PC GVN x MSI LIGHTNING">
+                    <a class="card-name" href="#">Chuột Razer Basilisk V3 Pro 35K Phantom Green Edition</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>Xanh</span>
+                        <span class="full"><i class="fas fa-plug"></i>Đa kết nối &nbsp; <i class="fas fa-shapes"></i>Focus Pro 35K &nbsp; <i class="fas fa-shapes"></i>8000</span>
+                        <span class="full"><i class="fas fa-tv"></i>35000 DPI</span>
+                    </div>
+                    <div>
+                        <span class="price-old">4.290.000đ</span><span class="price-sale">-8%</span>
+                    </div>
+                    <div class="price-now">3.940.000đ</div>
+                   
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ch4.png" alt="PC GVN i7-14700F">
+                    <a class="card-name" href="#">Chuột không dây HyperWork Silentium MS01 Đen</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>Đen</span>
+                        <span class="full"><i class="fas fa-battery-full"></i>Pin sạc &nbsp; 
+                        <span class="full"><i class="fas fa-tv"></i>2400 DPI</span>
+                    </div>
+                    <div>
+                        <span class="price-old">590.000đ</span><span class="price-sale">-17%</span>
+                    </div>
+                    <div class="price-now">490.000đ</div>
+                    
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ch5.png" alt="PC GVN AMD Ryzen 7 7800X3D">
+                    <a class="card-name" href="#">Chuột không dây HyperWork Silentium MS01 Trắng</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>Trắng</span>
+                        <span class="full">
+                            <i class="fas fa-battery-full"></i>Pin sạc &nbsp;
+                            <span class="full"><i class="fas fa-tv"></i>2400 DPI</span>
+                    </div>
+                    <div>
+                        <span class="price-old">590.000đ</span><span class="price-sale">-17%</span>
+                    </div>
+                    <div class="price-now">490.000đ</div>
+                   
+                </div>
+
+            </div>
+
+            <button class="btn-arrow btn-next" id="next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+
+    <!-- ===== 5. BÀN PHÍM BÁN CHẠY (12 sản phẩm) ===== -->
+    <section class="sec">
+        <!-- Header -->
+        <div class="sec-head">
+            <div class="sec-left">
+                <h2 class="sec-title">Bàn phím bán chạy</h2>
+                <span class="sec-line"></span>
+                <span class="sec-promo"><i class="fas fa-truck"></i>Giao hàng toàn quốc</span>
+            </div>
+            <div class="sec-right">
+                <a class="sec-tag" href="#">Akko</a>
+                <a class="sec-tag" href="#">Asus</a>
+                <a class="sec-tag" href="#">Razer</a>
+                <a class="sec-tag" href="#">Logitech</a>
+                <a class="sec-tag" href="#">Leopoid</a>
+                <a class="sec-tag" href="#">Dareu-U</a>
+               
+                <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="slide">
+            <button class="btn-arrow btn-prev" id="prev"><i class="fas fa-chevron-left"></i></button>
+
+            <div class="list" id="list">
+
+                <!-- Card 1 (copy khối này cho các sản phẩm khác) -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ph1.png" alt="PC GVN i5-12400F">
+                    <a class="card-name" href="#">Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X White</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>75%</span>
+                        <span class="full"><i class="fas fa-shapes"></i>PBT &nbsp; <i class="far fa-lightbulb"></i>RBG &nbsp; </span>
+                        
+                    </div>
+                    <div>
+                        <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
+                    </div>
+                    <div class="price-now">5.890.000đ</div>
+                   
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ph2.png" alt="PC GVN i5-12400F RX 6500XT">
+                    <a class="card-name" href="#">Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X White</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>75%</span>
+                        <span class="full"><i class="fas fa-shapes"></i>PBT &nbsp; <i class="far fa-shapes"></i>Có dây;USB-C &nbsp; </span>
+                        <span class="full"><i class="fas fa-lightbulb"></i>RBG</span>
+                    </div>
+                    <div>
+                        <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
+                    </div>
+                    <div class="price-now">5.890.000đ</div>
+                   
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ph3.png" alt="PC GVN x MSI LIGHTNING">
+                    <a class="card-name" href="#">Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X Black</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>75%</span>
+                        <span class="full"><i class="fas fa-shapes"></i>PBT Double-shot &nbsp; <i class="far fa-lightbulb"></i>RBG &nbsp; </span>
+                    </div>
+                    <div>
+                        <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
+                    </div>
+                    <div class="price-now">5.890.000đ</div>
+                    
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ph4.png" alt="PC GVN i7-14700F">
+                    <a class="card-name" href="#">Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2 White</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>75%</span>
+                        <span class="full"><i class="fas fa-shapes"></i>PBT &nbsp; <i class="far fa-shapes"></i>Có dây;USB-C &nbsp; </span>
+                        <span class="full"><i class="fas fa-lightbulb"></i>RBG</span>
+                    </div>
+                    <div>
+                        <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
+                    </div>
+                    <div class="price-now">5.890.000đ</div>
+                    
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <img class="card-img" src="~/Content/Images/ph5.png" alt="PC GVN AMD Ryzen 7 7800X3D">
+                    <a class="card-name" href="#">Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2 Red</a>
+                    <div class="card-spec">
+                        <span><i class="fas fa-shapes"></i>75%</span>
+                        <span class="full"><i class="fas fa-shapes"></i>PBT Double-shot &nbsp; <i class="far fa-lightbulb"></i>RBG &nbsp; </span>
+                    </div>
+                    <div>
+                        <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
+                    </div>
+                    <div class="price-now">5.890.000đ</div>
+                    
+                </div>
+
+            </div>
+
+            <button class="btn-arrow btn-next" id="next"><i class="fas fa-chevron-right"></i></button>
+        </div>
+    </section>
+    <div class="ban">
+        <!-- Banner lớn bên trái -->
+        <a class="ban-link ban-big" href="#">
+            <img class="ban-img" src="~/Content/Images/baner_1.png" alt="Màn hình Gearvn - Deal hời giảm đến 53%">
+        </a>
+
+        <!-- 2 banner nhỏ bên phải -->
+        <a class="ban-link" href="#">
+            <img class="ban-img" src="~/Content/Images/baner_2.png" alt="Combo ăn ý mua 1 tặng 1">
+        </a>
+        <a class="ban-link" href="#">
+            <img class="ban-img" src="~/Content/Images/baner_3.png" alt="Deal bàn ghế thả ga lựa chọn">
+        </a>
     </div>
+
+    <!-- ===== 6. MÀN HÌNH CHÍNH HÃNG (50 sản phẩm) ===== -->
+    <section class="sec">
+        <!-- Header -->
+        <div class="sec-head">
+            <div class="sec-left">
+                <h2 class="sec-title">PC bán chạy</h2>
+                <span class="sec-line"></span>
+                <span class="sec-promo"><i class="fas fa-truck"></i>Tặng Màn hình 240Hz</span>
+            </div>
+            <div class="sec-right">
+                <a class="sec-tag" href="#"> LG</a>
+                <a class="sec-tag" href="#">Asus</a>
+                <a class="sec-tag" href="#">ViewSonic</a>
+                <a class="sec-tag" href="#">Dell</a>
+                <a class="sec-tag" href="#"> Gigabyte</a>
+                <a class="sec-tag" href="#">AOC5</a>
+                <a class="sec-tag" href="#">Acer</a>
+                <a class="sec-tag" href="#"> HKC</a>
+                <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
+            </div>
+        </div>
+
+        <!-- Carousel -->
+        <div class="slide">
+            <button class="btn-arrow btn-prev" id="prev"><i class="fas fa-chevron-left"></i></button>
+
+            <div class="list" id="list">
+
+                <div class="list-2">
+
+                    <!-- Card 1 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 11%</span>
+                        <img class="card-img" src="~/Content/Images/mh1.png" alt="Màn hình VSP G2410QS">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình VSP G2410QS 24" IPS 2K 100Hz USBC</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>24 inch</span>
+                            <span><i class="fas fa-layer-group"></i>IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>100 Hz</span>
+                            <span><i class="fas fa-bolt"></i>5 ms</span>
+                        </div>
+                        <div><span class="price-old">3.590.000đ</span><span class="price-sale">-11%</span></div>
+                        <div class="price-now">3.190.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 7%</span>
+                        <img class="card-img" src="~/Content/Images/mh2.png" alt="Màn hình VSP G2410Q1">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình VSP G2410Q1 24" IPS 2K 100Hz</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>24 inch</span>
+                            <span><i class="fas fa-layer-group"></i>IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>100 Hz</span>
+                            <span><i class="fas fa-bolt"></i>5 ms</span>
+                        </div>
+                        <div><span class="price-old">2.790.000đ</span><span class="price-sale">-7%</span></div>
+                        <div class="price-now">2.590.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 18%</span>
+                        <img class="card-img" src="~/Content/Images/mh3.png" alt="Màn hình VSP IP25Q180">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình VSP IP25Q180 25" IPS 2K 180Hz chuyên game</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>25 inch</span>
+                            <span><i class="fas fa-layer-group"></i>IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>180 Hz</span>
+                            <span><i class="fas fa-bolt"></i>1 ms</span>
+                        </div>
+                        <div><span class="price-old">3.990.000đ</span><span class="price-sale">-18%</span></div>
+                        <div class="price-now">3.290.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 15%</span>
+                        <img class="card-img" src="~/Content/Images/mh4.png" alt="Màn hình ViewSonic VA24G1-H">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình ViewSonic VA24G1-H 24" IPS 144Hz</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>24 inch</span>
+                            <span><i class="fas fa-layer-group"></i>IPS</span>
+                            <span><i class="fas fa-tachometer-alt"></i>144 Hz</span>
+                            <span><i class="fas fa-bolt"></i>1 ms</span>
+                            <span class="full"><i class="fas fa-sun"></i>400 cd/m²</span>
+                        </div>
+                        <div><span class="price-old">2.590.000đ</span><span class="price-sale">-15%</span></div>
+                        <div class="price-now">2.190.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 5 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 22%</span>
+                        <img class="card-img" src="~/Content/Images/mh5.png" alt="Màn hình ASUS TUF VG27AQ5F">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình ASUS TUF GAMING VG27AQ5F 27" Fast IPS 2K 220Hz chuyên game</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>27 inch</span>
+                            <span><i class="fas fa-layer-group"></i>Fast IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>220 Hz</span>
+                            <span><i class="fas fa-bolt"></i>0.3 ms</span>
+                        </div>
+                        <div><span class="price-old">6.490.000đ</span><span class="price-sale">-22%</span></div>
+                        <div class="price-now">5.090.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 6 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 20%</span>
+                        <img class="card-img" src="~/Content/Images/mh6.png" alt="Màn hình ASUS TUF VG279QM5F">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình ASUS TUF GAMING VG279QM5F 27" Fast IPS 260Hz chuyên game</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>27 inch</span>
+                            <span><i class="fas fa-layer-group"></i>Fast IPS</span>
+                            <span><i class="fas fa-tachometer-alt"></i>260 Hz</span>
+                            <span><i class="fas fa-bolt"></i>1 ms</span>
+                            <span class="full"><i class="fas fa-sun"></i>300 cd/m²</span>
+                        </div>
+                        <div><span class="price-old">4.990.000đ</span><span class="price-sale">-20%</span></div>
+                        <div class="price-now">3.990.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 7 -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 8%</span>
+                        <img class="card-img" src="~/Content/Images/mh7.png" alt="Màn hình MSI MAG 275QF E21">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình MSI MAG 275QF E21 27" Rapid IPS 2K 210Hz chuyên game</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>27 inch</span>
+                            <span><i class="fas fa-layer-group"></i>Rapid IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>210 Hz</span>
+                            <span><i class="fas fa-bolt"></i>0.5 ms</span>
+                        </div>
+                        <div><span class="price-old">4.990.000đ</span><span class="price-sale">-8%</span></div>
+                        <div class="price-now">4.590.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 8: không có Hỏa tốc -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 5%</span>
+                        <img class="card-img" src="~/Content/Images/mh8.png" alt="Màn hình AOC 27B3CA3">
+                        <a class="card-name" href="#">Màn hình AOC 27B3CA3 27" IPS 120Hz USBC</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>27 inch</span>
+                            <span><i class="fas fa-layer-group"></i>IPS</span>
+                            <span><i class="fas fa-tachometer-alt"></i>120 Hz</span>
+                            <span><i class="fas fa-bolt"></i>4 ms</span>
+                            <span class="full"><i class="fas fa-sun"></i>300 cd/m²</span>
+                        </div>
+                        <div><span class="price-old">3.990.000đ</span><span class="price-sale">-5%</span></div>
+                        <div class="price-now">3.790.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 9: Flashsale (dùng .badge thay cho .tag-pct) -->
+                    <div class="card">
+                        <span class="badge">Flashsale</span>
+                        <img class="card-img" src="~/Content/Images/mh9.png" alt="Màn hình ASUS TUF VG27AQME5F">
+                        <span class="fast"><i class="fas fa-truck"></i>HỎA TỐC</span>
+                        <a class="card-name" href="#">Màn hình ASUS TUF GAMING VG27AQME5F 27" Fast IPS 2K 255Hz chuyên game</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>27 inch</span>
+                            <span><i class="fas fa-layer-group"></i>Fast IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>255 Hz</span>
+                            <span><i class="fas fa-bolt"></i>0.3 ms</span>
+                        </div>
+                        <div><span class="price-old">5.190.000đ</span><span class="price-sale">-4%</span></div>
+                        <div class="price-now">4.990.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                    <!-- Card 10: không có Hỏa tốc -->
+                    <div class="card">
+                        <span class="tag-pct">Giảm 16%</span>
+                        <img class="card-img" src="~/Content/Images/mh10.png" alt="Màn hình AOC Q27G40HE">
+                        <a class="card-name" href="#">Màn hình AOC Q27G40HE 27" Fast IPS 2K 210Hz chuyên game</a>
+                        <div class="card-spec">
+                            <span><i class="fas fa-desktop"></i>27 inch</span>
+                            <span><i class="fas fa-layer-group"></i>Fast IPS</span>
+                            <span class="full"><i class="fas fa-expand-arrows-alt"></i>2K/QHD (2560 × 1440)</span>
+                            <span><i class="fas fa-tachometer-alt"></i>210 Hz</span>
+                            <span><i class="fas fa-bolt"></i>MPRT 0.3ms; GtG 1</span>
+                        </div>
+                        <div><span class="price-old">4.990.000đ</span><span class="price-sale">-16%</span></div>
+                        <div class="price-now">4.190.000đ</div>
+                        <div class="card-gift gift-blue"><span>Mua kèm giá ưu đãi: 250.000đ</span></div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+   
+    <section class="news">
+        <div class="news-banner">
+            <h2>Cập nhật <b>Tin Tức Công Nghệ</b><br>mới nhất cùng Gearvn</h2>
+            <a class="news-banner-btn" href="#">Xem tất cả</a>
+        </div>
+
+        <div class="news-grid">
+            <div>
+                <h3>Tin Tức Nổi Bật</h3>
+                <a class="news-card news-big" href="#">
+                    <img src="~/Content/Images/tintuc.png" alt="">
+                    <div class="news-info">
+                        <div>
+                            <p class="news-title">Mưa Deal Đổ Bộ – Trú Mưa Với Acer Weekend Tại GEARVN</p>
+                            <p class="news-desc">Mùa mưa cuối tuần ngại ra đường dầm ướt áo? ...</p>
+                        </div>
+                        <span class="news-go">›</span>
+                    </div>
+                </a>
+            </div>
+
+            <div>
+                <h3>Bài Viết Mới</h3>
+                <div class="news-side">
+                    <a class="news-card" href="#">
+                        <img src="~/Content/Images/1.png" alt="">
+                        <div class="news-info">
+                            <p class="news-title">vLLM: engine phục vụ model cho nhiều người dùng</p>
+                            <span class="news-go">›</span>
+                        </div>
+                    </a>
+                    <a class="news-card" href="#">
+                        <img src="~/Content/Images/2.png" alt="">
+                        <div class="news-info">
+                            <p class="news-title">Acer khởi động “Road to Predator League 2027”</p>
+                            <span class="news-go">›</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    
 </main>
