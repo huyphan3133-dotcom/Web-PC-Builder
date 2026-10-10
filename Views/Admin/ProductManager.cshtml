@@ -1,5 +1,7 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Quản lý sản phẩm";
+    ViewBag.ActiveTab = "Product";
+    Layout = "~/Views/Admin/_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -10,8 +12,99 @@
     <title></title>
 </head>
 <body>
-    <div>
-    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-uppercase m-0">Quản lý sản phẩm</h3>
+        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#productModal" onclick="openAddModal()">
+            <i class="fa-solid fa-plus me-1"></i> Thêm sản phẩm mẫu
+        </button>
+    </div>
+
+    <!-- Bảng Danh Sách Sản Phẩm -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="productTable" class="table table-hover align-middle w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã SP</th>
+                            <th>Hình ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Giá bán</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>SP001</strong></td>
+                            <td><img src="~/Content/images/cpu-i5.jpg" alt="CPU" width="50" class="img-thumbnail" onerror="this.src='https://via.placeholder.com/50'"></td>
+                            <td>CPU Intel Core i5-13400F</td>
+                            <td><span class="badge bg-secondary">CPU</span></td>
+                            <td class="text-danger fw-bold">4.990.000 đ</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('SP001', 'CPU Intel Core i5-13400F', 'CPU', 4990000)"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('SP001')"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><strong>SP002</strong></td>
+                            <td><img src="~/Content/images/rtx4060.jpg" alt="VGA" width="50" class="img-thumbnail" onerror="this.src='https://via.placeholder.com/50'"></td>
+                            <td>VGA ASUS Dual GeForce RTX 4060</td>
+                            <td><span class="badge bg-secondary">VGA</span></td>
+                            <td class="text-danger fw-bold">8.490.000 đ</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditModal('SP002', 'VGA ASUS Dual GeForce RTX 4060', 'VGA', 8490000)"><i class="fa-solid fa-pen-to-square"></i></button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="deleteProduct('SP002')"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thêm / Sửa Sản Phẩm -->
+    <div class="modal fade" id="productModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="modalTitle">Thêm sản phẩm mẫu</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="productForm">
+                        <input type="hidden" id="prodId">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tên sản phẩm</label>
+                            <input type="text" class="form-control" id="prodName" required placeholder="Nhập tên linh kiện...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Danh mục linh kiện</label>
+                            <select class="form-select" id="prodCategory">
+                                <option value="CPU">CPU - Bộ vi xử lý</option>
+                                <option value="Mainboard">Mainboard - Bo mạch chủ</option>
+                                <option value="RAM">RAM - Bộ nhớ trong</option>
+                                <option value="VGA">VGA - Card màn hình</option>
+                                <option value="SSD">SSD - Ổ cứng</option>
+                                <option value="PSU">PSU - Nguồn máy tính</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Giá bán (VNĐ)</label>
+                            <input type="number" class="form-control" id="prodPrice" required placeholder="Ví dụ: 5000000">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Hình ảnh mẫu (lưu vào thư mục Content/images/)</label>
+                            <input type="file" class="form-control" id="prodImage">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="saveProduct()">Lưu thông tin</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>
