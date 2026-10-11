@@ -1,6 +1,4 @@
 ﻿@{
-    Layout = null;
-}@{
     ViewBag.Title = "Chi tiết sản phẩm";
 }
 
@@ -13,7 +11,7 @@
         var P = window.PD;
         var root = document.getElementById('pd-root');
 
-        // Lấy id từ /Product/Details?id=5 hoặc /Product/Details/5
+        // Lấy id từ /Product/Details
         var q = new URLSearchParams(location.search);
         var m = location.pathname.match(/\/(\d+)\/?$/);
         var id = parseInt(q.get('id') || (m ? m[1] : ''), 10);
