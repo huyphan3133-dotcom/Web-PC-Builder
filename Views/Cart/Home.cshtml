@@ -1,17 +1,342 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Giỏ hàng";
 }
 
-<!DOCTYPE html>
+<style>
+    .ct-wrap {
+        max-width: 1000px;
+        margin: 24px auto;
+        padding: 0 16px;
+        color: #333;
+    }
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
-    </div>
-</body>
-</html>
+        .ct-wrap h1 {
+            font-size: 24px;
+            margin: 0 0 16px;
+            color: #222;
+        }
+
+    .ct-layout {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .ct-list {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .ct-item {
+        display: flex;
+        gap: 14px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 14px;
+        margin-bottom: 12px;
+        align-items: center;
+    }
+
+        .ct-item img {
+            width: 88px;
+            height: 88px;
+            object-fit: contain;
+            background: #f3f4f6;
+            border-radius: 8px;
+            flex: none;
+        }
+
+    .ct-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .ct-name {
+        display: block;
+        font-weight: 600;
+        color: #222;
+        text-decoration: none;
+        margin-bottom: 6px;
+        line-height: 1.4;
+    }
+
+        .ct-name:hover {
+            color: #d70018;
+        }
+
+    .ct-price {
+        color: #d70018;
+        font-weight: 700;
+    }
+
+    .ct-q {
+        display: inline-flex;
+        align-items: center;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+        .ct-q button {
+            width: 32px;
+            height: 32px;
+            border: 0;
+            background: #f3f4f6;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+            .ct-q button:hover {
+                background: #e5e7eb;
+            }
+
+        .ct-q span {
+            min-width: 38px;
+            text-align: center;
+        }
+
+    .ct-sub {
+        font-weight: 700;
+        color: #222;
+        white-space: nowrap;
+        align-self: flex-start;
+    }
+
+    .ct-del {
+        border: 0;
+        background: none;
+        color: #999;
+        font-size: 18px;
+        cursor: pointer;
+        align-self: flex-start;
+    }
+
+        .ct-del:hover {
+            color: #d70018;
+        }
+
+    .ct-clear {
+        border: 0;
+        background: none;
+        color: #777;
+        cursor: pointer;
+        font-size: 14px;
+        padding: 6px 0;
+    }
+
+        .ct-clear:hover {
+            color: #d70018;
+        }
+
+    .ct-sum {
+        width: 320px;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+        .ct-sum h2 {
+            font-size: 18px;
+            margin: 0 0 14px;
+            color: #222;
+        }
+
+    .ct-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 8px 0;
+        font-size: 15px;
+    }
+
+        .ct-row.total {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 8px;
+            padding-top: 14px;
+            font-size: 17px;
+            font-weight: 600;
+        }
+
+            .ct-row.total strong {
+                color: #d70018;
+                font-size: 22px;
+            }
+
+    .ct-pay {
+        display: block;
+        text-align: center;
+        background: #d70018;
+        color: #fff;
+        padding: 13px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        margin-top: 16px;
+    }
+
+        .ct-pay:hover {
+            background: #b8000f;
+        }
+
+    .ct-more {
+        display: block;
+        text-align: center;
+        margin-top: 12px;
+        color: #555;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+        .ct-more:hover {
+            color: #d70018;
+        }
+
+    .ct-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 56px 16px;
+        gap: 6px;
+    }
+
+        .ct-empty svg {
+            width: 72px;
+            height: 72px;
+            color: #d4d4d4;
+            margin-bottom: 12px;
+        }
+
+        .ct-empty strong {
+            font-size: 18px;
+            color: #222;
+        }
+
+        .ct-empty span {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .ct-empty a {
+            margin-top: 16px;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 12px 24px;
+            font-weight: 600;
+            color: #222;
+            text-decoration: none;
+        }
+
+            .ct-empty a:hover {
+                border-color: #d70018;
+                color: #d70018;
+            }
+</style>
+
+<div class="ct-wrap">
+    <h1>Giỏ hàng của bạn</h1>
+    <div id="ct-root"></div>
+</div>
+
+<script>
+    (function () {
+        var KEY = 'gvn_cart';
+        var SHOP = '@Url.Action("Home", "Product")';
+        var DETAIL = '@Url.Action("Details", "Product")';
+        var CHECKOUT = '@Url.Action("Checkout", "Cart")';
+        var root = document.getElementById('ct-root');
+
+        function getCart() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+        function saveCart(c) { localStorage.setItem(KEY, JSON.stringify(c)); }
+        function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        function badge() {
+            var el = document.getElementById('cart-count');
+            if (el) el.textContent = getCart().reduce(function (s, x) { return s + x.qty; }, 0);
+        }
+
+        function render() {
+            var cart = getCart();
+            badge();
+
+            if (cart.length === 0) {
+                root.innerHTML =
+                    '<div class="ct-empty">' +
+                    '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 18a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm10 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM1 2v2h2l3.6 7.6-1.4 2.4A2 2 0 0 0 7 17h12v-2H7.4l1.1-2h7.5a2 2 0 0 0 1.7-1l3.6-6.5A1 1 0 0 0 20.4 4H5.2l-.9-2z"/></svg>' +
+                    '<strong>Giỏ hàng trống</strong><span>Hãy thêm sản phẩm vào giỏ hàng nhé!</span>' +
+                    '<a href="' + SHOP + '">Tiếp tục mua sắm</a></div>';
+                return;
+            }
+
+            var total = 0, count = 0;
+            var items = cart.map(function (x) {
+                total += x.price * x.qty;
+                count += x.qty;
+                return '<div class="ct-item">' +
+                    '<img src="' + esc(x.image) + '" alt="">' +
+                    '<div class="ct-info">' +
+                        '<a class="ct-name" href="' + DETAIL + '?id=' + x.id + '">' + esc(x.name) + '</a>' +
+                        '<div class="ct-price">' + fmt(x.price) + '</div>' +
+                        '<div class="ct-q">' +
+                            '<button type="button" data-act="dec" data-id="' + x.id + '" aria-label="Giảm">−</button>' +
+                            '<span>' + x.qty + '</span>' +
+                            '<button type="button" data-act="inc" data-id="' + x.id + '" aria-label="Tăng">+</button>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="ct-sub">' + fmt(x.price * x.qty) + '</div>' +
+                    '<button type="button" class="ct-del" data-act="del" data-id="' + x.id + '" aria-label="Xóa">✕</button>' +
+                    '</div>';
+            }).join('');
+
+            root.innerHTML =
+                '<div class="ct-layout">' +
+                    '<div class="ct-list">' + items +
+                        '<button type="button" class="ct-clear" data-act="clear">Xóa tất cả sản phẩm</button></div>' +
+                    '<aside class="ct-sum">' +
+                        '<h2>Tóm tắt đơn hàng</h2>' +
+                        '<div class="ct-row"><span>Số sản phẩm</span><span>' + count + '</span></div>' +
+                        '<div class="ct-row"><span>Tạm tính</span><span>' + fmt(total) + '</span></div>' +
+                        '<div class="ct-row"><span>Phí vận chuyển</span><span>Miễn phí</span></div>' +
+                        '<div class="ct-row total"><span>Tổng cộng</span><strong>' + fmt(total) + '</strong></div>' +
+                        '<a class="ct-pay" href="' + CHECKOUT + '">Thanh toán</a>' +
+                        '<a class="ct-more" href="' + SHOP + '">Tiếp tục mua sắm</a>' +
+                    '</aside>' +
+                '</div>';
+        }
+
+        root.addEventListener('click', function (e) {
+            var b = e.target.closest('[data-act]');
+            if (!b) return;
+            var act = b.getAttribute('data-act');
+            var id = parseInt(b.getAttribute('data-id'), 10);
+            var cart = getCart();
+
+            if (act === 'clear') {
+                if (!confirm('Xóa tất cả sản phẩm trong giỏ hàng?')) return;
+                cart = [];
+            } else {
+                var item = cart.filter(function (x) { return x.id === id; })[0];
+                if (!item) return;
+                if (act === 'inc') item.qty = Math.min(99, item.qty + 1);
+                if (act === 'dec') item.qty = Math.max(1, item.qty - 1);
+                if (act === 'del') cart = cart.filter(function (x) { return x.id !== id; });
+            }
+            saveCart(cart);
+            render();
+        });
+
+        render();
+    })();
+</script>

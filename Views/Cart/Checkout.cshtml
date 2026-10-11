@@ -1,17 +1,389 @@
-﻿@{
-    Layout = null;
+﻿
+@{
+    ViewBag.Title = "Thanh toán";
 }
 
-<!DOCTYPE html>
+<style>
+    .ck-wrap {
+        max-width: 1000px;
+        margin: 24px auto;
+        padding: 0 16px;
+        color: #333;
+    }
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+        .ck-wrap h1 {
+            font-size: 24px;
+            margin: 0 0 16px;
+            color: #222;
+        }
+
+    .ck-grid {
+        display: flex;
+        gap: 20px;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+
+    .ck-box {
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    #ck-form {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    #ck-sum {
+        width: 340px;
+    }
+
+    .ck-box h2 {
+        font-size: 18px;
+        margin: 0 0 12px;
+        color: #222;
+    }
+
+        .ck-box h2.gap {
+            margin-top: 22px;
+        }
+
+    .ck-box label.f {
+        display: block;
+        margin: 12px 0 6px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+
+    .ck-box input[type=text], .ck-box input[type=tel], .ck-box input[type=email], .ck-box textarea {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d9dce1;
+        border-radius: 8px;
+        font: inherit;
+        box-sizing: border-box;
+    }
+
+        .ck-box input:focus-visible, .ck-box textarea:focus-visible {
+            outline: 2px solid #d70018;
+            border-color: transparent;
+        }
+
+    .ck-box .bad {
+        border-color: #d70018 !important;
+    }
+
+    .ck-err {
+        display: block;
+        min-height: 18px;
+        color: #d70018;
+        font-size: 13px;
+        margin-top: 4px;
+    }
+
+    .ck-two {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0 14px;
+    }
+
+    .ck-pay-opt {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+        padding: 12px;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+        .ck-pay-opt:hover {
+            border-color: #d70018;
+        }
+
+        .ck-pay-opt small {
+            display: block;
+            color: #777;
+            margin-top: 2px;
+        }
+
+    .ck-submit {
+        width: 100%;
+        margin-top: 18px;
+        border: 0;
+        background: #d70018;
+        color: #fff;
+        padding: 14px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+    }
+
+        .ck-submit:hover {
+            background: #b8000f;
+        }
+
+    .ck-line {
+        display: flex;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+
+        .ck-line img {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+            background: #f3f4f6;
+            border-radius: 6px;
+            flex: none;
+        }
+
+        .ck-line .n {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .ck-line .p {
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+    .ck-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+    }
+
+        .ck-row.total {
+            border-top: 1px solid #e5e7eb;
+            margin-top: 6px;
+            padding-top: 14px;
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+            .ck-row.total strong {
+                color: #d70018;
+                font-size: 22px;
+            }
+
+    .ck-back {
+        display: block;
+        text-align: center;
+        margin-top: 12px;
+        color: #555;
+        font-size: 14px;
+        text-decoration: none;
+    }
+
+        .ck-back:hover {
+            color: #d70018;
+        }
+
+    .ck-done {
+        text-align: center;
+        background: #fff;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 56px 16px;
+    }
+
+        .ck-done h2 {
+            color: #222;
+            margin: 0 0 8px;
+        }
+
+        .ck-done .code {
+            display: inline-block;
+            background: #fde8ea;
+            color: #d70018;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 8px;
+            margin: 10px 0 18px;
+        }
+
+        .ck-done a {
+            display: inline-block;
+            background: #d70018;
+            color: #fff;
+            padding: 12px 26px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+    [hidden] {
+        display: none !important;
+    }
+</style>
+
+<div class="ck-wrap">
+    <h1>Thanh toán</h1>
+
+    <div id="ck-main" class="ck-grid">
+        <form id="ck-form" class="ck-box" novalidate>
+            <h2>Thông tin giao hàng</h2>
+
+            <div class="ck-two">
+                <div>
+                    <label class="f" for="fullName">Họ và tên *</label>
+                    <input type="text" id="fullName" autocomplete="name" />
+                    <span class="ck-err" id="err-fullName"></span>
+                </div>
+                <div>
+                    <label class="f" for="phone">Số điện thoại *</label>
+                    <input type="tel" id="phone" placeholder="0901234567" autocomplete="tel" />
+                    <span class="ck-err" id="err-phone"></span>
+                </div>
+            </div>
+
+            <label class="f" for="email">Email (không bắt buộc)</label>
+            <input type="email" id="email" autocomplete="email" />
+            <span class="ck-err" id="err-email"></span>
+
+            <label class="f" for="address">Địa chỉ nhận hàng *</label>
+            <input type="text" id="address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" autocomplete="street-address" />
+            <span class="ck-err" id="err-address"></span>
+
+            <label class="f" for="note">Ghi chú (không bắt buộc)</label>
+            <textarea id="note" rows="3"></textarea>
+
+            <h2 class="gap">Phương thức thanh toán</h2>
+            <label class="ck-pay-opt">
+                <input type="radio" name="pay" value="Thanh toán khi nhận hàng (COD)" checked />
+                <span>Thanh toán khi nhận hàng (COD)<small>Trả tiền mặt khi nhận được sản phẩm.</small></span>
+            </label>
+            <label class="ck-pay-opt">
+                <input type="radio" name="pay" value="Chuyển khoản ngân hàng" />
+                <span>Chuyển khoản ngân hàng<small>Nhân viên sẽ gửi thông tin tài khoản khi xác nhận đơn.</small></span>
+            </label>
+
+            <button type="submit" class="ck-submit">Đặt hàng</button>
+        </form>
+
+        <aside id="ck-sum" class="ck-box"></aside>
     </div>
-</body>
-</html>
+
+    <div id="ck-done" class="ck-done" hidden>
+        <h2>Đặt hàng thành công!</h2>
+        <div>Mã đơn hàng của bạn:</div>
+        <div class="code" id="ck-code"></div>
+        <p>Cảm ơn bạn. GearVN sẽ liên hệ xác nhận đơn hàng sớm nhất.</p>
+        <a href="@Url.Action("Home", "Product")">Tiếp tục mua sắm</a>
+    </div>
+</div>
+
+<script>
+    (function () {
+        var KEY = 'gvn_cart', ORDERS = 'gvn_orders';
+        var SHOP = '@Url.Action("Home", "Product")';
+        var CART = '@Url.Action("Home", "Cart")';
+
+        function getCart() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+        function getOrders() { try { return JSON.parse(localStorage.getItem(ORDERS)) || []; } catch (e) { return []; } }
+        function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        function badge() {
+            var el = document.getElementById('cart-count');
+            if (el) el.textContent = getCart().reduce(function (s, x) { return s + x.qty; }, 0);
+        }
+        function $(id) { return document.getElementById(id); }
+
+        var cart = getCart();
+        badge();
+
+        if (cart.length === 0) {
+            $('ck-main').innerHTML =
+                '<div class="ck-box" style="flex:1;text-align:center;padding:48px 16px">' +
+                '<p>Giỏ hàng trống, chưa có gì để thanh toán.</p>' +
+                '<a class="ck-submit" style="display:inline-block;width:auto;padding:12px 26px;text-decoration:none" href="' + SHOP + '">Mua sắm ngay</a></div>';
+            return;
+        }
+
+        // Tóm tắt đơn hàng
+        var total = 0;
+        var lines = cart.map(function (x) {
+            total += x.price * x.qty;
+            return '<div class="ck-line"><img src="' + esc(x.image) + '" alt="">' +
+                '<div class="n">' + esc(x.name) + '<br><span style="color:#777">Số lượng: ' + x.qty + '</span></div>' +
+                '<div class="p">' + fmt(x.price * x.qty) + '</div></div>';
+        }).join('');
+        $('ck-sum').innerHTML =
+            '<h2>Đơn hàng của bạn</h2>' + lines +
+            '<div class="ck-row"><span>Tạm tính</span><span>' + fmt(total) + '</span></div>' +
+            '<div class="ck-row"><span>Phí vận chuyển</span><span>Miễn phí</span></div>' +
+            '<div class="ck-row total"><span>Tổng cộng</span><strong>' + fmt(total) + '</strong></div>' +
+            '<a class="ck-back" href="' + CART + '">&larr; Quay lại giỏ hàng</a>';
+
+        // Kiểm tra dữ liệu
+        function setErr(id, msg) {
+            $('err-' + id).textContent = msg;
+            $(id).classList.toggle('bad', !!msg);
+            return !msg;
+        }
+
+        function validate() {
+            var name = $('fullName').value.trim();
+            var phone = $('phone').value.trim();
+            var email = $('email').value.trim();
+            var addr = $('address').value.trim();
+
+            var ok = [
+                setErr('fullName', name.length >= 2 ? '' : 'Vui lòng nhập họ và tên.'),
+                setErr('phone', /^0\d{9}$/.test(phone) ? '' : 'Số điện thoại gồm 10 số, bắt đầu bằng 0.'),
+                setErr('email', !email || /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email) ? '' : 'Email không hợp lệ.'),
+                setErr('address', addr.length >= 8 ? '' : 'Vui lòng nhập địa chỉ đầy đủ.')
+            ];
+            return ok.every(Boolean);
+        }
+
+        $('ck-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!validate()) {
+                var bad = document.querySelector('#ck-form .bad');
+                if (bad) bad.focus();
+                return;
+            }
+
+            var code = 'GVN' + Date.now().toString().slice(-8);
+            var order = {
+                id: code,
+                date: new Date().toLocaleString('vi-VN'),
+                customer: {
+                    name: $('fullName').value.trim(), phone: $('phone').value.trim(),
+                    email: $('email').value.trim(), address: $('address').value.trim(), note: $('note').value.trim()
+                },
+                payment: document.querySelector('input[name=pay]:checked').value,
+                items: cart,
+                total: total,
+                status: 'Chờ xác nhận'
+            };
+
+            var orders = getOrders();
+            orders.unshift(order);
+            localStorage.setItem(ORDERS, JSON.stringify(orders));
+            localStorage.setItem(KEY, '[]');
+            badge();
+
+            $('ck-code').textContent = code;
+            $('ck-main').hidden = true;
+            $('ck-done').hidden = false;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        ['fullName', 'phone', 'email', 'address'].forEach(function (id) {
+            $(id).addEventListener('input', function () { setErr(id, ''); });
+        });
+    })();
+</script>

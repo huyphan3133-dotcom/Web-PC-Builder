@@ -312,7 +312,7 @@
             home: '@Url.Action("Index", "Home")',
             list: '@Url.Action("Home", "Product")',
             detail: '@Url.Action("Details", "Product")',
-            cart: '@Url.Action("Checkout", "Cart")'
+            cart: '@Url.Action("Home", "Cart")'
         };
         function img(f) { return BASE + 'Content/Images/' + f; }
 
@@ -328,7 +328,7 @@
             { id: 4, cat: 'PC GVN', brand: 'GVN', name: 'PC GVN Intel i7-14700F/ VGA RTX 5070Ti (DDR5)', price: 73080000, old: 74020000, img: 'pc4.png', tags: ['PC I7', 'RTX 5070TI'],
               specs: ['CPU: Intel Core i7-14700F', 'Mainboard: Z790', 'RAM: 32 GB', 'Ổ cứng: 1024 GB', 'VGA: RTX 5070 Ti'] },
 
-            // ---- Laptop Gaming ----
+            //  Laptop Gaming 
             { id: 5, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Aspire 7 A715-59G-59RD (Core 5-210H/ RTX 3050 4GB/ 16GB/ 512GB)', price: 25990000, old: 27990000, img: 'gm1.png', tags: [],
               specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 4GB', 'Màn hình: 15.6" FHD'] },
             { id: 6, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Aspire 7 A715-59G-53RH (Core 5-210H/ RTX 4050 6GB/ 16GB/ 512GB)', price: 29790000, old: 29990000, img: 'gm2.png', tags: [],
@@ -338,7 +338,7 @@
             { id: 8, cat: 'Laptop Gaming', brand: 'ASUS', name: 'Laptop gaming ASUS V16 V3607VJ-TK189W (Core 5-210H/ RTX 3050 6GB/ 16GB/ 512GB)', price: 26990000, old: 29990000, img: 'gm4.png', tags: [],
               specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 6GB', 'Màn hình: 16" WUXGA 144Hz'] },
 
-            // ---- Laptop (văn phòng) ----
+            // Laptop (văn phòng) 
             { id: 9, cat: 'Laptop', brand: 'ACER', name: 'Laptop Acer Aspire Lite 15 AL15-53P-56QH (Core 5-120U/ 8GB/ 512GB/ 15.6" FHD)', price: 18890000, old: 24990000, img: 'vp1.png', tags: [],
               specs: ['CPU: Core 5-120U', 'RAM: 8 GB', 'Ổ cứng: 512 GB', 'Đồ họa: Intel UHD Graphics', 'Màn hình: 15.6" FHD IPS'] },
             { id: 10, cat: 'Laptop', brand: 'ASUS', name: 'Laptop Asus ExpertBook P1403CVA-C5H16-50W (Core 5-210H/ 16GB/ 512GB/ 14" FHD)', price: 23390000, old: 23390000, img: 'vp2.png', tags: [],
@@ -348,7 +348,7 @@
             { id: 12, cat: 'Laptop', brand: 'ASUS', name: 'Laptop Asus Vivobook 14 X1404V (Core 5-120U/ 8GB/ 256GB/ 14" FHD)', price: 16590000, old: 18990000, img: 'vp4.jpg', tags: [],
               specs: ['CPU: Core 5-120U', 'RAM: 8 GB', 'Ổ cứng: 256 GB', 'Đồ họa: Intel UHD Graphics', 'Màn hình: 14" FHD IPS'] },
 
-            // ---- Màn hình ----
+            // Màn hình
             { id: 13, cat: 'Màn hình', brand: 'VSP', name: 'Màn hình VSP G2410QS 24" IPS 2K 100Hz USBC', price: 3190000, old: 3590000, img: 'mh1.png', tags: [],
               specs: ['Kích thước: 24 inch', 'Tấm nền: IPS', 'Độ phân giải: 2K/QHD (2560 × 1440)', 'Tần số quét: 100 Hz', 'Phản hồi: 5 ms'] },
             { id: 14, cat: 'Màn hình', brand: 'VSP', name: 'Màn hình VSP G2410Q1 24" IPS 2K 100Hz', price: 2590000, old: 2790000, img: 'mh2.png', tags: [],
@@ -358,7 +358,7 @@
             { id: 16, cat: 'Màn hình', brand: 'ViewSonic', name: 'Màn hình ViewSonic VA24G1-H 24" IPS 144Hz', price: 2190000, old: 2590000, img: 'mh4.png', tags: [],
               specs: ['Kích thước: 24 inch', 'Tấm nền: IPS', 'Tần số quét: 144 Hz', 'Phản hồi: 1 ms', 'Độ sáng: 400 cd/m²'] },
 
-            // ---- Bàn phím ----
+            //  Bàn phím
             { id: 17, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X White', price: 5890000, old: 5990000, img: 'ph1.png', tags: [],
               specs: ['Layout: 75%', 'Keycap: PBT', 'Đèn: RGB'] },
             { id: 18, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X Black', price: 5890000, old: 5990000, img: 'ph3.png', tags: [],
@@ -368,7 +368,7 @@
             { id: 20, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2 Red', price: 5890000, old: 5990000, img: 'ph5.png', tags: [],
               specs: ['Layout: 75%', 'Keycap: PBT Double-shot', 'Đèn: RGB'] },
 
-            // ---- Chuột + Lót chuột ----
+            // Chuột + Lót chuột
             { id: 21, cat: 'Chuột + Lót chuột', brand: 'AKKO', name: 'Chuột AKKO AG ONE 8K Joy of Life', price: 790000, old: 1590000, img: 'ch1.png', tags: [],
               specs: ['Cảm biến: PAW3395', 'Polling rate: 8000 Hz', 'Trọng lượng: 65 g', 'DPI: 26000'] },
             { id: 22, cat: 'Chuột + Lót chuột', brand: 'Logitech', name: 'Chuột gaming không dây Logitech G304 X Superlight Black', price: 1590000, old: 1790000, img: 'ch2.png', tags: [],
@@ -379,7 +379,7 @@
               specs: ['Màu: Đen', 'Pin: Sạc', 'DPI: 2400'] }
         ];
 
-        /* ---------- Tiện ích ---------- */
+        /*  Tiện ích */
         function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
         function esc(s) {
             return String(s).replace(/[&<>"']/g, function (c) {
@@ -409,7 +409,7 @@
             return p.old > p.price ? Math.round((p.old - p.price) / p.old * 100) : 0;
         }
 
-        /* ---------- Giỏ hàng (cùng khóa với trang Cart) ---------- */
+        /*  Giỏ hàng (cùng khóa với trang Cart) */
         var KEY = 'gvn_cart';
         function getCart() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
         function saveCart(c) { localStorage.setItem(KEY, JSON.stringify(c)); badge(); }
@@ -430,7 +430,7 @@
         }
         badge();
 
-        /* ---------- Thẻ sản phẩm dùng chung ---------- */
+        /*Thẻ sản phẩm dùng chung  */
         function card(p) {
             var d = discount(p);
             var link = urls.detail + '?id=' + p.id;

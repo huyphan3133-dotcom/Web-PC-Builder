@@ -9,7 +9,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, .5);
+            background: rgba(0,0,0,.5);
             z-index: 998;
             display: none;
         }
@@ -28,7 +28,7 @@
             color: #d70018;
             border-radius: 8px;
         }
-        /*hover*/
+
         .mm {
             position: absolute;
             z-index: 99999;
@@ -36,30 +36,26 @@
             background: #fff;
             border-radius: 12px;
             padding: 24px 28px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+            box-shadow: 0 8px 30px rgba(0,0,0,.18);
             box-sizing: border-box;
             min-width: 560px;
         }
 
-        .mm-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 22px;
-        }
-
-            .mm-head h3 {
-                margin: 0;
+            .mm h3 {
+                margin: 0 0 22px;
                 font-size: 22px;
                 color: #222;
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
             }
 
-            .mm-head a {
-                color: #d70018;
-                font-size: 14px;
-                font-weight: 600;
-                text-decoration: none;
-            }
+                .mm h3 a {
+                    color: #d70018;
+                    font-size: 14px;
+                    font-weight: 600;
+                    text-decoration: none;
+                }
 
         .mm-cols {
             display: grid;
@@ -71,7 +67,7 @@
             margin-bottom: 22px;
         }
 
-        .mm-t {
+        .mm a.t {
             display: block;
             font-weight: 700;
             color: #222;
@@ -79,11 +75,7 @@
             text-decoration: none;
         }
 
-            .mm-t:hover {
-                color: #d70018;
-            }
-
-        .mm-i {
+        .mm a.i {
             display: block;
             padding: 6px 0;
             color: #444;
@@ -91,192 +83,194 @@
             text-decoration: none;
         }
 
-            .mm-i:hover {
-                color: #d70018;
-            }
+        .mm a:hover {
+            color: #d70018;
+        }
+
+        .mm-none {
+            color: #777;
+            padding: 6px 0;
+        }
     </style>
 
     <div class="dm-overlay" id="dm-overlay"></div>
 
     <script>
-        (function () {
-            var root = document.documentElement;
-            var overlay = document.getElementById('dm-overlay');
-            var openHTML = '<span style="font-size:20px;line-height:1;margin-right:8px">✕</span>Danh mục';
+    (function () {
+        /* ===== CẤU HÌNH ===== */
+        var BUILDPC = '@Url.Action("Home", "PCBuilder")';
+        var NO_HOVER = ['Thu cũ đổi mới'];               // rê chuột: không hiện bảng
+        var PLAIN = ['Dịch vụ và thông tin khác'];       // link tạm "#", không có "Xem tất cả"
 
-            var btnOpen = false;      // đang mở bằng nút "Danh mục"
-            var hovering = false;     // đang hiện bảng hover
-            var savedBtn = null, savedHTML = '';
-            var panel = null, side = null, active = null, timer = null;
+        // Mỗi cột gồm nhiều nhóm; mỗi nhóm = [tiêu đề, mục 1, mục 2, ...]
+        // Danh mục KHÔNG có ở đây sẽ hiện "Chưa có thêm thông tin về danh mục này."
+        var MENU = {
+            'Laptop': [
+                [['Thương hiệu', 'ACER', 'ASUS']],
+                [['Giá bán', 'Dưới 20 triệu', 'Từ 20 đến 30 triệu']],
+                [['ACER', 'Aspire Series', 'Swift Series']],
+                [['ASUS', 'Vivobook Series', 'ExpertBook Series']]
+            ],
+            'Laptop Gaming': [
+                [['Thương hiệu', 'ACER', 'ASUS']],
+                [['Giá bán', 'Dưới 30 triệu', 'Từ 30 đến 50 triệu']],
+                [['ACER', 'Aspire 7 Series', 'Nitro Series']],
+                [['ASUS', 'V16 Series']]
+            ],
+            'PC GVN': [
+                [['PC theo CPU', 'PC I5', 'PC I7', 'PC Ultra 9']],
+                [['PC theo giá', 'Dưới 20 triệu', 'Từ 70 đến 100 triệu', 'Trên 200 triệu']]
+            ],
+            'Màn hình': [
+                [['Thương hiệu', 'VSP', 'ViewSonic']],
+                [['Giá bán', 'Dưới 3 triệu', 'Từ 3 đến 4 triệu']]
+            ],
+            'Bàn phím': [
+                [['Thương hiệu', 'ASUS']],
+                [['Giá bán', 'Từ 5 đến 6 triệu']]
+            ],
+            'Chuột + Lót chuột': [
+                [['Thương hiệu', 'AKKO', 'Logitech', 'Razer', 'HyperWork']],
+                [['Giá bán', 'Dưới 1 triệu', 'Từ 1 đến 5 triệu']]
+            ],
+            'Dịch vụ và thông tin khác': [
+                [['Dịch vụ', 'Dịch vụ kỹ thuật tận nhà', 'Dịch vụ sửa chữa']],
+                [['Chính sách', 'Chính sách &amp; bảng giá thu VGA qua sử dụng', 'Chính sách bảo hành', 'Chính sách giao hàng', 'Chính sách đổi trả']],
+                [['Build PC']]
+            ]
+        };
 
-            /* ---------- Nền tối ---------- */
-            function refresh() {
-                var on = btnOpen || hovering;
-                if (on) {
-                    var header = document.querySelector('header');
-                    var ref = header || savedBtn || side;
-                    var bottom = ref ? Math.round(ref.getBoundingClientRect().bottom) : 0;
-                    overlay.style.top = Math.max(bottom, 0) + 'px';
-                }
-                root.classList.toggle('dm-open', on);
+        /* ===== XỬ LÝ ===== */
+        var root = document.documentElement;
+        var overlay = document.getElementById('dm-overlay');
+        var X_HTML = '<span style="font-size:20px;line-height:1;margin-right:8px">✕</span>Danh mục';
+        var side, panel, active, timer, SP;
+        var btn, btnHTML, btnOpen = false, hovering = false;
+
+        function norm(s) {
+            return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+        }
+        function enc(s) { return encodeURIComponent(s); }
+        function url(cat, extra) { return SP + (SP.indexOf('?') > -1 ? '&' : '?') + 'loai=' + enc(cat) + (extra || ''); }
+
+        // Bật/tắt nền tối
+        function refresh() {
+            var on = btnOpen || hovering;
+            if (on) {
+                var h = document.querySelector('header') || btn || side;
+                overlay.style.top = Math.max(0, Math.round(h.getBoundingClientRect().bottom)) + 'px';
             }
+            root.classList.toggle('dm-open', on);
+        }
 
-            /* ---------- Nút "Danh mục" ---------- */
-            function norm(s) {
-                return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-                    .replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+        function hide(now) {
+            clearTimeout(timer);
+            var run = function () {
+                if (panel) panel.style.display = 'none';
+                if (active) active.classList.remove('dm-active');
+                active = null; hovering = false; refresh();
+            };
+            if (now) run(); else timer = setTimeout(run, 150);
+        }
+
+        function closeAll() {
+            if (btnOpen && btn) btn.innerHTML = btnHTML;
+            btnOpen = false; hide(true);
+        }
+
+        /* --- Nút "Danh mục": hiện ✕, cuộn tới cột trái (bắt click trước link của header) --- */
+        function isMenuBtn(el) {
+            if (!el || el.closest('.side, .mm, .dm-overlay')) return false;
+            var t = norm(el.textContent);
+            return el.id === 'btn-danhmuc' || (t.indexOf('danh muc') > -1 && t.length <= 20);
+        }
+        document.addEventListener('click', function (e) {
+            var b = e.target.closest('a, button');
+            if (!isMenuBtn(b)) return;
+            e.preventDefault(); e.stopImmediatePropagation();
+            if (!btnOpen) {
+                btn = b; btnHTML = b.innerHTML; b.innerHTML = X_HTML;
+                if (side) side.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else if (btn) {
+                btn.innerHTML = btnHTML;
             }
-            function isMenuBtn(el) {
-                if (!el || el.closest('.side') || el.closest('.mm') || el.closest('.dm-overlay')) return false;
-                if (el.id === 'btn-danhmuc') return true;
-                var t = norm(el.textContent || '');
-                return t.indexOf('danh muc') !== -1 && t.length <= 20;
-            }
-            function setBtn(btn, open) {
-                if (open) {
-                    savedBtn = btn; savedHTML = btn.innerHTML;
-                    btn.innerHTML = openHTML;
-                    if (side) side.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                } else if (savedBtn) {
-                    savedBtn.innerHTML = savedHTML;
-                }
-                btnOpen = open;
-                refresh();
-            }
-            function closeAll() {
-                if (btnOpen) setBtn(savedBtn, false);
-                hidePanel(true);
-            }
+            btnOpen = !btnOpen; refresh();
+        }, true);
+        overlay.addEventListener('click', closeAll);
+        document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
 
-            // Chạy ở pha "capture" để chặn link của nút trước khi chuyển trang
-            document.addEventListener('click', function (e) {
-                var btn = e.target.closest('a, button');
-                if (!isMenuBtn(btn)) return;
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-                setBtn(btn, !btnOpen);
-            }, true);
+        /* --- Bảng hover --- */
+        function render(cat) {
+            var cols = MENU[cat], plain = PLAIN.indexOf(cat) > -1;
+            var h = '<h3>' + cat + (cols && !plain ? '<a href="' + url(cat) + '">Xem tất cả ›</a>' : '') + '</h3>';
+            if (!cols) return h + '<div class="mm-none">Chưa có thêm thông tin về danh mục này.</div>';
 
-            overlay.addEventListener('click', closeAll);
-            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
-
-            /* ---------- Bảng hover ---------- */
-            function init() {
-                side = document.querySelector('.side');
-                if (!side) { console.log('[menu] KHONG THAY .side'); return; }
-                var links = side.querySelectorAll('a');
-                if (!links.length) { console.log('[menu] .side khong co the a'); return; }
-
-                var SP = links[0].getAttribute('href') || '#';   // link Product lấy từ chính cột danh mục
-                var PRICE = ['Dưới 15 triệu', 'Từ 15 đến 20 triệu', 'Trên 20 triệu'];
-
-                var MENU = {
-                    'Laptop': [
-                        [{ t: 'Thương hiệu', items: ['ACER', 'ASUS', 'DELL', 'LENOVO', 'MSI'] }],
-                        [{ t: 'Giá bán', items: PRICE }],
-                    ],
-                    'Laptop Gaming': [
-                        [{ t: 'Thương hiệu', items: ['ACER', 'ASUS', 'LENOVO', 'MSI', 'GIGABYTE'] }],
-                        [{ t: 'Giá bán', items: ['Dưới 20 triệu', 'Từ 20 đến 30 triệu', 'Trên 30 triệu'] }],
-                    ],
-                    'PC GVN': [
-                        [{ t: 'Theo CPU Intel', items: ['PC I3', 'PC I5', 'PC I7', 'PC I9'] }],
-                        [{ t: 'Theo CPU AMD', items: ['PC R3', 'PC R5', 'PC R7', 'PC R9'] }],
-                        [{ t: 'Giá bán', items: ['Dưới 20 triệu', 'Từ 20 đến 40 triệu', 'Trên 40 triệu'] }]
-                    ],
-                    'Màn hình': [
-                        [{ t: 'Thương hiệu', items: ['LG', 'ASUS', 'ViewSonic', 'Dell', 'AOC', 'Acer'] }],
-                        [{ t: 'Độ phân giải', items: ['Full HD', '2K / QHD', '4K'] }],
-                        [{ t: 'Tần số quét', items: ['100 - 144 Hz', '165 - 200 Hz', 'Trên 240 Hz'] }]
-                    ],
-                    'Bàn phím': [
-                        [{ t: 'Thương hiệu', items: ['Akko', 'ASUS', 'Razer', 'Logitech', 'Dareu'] }],
-                        [{ t: 'Kết nối', items: ['Có dây', 'Không dây', 'Đa kết nối'] }]
-                    ],
-                    'Chuột + Lót chuột': [
-                        [{ t: 'Thương hiệu', items: ['Logitech', 'Razer', 'ASUS', 'Corsair', 'Rapoo'] }],
-                        [{ t: 'Loại', items: ['Chuột gaming', 'Chuột văn phòng', 'Lót chuột'] }]
-                    ]
-
-                };
-
-                panel = document.createElement('div');
-                panel.className = 'mm';
-                document.body.appendChild(panel);
-
-                function enc(s) { return encodeURIComponent(s); }
-                function url(cat, extra) {
-                    return SP + (SP.indexOf('?') > -1 ? '&' : '?') + 'loai=' + enc(cat) + (extra || '');
-                }
-
-                // Bấm vào mục bên trái -> trang Product kèm loại sản phẩm
-                [].forEach.call(links, function (a) { a.setAttribute('href', url(a.textContent.trim())); });
-
-                function render(cat) {
-                    var cols = MENU[cat] || [[{ t: 'Giá bán', items: PRICE }]];
-                    var html = '<div class="mm-head"><h3>' + cat + '</h3><a href="' + url(cat) + '">Xem tất cả ›</a></div><div class="mm-cols">';
-                    cols.forEach(function (col) {
-                        html += '<div>';
-                        col.forEach(function (g) {
-                            html += '<div class="mm-g"><a class="mm-t" href="' + url(cat, '&nhom=' + enc(g.t)) + '">' + g.t + ' ›</a>';
-                            g.items.forEach(function (i) {
-                                html += '<a class="mm-i" href="' + url(cat, '&muc=' + enc(i)) + '">' + i + '</a>';
-                            });
-                            html += '</div>';
-                        });
-                        html += '</div>';
+            h += '<div class="mm-cols">';
+            cols.forEach(function (col) {
+                h += '<div>';
+                col.forEach(function (g) {
+                    var t = g[0];
+                    var href = t === 'Build PC' ? BUILDPC : plain ? '#' : url(cat, '&nhom=' + enc(t));
+                    h += '<div class="mm-g"><a class="t" href="' + href + '">' + t + ' ›</a>';
+                    g.slice(1).forEach(function (i) {
+                        h += '<a class="i" href="' + (plain ? '#' : url(cat, '&muc=' + enc(i))) + '">' + i + '</a>';
                     });
-                    panel.innerHTML = html + '</div>';
-                }
-
-                function position() {
-                    var r = side.getBoundingClientRect();
-                    var hero = document.querySelector('.hero');
-                    var edge = hero ? hero.getBoundingClientRect().right : r.right + 880;
-                    panel.style.left = (r.right + window.pageXOffset + 8) + 'px';
-                    panel.style.top = (r.top + window.pageYOffset) + 'px';
-                    panel.style.width = Math.max(560, edge - r.right - 8) + 'px';
-                    panel.style.minHeight = r.height + 'px';
-                }
-
-                window.showPanel = function (a) {
-                    clearTimeout(timer);
-                    if (active) active.classList.remove('dm-active');
-                    active = a; a.classList.add('dm-active');
-                    render(a.textContent.trim());
-                    position();
-                    panel.style.display = 'block';
-                    hovering = true;
-                    refresh();
-                };
-
-                side.addEventListener('mouseover', function (e) {
-                    var a = e.target.closest('a');
-                    if (a && side.contains(a)) window.showPanel(a);
+                    h += '</div>';
                 });
-                side.addEventListener('mouseleave', function () { hidePanel(false); });
-                panel.addEventListener('mouseenter', function () { clearTimeout(timer); });
-                panel.addEventListener('mouseleave', function () { hidePanel(false); });
+                h += '</div>';
+            });
+            return h + '</div>';
+        }
 
-                console.log('[menu] OK: ' + links.length + ' muc');
-            }
+        function show(a) {
+            var name = a.textContent.trim();
+            clearTimeout(timer);
+            if (NO_HOVER.indexOf(name) > -1) { hide(true); return; }
 
-            function hidePanel(now) {
-                clearTimeout(timer);
-                var run = function () {
-                    if (panel) panel.style.display = 'none';
-                    if (active) active.classList.remove('dm-active');
-                    active = null;
-                    hovering = false;
-                    refresh();
-                };
-                if (now) run(); else timer = setTimeout(run, 150);
-            }
+            if (active) active.classList.remove('dm-active');
+            active = a; a.classList.add('dm-active');
 
-            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-            else init();
-        })();
+            panel.innerHTML = render(name);
+            var r = side.getBoundingClientRect();
+            var hero = document.querySelector('.hero');
+            var edge = hero ? hero.getBoundingClientRect().right : r.right + 880;
+            panel.style.left = (r.right + window.pageXOffset + 8) + 'px';
+            panel.style.top = (r.top + window.pageYOffset) + 'px';
+            panel.style.width = Math.max(560, edge - r.right - 8) + 'px';
+            panel.style.minHeight = r.height + 'px';
+            panel.style.display = 'block';
+            hovering = true; refresh();
+        }
+
+        function init() {
+            side = document.querySelector('.side');
+            var links = side ? side.querySelectorAll('a') : [];
+            if (!links.length) { console.log('[menu] KHONG THAY .side'); return; }
+
+            SP = links[0].getAttribute('href') || '#';      // link trang Product lấy từ cột danh mục
+            [].forEach.call(links, function (a) { a.setAttribute('href', url(a.textContent.trim())); });
+
+            panel = document.createElement('div');
+            panel.className = 'mm';
+            document.body.appendChild(panel);
+
+            side.addEventListener('mouseover', function (e) {
+                var a = e.target.closest('a');
+                if (a && side.contains(a)) show(a);
+            });
+            side.addEventListener('mouseleave', function () { hide(false); });
+            panel.addEventListener('mouseenter', function () { clearTimeout(timer); });
+            panel.addEventListener('mouseleave', function () { hide(false); });
+            panel.addEventListener('click', function (e) {
+                var a = e.target.closest('a');
+                if (a && a.getAttribute('href') === '#') e.preventDefault();
+            });
+            console.log('[menu] OK: ' + links.length + ' muc');
+        }
+
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+        else init();
+    })();
     </script>
     <!-- ===== PHẦN TRÊN: danh mục - slider - banner phải ===== -->
     <div class="hero">
