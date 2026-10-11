@@ -19,3 +19,16 @@
     // Gắn hàm vào slider để nút bấm có thể gọi riêng
     slider.doiBanner = doiBanner;
 });
+
+// Cập nhật số lượng giỏ hàng trên header ở MỌI trang (cùng key 'gvn_cart' với trang Cart/Product)
+(function () {
+    function updateCartBadge() {
+        var el = document.getElementById("cart-count");
+        if (!el) return;
+        var cart = [];
+        try { cart = JSON.parse(localStorage.getItem("gvn_cart")) || []; } catch (e) { }
+        el.textContent = cart.reduce(function (sum, x) { return sum + (x.qty || 0); }, 0);
+    }
+    updateCartBadge();
+    window.addEventListener("storage", updateCartBadge); // đồng bộ khi mở nhiều tab
+})();

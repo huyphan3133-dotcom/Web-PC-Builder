@@ -1,17 +1,92 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Hồ sơ cá nhân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+<div class="profile-page">
+    <div class="profile-header">
+        <h2>HỒ SƠ CỦA TÔI</h2>
+        <p>Quản lý thông tin tài khoản PC Builder</p>
     </div>
-</body>
-</html>
+
+    <div class="profile-card">
+        <h3>Thông tin cá nhân</h3>
+
+        <div class="profile-info">
+            <div class="profile-avatar">
+                @(ViewBag.FullName != null
+                    ? ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
+                    : "U")
+            </div>
+
+            <div>
+                <p>
+                    <strong>Họ và tên:</strong>
+                    @(ViewBag.FullName ?? "Chưa cập nhật")
+                </p>
+                <p>
+                    <strong>Email:</strong>
+                    @(ViewBag.Email ?? "Chưa cập nhật")
+                </p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("Logout", "Account",
+            FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="account-button logout-button">
+                ĐĂNG XUẤT
+            </button>
+        }
+    </div>
+
+    <div class="profile-card">
+        <h3>Lịch sử đơn hàng</h3>
+
+        <div class="table-responsive">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody id="order-body">
+                    <tr><td colspan="4">Bạn chưa có đơn hàng nào.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <p class="profile-note">
+            Đơn hàng được lưu trên trình duyệt này sau khi bạn bấm "Đặt hàng".
+        </p>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        (function () {
+            var orders = [];
+            try { orders = JSON.parse(localStorage.getItem('gvn_orders')) || []; } catch (e) { }
+            if (orders.length === 0) return;   // giữ dòng "chưa có đơn hàng"
+
+            function esc(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
+            document.getElementById('order-body').innerHTML = orders.map(function (o) {
+                return '<tr>' +
+                    '<td>' + esc(o.id) + '</td>' +
+                    '<td>' + esc(o.date) + '</td>' +
+                    '<td>' + Number(o.total).toLocaleString('vi-VN') + 'đ</td>' +
+                    '<td><span class="order-status">' + esc(o.status || 'Chờ xác nhận') + '</span></td>' +
+                    '</tr>';
+            }).join('');
+        })();
+    </script>
+}
