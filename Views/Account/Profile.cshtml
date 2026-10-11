@@ -1,17 +1,93 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Hồ sơ cá nhân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+<div class="profile-page">
+    <div class="profile-header">
+        <h2>HỒ SƠ CỦA TÔI</h2>
+        <p>Quản lý thông tin tài khoản PC Builder</p>
     </div>
-</body>
-</html>
+
+    <div class="profile-card">
+        <h3>Thông tin cá nhân</h3>
+
+        <div class="profile-info">
+            <div class="profile-avatar">
+                @(ViewBag.FullName != null
+                    ? ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
+                    : "U")
+            </div>
+
+            <div>
+                <p>
+                    <strong>Họ và tên:</strong>
+                    @(ViewBag.FullName ?? "Chưa cập nhật")
+                </p>
+                <p>
+                    <strong>Email:</strong>
+                    @(ViewBag.Email ?? "Chưa cập nhật")
+                </p>
+            </div>
+        </div>
+
+        @using (Html.BeginForm("Logout", "Account",
+            FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <button type="submit" class="account-button logout-button">
+                ĐĂNG XUẤT
+            </button>
+        }
+    </div>
+
+    <div class="profile-card">
+        <h3>Lịch sử đơn hàng</h3>
+
+        <div class="table-responsive">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <th>Trạng thái</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (ViewBag.Orders != null)
+                    {
+                        foreach (string order in ViewBag.Orders)
+                        {
+                            var parts = order.Split(
+                                new[] { " - " },
+                                StringSplitOptions.None);
+
+                            <tr>
+                                <td>@parts[0]</td>
+                                <td>
+                                    <span class="order-status">
+                                        @(parts.Length > 1
+                                            ? parts[1]
+                                            : "Chưa xác định")
+                                    </span>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2">
+                                Bạn chưa có đơn hàng nào.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <p class="profile-note">
+            Đây là dữ liệu đơn hàng mẫu để minh họa giao diện.
+        </p>
+    </div>
+</div>
