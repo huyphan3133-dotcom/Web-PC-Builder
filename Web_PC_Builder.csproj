@@ -132,6 +132,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\admin.css" />
     <Content Include="Content\bootstrap-grid.css" />
     <Content Include="Content\bootstrap-grid.min.css" />
     <Content Include="Content\bootstrap-grid.rtl.css" />
@@ -265,6 +266,7 @@
     <Content Include="Views\Admin\_Layout.cshtml" />
     <Content Include="Views\Admin\ProductManager.cshtml" />
     <Content Include="Views\Admin\OrderManager.cshtml" />
+    <Content Include="Views\Product\_ProductCore.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

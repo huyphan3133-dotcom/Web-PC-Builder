@@ -1,17 +1,79 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Chi tiết sản phẩm";
 }
 
-<!DOCTYPE html>
+@Html.Partial("_ProductCore")
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
-    </div>
-</body>
-</html>
+<div class="pd-wrap" id="pd-root"></div>
+
+<script>
+    (function () {
+        var P = window.PD;
+        var root = document.getElementById('pd-root');
+
+        // Lấy id từ /Product/Details
+        var q = new URLSearchParams(location.search);
+        var m = location.pathname.match(/\/(\d+)\/?$/);
+        var id = parseInt(q.get('id') || (m ? m[1] : ''), 10);
+        var p = P.byId(id);
+
+        if (!p) {
+            root.innerHTML = '<div class="pd-empty">Không tìm thấy sản phẩm.<br><a href="' + P.urls.list + '">Về danh sách sản phẩm</a></div>';
+            return;
+        }
+        document.title = p.name;
+
+        var d = P.discount(p);
+        var catLink = P.urls.list + '?loai=' + encodeURIComponent(p.cat);
+
+        var specRows = p.specs.map(function (s) {
+            var i = s.indexOf(':');
+            return '<tr><td>' + P.esc(s.slice(0, i)) + '</td><td>' + P.esc(s.slice(i + 1).trim()) + '</td></tr>';
+        }).join('');
+
+        var related = P.products.filter(function (x) { return x.cat === p.cat && x.id !== p.id; }).slice(0, 4);
+
+        root.innerHTML =
+            '<div class="pd-crumb"><a href="' + P.urls.home + '">Trang chủ</a> › <a href="' + catLink + '">' + P.esc(p.cat) + '</a> › ' + P.esc(p.name) + '</div>' +
+            '<div class="pd-detail">' +
+            '<div class="pd-dimg"><img src="' + P.img(p.img) + '" alt="' + P.esc(p.name) + '"></div>' +
+            '<div class="pd-dinfo">' +
+            '<h1>' + P.esc(p.name) + '</h1>' +
+            '<div>Thương hiệu: <strong>' + P.esc(p.brand) + '</strong></div>' +
+            '<div class="pd-dprice">' + P.fmt(p.price) +
+            (p.old > p.price ? '<span class="pd-old">' + P.fmt(p.old) + '</span> <span class="pd-tag" style="position:static;display:inline-block;vertical-align:middle">-' + d + '%</span>' : '') +
+            '</div>' +
+            '<table class="pd-specs">' + specRows + '</table>' +
+            '<div class="pd-qty"><label for="pd-qty">Số lượng</label><input type="number" id="pd-qty" value="1" min="1" max="10"></div>' +
+            '<div class="pd-actions">' +
+            '<button type="button" class="pd-btn" id="pd-add">Thêm vào giỏ</button>' +
+            '<button type="button" class="pd-btn dark" id="pd-buy">Mua ngay</button>' +
+            '</div>' +
+            '</div>' +
+            '</div>' +
+            (related.length ? '<div class="pd-related"><h2>Sản phẩm cùng danh mục</h2><div class="pd-grid" id="pd-rel">' + related.map(P.card).join('') + '</div></div>' : '');
+
+        function qty() { return Math.max(1, parseInt(document.getElementById('pd-qty').value, 10) || 1); }
+
+        document.getElementById('pd-add').addEventListener('click', function () {
+            P.add(p.id, qty());
+            var b = this, old = b.textContent;
+            b.textContent = 'Đã thêm ✓';
+            setTimeout(function () { b.textContent = old; }, 900);
+        });
+        document.getElementById('pd-buy').addEventListener('click', function () {
+            P.add(p.id, qty());
+            location.href = P.urls.cart;
+        });
+
+        var rel = document.getElementById('pd-rel');
+        if (rel) rel.addEventListener('click', function (e) {
+            var b = e.target.closest('.pd-add');
+            if (!b) return;
+            P.add(+b.dataset.id, 1);
+            var old = b.textContent;
+            b.textContent = 'Đã thêm ✓';
+            setTimeout(function () { b.textContent = old; }, 900);
+        });
+    })();
+</script>

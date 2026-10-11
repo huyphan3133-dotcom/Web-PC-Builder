@@ -1,5 +1,7 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Quản lý đơn hàng";
+    ViewBag.ActiveTab = "Order";
+    Layout = "~/Views/Admin/_Layout.cshtml";
 }
 
 <!DOCTYPE html>
@@ -10,8 +12,91 @@
     <title></title>
 </head>
 <body>
-    <div>
-    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold text-uppercase m-0">Quản lý đơn hàng</h3>
+    </div>
+
+    <!-- Bảng Danh Sách Đơn Hàng -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="orderTable" class="table table-hover align-middle w-100">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Mã DH</th>
+                            <th>Khách hàng</th>
+                            <th>Số điện thoại</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>#DH1001</strong></td>
+                            <td>Nguyễn Văn A</td>
+                            <td>0987654321</td>
+                            <td>10/10/2026</td>
+                            <td class="text-danger fw-bold">13.480.000 đ</td>
+                            <td><span class="badge bg-warning text-dark">Đang xử lý</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="fa-solid fa-eye"></i> Chi tiết</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Chi Tiết Đơn Hàng -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title"><i class="fa-solid fa-receipt me-2"></i>Chi tiết đơn hàng #DH1001</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <p class="mb-1"><strong>Người nhận:</strong> Nguyễn Văn A</p>
+                            <p class="mb-1"><strong>Điện thoại:</strong> 0987654321</p>
+                            <p class="mb-1"><strong>Địa chỉ:</strong> Quận 1, TP. Hồ Chí Minh</p>
+                        </div>
+                        <div class="col-md-6 text-md-end">
+                            <p class="mb-1"><strong>Ngày đặt:</strong> 10/10/2026</p>
+                            <p class="mb-1"><strong>Thanh toán:</strong> COD (Thanh toán khi nhận hàng)</p>
+                        </div>
+                    </div>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Sản phẩm</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>CPU Intel Core i5-13400F</td>
+                                <td class="text-center">1</td>
+                                <td class="text-end">4.990.000 đ</td>
+                            </tr>
+                            <tr>
+                                <td>VGA ASUS Dual GeForce RTX 4060</td>
+                                <td class="text-center">1</td>
+                                <td class="text-end">8.490.000 đ</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
     </div>
 </body>
 </html>

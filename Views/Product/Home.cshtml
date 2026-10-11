@@ -1,17 +1,180 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Sản phẩm";
 }
 
-<!DOCTYPE html>
+@Html.Partial("_ProductCore")
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+<style>
+    .pd-custom {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        font-size: 14px;
+        flex-wrap: wrap;
+    }
+
+        .pd-custom input {
+            width: 66px;
+            padding: 6px 8px;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+        }
+
+    .pd-note {
+        font-size: 12px;
+        color: #777;
+        margin-top: 4px;
+    }
+
+    .pd-n {
+        color: #999;
+        font-size: 13px;
+    }
+</style>
+
+<div class="pd-wrap">
+    <div class="pd-crumb" id="pd-crumb"></div>
+    <div class="pd-layout">
+        <aside class="pd-filter" id="pd-filter"></aside>
+        <section class="pd-main">
+            <div class="pd-top">
+                <h1 id="pd-title"></h1>
+                <span class="pd-count" id="pd-count"></span>
+                <select id="pd-sort" aria-label="Sắp xếp">
+                    <option value="">Sắp xếp mặc định</option>
+                    <option value="asc">Giá tăng dần</option>
+                    <option value="desc">Giá giảm dần</option>
+                </select>
+            </div>
+            <div class="pd-grid" id="pd-grid"></div>
+            <div class="pd-empty" id="pd-empty" hidden></div>
+        </section>
     </div>
-</body>
-</html>
+</div>
+
+<script>
+    (function () {
+        var P = window.PD;
+        var q = new URLSearchParams(location.search);
+        var loai = q.get('loai') || '';
+        var muc = q.get('muc') || '';
+        var base = P.products.filter(function (p) { return !loai || p.cat === loai; });
+        function $(id) { return document.getElementById(id); }
+
+        /* Mốc giá theo từng danh mục */
+        var PRICE_LABELS = {
+            'PC GVN': ['Dưới 20 triệu', 'Từ 20 đến 50 triệu', 'Từ 50 đến 100 triệu', 'Từ 100 đến 200 triệu', 'Trên 200 triệu'],
+            'Laptop Gaming': ['Dưới 30 triệu', 'Từ 30 đến 50 triệu', 'Trên 50 triệu'],
+            'Laptop': ['Dưới 20 triệu', 'Từ 20 đến 30 triệu', 'Trên 30 triệu'],
+            'Màn hình': ['Dưới 3 triệu', 'Từ 3 đến 4 triệu', 'Trên 4 triệu'],
+            'Bàn phím': ['Dưới 5 triệu', 'Từ 5 đến 6 triệu', 'Trên 6 triệu'],
+            'Chuột + Lót chuột': ['Dưới 1 triệu', 'Từ 1 đến 5 triệu', 'Trên 5 triệu']
+        };
+        var DEFAULT_LABELS = ['Dưới 5 triệu', 'Từ 5 đến 20 triệu', 'Từ 20 đến 50 triệu', 'Trên 50 triệu'];
+
+        // RANGES[i] = [nhãn, min, max]; mốc nào không có sản phẩm thì bỏ
+        var RANGES = [['Tất cả', 0, Infinity]];
+        (PRICE_LABELS[loai] || DEFAULT_LABELS).forEach(function (t) {
+            var r = P.priceRange(t);
+            var n = base.filter(function (p) { return p.price >= r[0] && p.price < r[1]; }).length;
+            if (n > 0) RANGES.push([t, r[0], r[1], n]);
+        });
+
+        /*  Lọc theo mục từ menu hover */
+        function matchMuc(p, m) {
+            if (!m) return true;
+            var r = P.priceRange(m);
+            if (r) return p.price >= r[0] && p.price < r[1];
+            var n = P.norm(m).replace(' series', '');
+            var hay = P.norm([p.name, p.brand].concat(p.tags || []).join(' '));
+            return hay.indexOf(n) !== -1;
+        }
+
+        /*  Đường dẫn + tiêu đề  */
+        var crumb = '<a href="' + P.urls.home + '">Trang chủ</a> › ';
+        crumb += loai ? '<a href="' + P.urls.list + '?loai=' + encodeURIComponent(loai) + '">' + P.esc(loai) + '</a>' : 'Tất cả sản phẩm';
+        if (loai && muc) crumb += ' › ' + P.esc(muc);
+        $('pd-crumb').innerHTML = crumb;
+        $('pd-title').textContent = muc ? loai + ' - ' + muc : (loai || 'Tất cả sản phẩm');
+        document.title = $('pd-title').textContent;
+
+        /*  Bộ lọc bên trái  */
+        var brands = [];
+        base.forEach(function (p) { if (brands.indexOf(p.brand) === -1) brands.push(p.brand); });
+
+        var f = '<h3>Thương hiệu</h3>';
+        brands.forEach(function (b) {
+            var n = base.filter(function (p) { return p.brand === b; }).length;
+            f += '<label><input type="checkbox" class="pd-brand" value="' + P.esc(b) + '"> ' + P.esc(b) + ' <span class="pd-n">(' + n + ')</span></label>';
+        });
+
+        f += '<h3 class="gap">Mức giá</h3>';
+        RANGES.forEach(function (r, i) {
+            var n = i === 0 ? base.length : r[3];
+            f += '<label><input type="radio" name="pd-range" class="pd-range" value="' + i + '"' + (i === 0 ? ' checked' : '') + '> ' +
+                r[0] + ' <span class="pd-n">(' + n + ')</span></label>';
+        });
+
+        if (base.length) {
+            var prices = base.map(function (p) { return p.price; });
+            var lo = Math.floor(Math.min.apply(null, prices) / 1000000);
+            var hi = Math.ceil(Math.max.apply(null, prices) / 1000000);
+            f += '<div class="pd-custom">Từ <input type="number" id="pd-min" min="0" step="0.1" placeholder="' + lo + '"> đến ' +
+                '<input type="number" id="pd-max" min="0" step="0.1" placeholder="' + hi + '"> triệu</div>' +
+                '<div class="pd-note">Tự nhập khoảng giá (đơn vị: triệu đồng)</div>';
+        }
+        $('pd-filter').innerHTML = f;
+
+        function numVal(id) {
+            var el = $(id);
+            if (!el) return NaN;
+            return parseFloat(String(el.value).replace(',', '.'));
+        }
+
+        function render() {
+            var checked = [].map.call(document.querySelectorAll('.pd-brand:checked'), function (c) { return c.value; });
+            var r = RANGES[+document.querySelector('.pd-range:checked').value];
+            var mn = numVal('pd-min'), mx = numVal('pd-max');
+
+            var list = base.filter(function (p) {
+                return matchMuc(p, muc) &&
+                    (checked.length === 0 || checked.indexOf(p.brand) > -1) &&
+                    p.price >= r[1] && p.price < r[2] &&
+                    (isNaN(mn) || p.price >= mn * 1000000) &&
+                    (isNaN(mx) || p.price <= mx * 1000000);
+            });
+
+            var s = $('pd-sort').value;
+            if (s === 'asc') list.sort(function (a, b) { return a.price - b.price; });
+            if (s === 'desc') list.sort(function (a, b) { return b.price - a.price; });
+
+            $('pd-count').textContent = list.length + ' sản phẩm';
+            $('pd-grid').innerHTML = list.map(P.card).join('');
+
+            var empty = $('pd-empty');
+            empty.hidden = list.length > 0;
+            if (list.length === 0) {
+                var all = P.urls.list + (loai ? '?loai=' + encodeURIComponent(loai) : '');
+                empty.innerHTML = base.length === 0
+                    ? 'Danh mục này chưa có sản phẩm mẫu.<br><a href="' + P.urls.list + '">Xem tất cả sản phẩm</a>'
+                    : 'Không có sản phẩm phù hợp.<br><a href="' + all + '">Bỏ bộ lọc</a>';
+            }
+        }
+
+        $('pd-filter').addEventListener('change', render);
+        $('pd-filter').addEventListener('input', render);
+        $('pd-sort').addEventListener('change', render);
+
+        $('pd-grid').addEventListener('click', function (e) {
+            var b = e.target.closest('.pd-add');
+            if (!b) return;
+            P.add(+b.dataset.id, 1);
+            var old = b.textContent;
+            b.textContent = 'Đã thêm ✓';
+            setTimeout(function () { b.textContent = old; }, 900);
+        });
+
+        render();
+    })();
+</script>
