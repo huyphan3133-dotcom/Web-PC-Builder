@@ -32,19 +32,7 @@
                             <th>Thao tác</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>#DH1001</strong></td>
-                            <td>Nguyễn Văn A</td>
-                            <td>0987654321</td>
-                            <td>10/10/2026</td>
-                            <td class="text-danger fw-bold">13.480.000 đ</td>
-                            <td><span class="badge bg-warning text-dark">Đang xử lý</span></td>
-                            <td>
-                                <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#orderDetailModal"><i class="fa-solid fa-eye"></i> Chi tiết</button>
-                            </td>
-                        </tr>
-                    </tbody>
+                    <tbody id="order-body"></tbody>
                 </table>
             </div>
         </div>
@@ -55,19 +43,20 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
-                    <h5 class="modal-title"><i class="fa-solid fa-receipt me-2"></i>Chi tiết đơn hàng #DH1001</h5>
+                    <h5 class="modal-title"><i class="fa-solid fa-receipt me-2"></i>Chi tiết đơn hàng <span id="md-id"></span></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <p class="mb-1"><strong>Người nhận:</strong> Nguyễn Văn A</p>
-                            <p class="mb-1"><strong>Điện thoại:</strong> 0987654321</p>
-                            <p class="mb-1"><strong>Địa chỉ:</strong> Quận 1, TP. Hồ Chí Minh</p>
+                            <p class="mb-1"><strong>Người nhận:</strong> <span id="md-name"></span></p>
+                            <p class="mb-1"><strong>Điện thoại:</strong> <span id="md-phone"></span></p>
+                            <p class="mb-1"><strong>Địa chỉ:</strong> <span id="md-addr"></span></p>
+                            <p class="mb-1"><strong>Ghi chú:</strong> <span id="md-note"></span></p>
                         </div>
                         <div class="col-md-6 text-md-end">
-                            <p class="mb-1"><strong>Ngày đặt:</strong> 10/10/2026</p>
-                            <p class="mb-1"><strong>Thanh toán:</strong> COD (Thanh toán khi nhận hàng)</p>
+                            <p class="mb-1"><strong>Ngày đặt:</strong> <span id="md-date"></span></p>
+                            <p class="mb-1"><strong>Thanh toán:</strong> <span id="md-pay"></span></p>
                         </div>
                     </div>
                     <table class="table table-bordered">
@@ -78,18 +67,7 @@
                                 <th class="text-end">Đơn giá</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <tr>
-                                <td>CPU Intel Core i5-13400F</td>
-                                <td class="text-center">1</td>
-                                <td class="text-end">4.990.000 đ</td>
-                            </tr>
-                            <tr>
-                                <td>VGA ASUS Dual GeForce RTX 4060</td>
-                                <td class="text-center">1</td>
-                                <td class="text-end">8.490.000 đ</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="md-items"></tbody>
                     </table>
                 </div>
                 <div class="modal-footer">
@@ -100,3 +78,74 @@
     </div>
 </body>
 </html>
+
+@section scripts {
+    <script>
+        (function () {
+            var STATUSES = ['Chờ xác nhận', 'Đang xử lý', 'Đang giao', 'Hoàn thành', 'Đã hủy'];
+            function getOrders() { try { return JSON.parse(localStorage.getItem('gvn_orders')) || []; } catch (e) { return []; } }
+            function fmt(n) { return Number(n).toLocaleString('vi-VN') + ' đ'; }
+            function esc(s) {
+                return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
+
+            function render() {
+                // DataTables phải hủy trước khi đổi nội dung bảng, rồi khởi tạo lại
+                if ($.fn.DataTable.isDataTable('#orderTable')) $('#orderTable').DataTable().destroy();
+
+                document.getElementById('order-body').innerHTML = getOrders().map(function (o) {
+                    var opts = STATUSES.map(function (st) {
+                        return '<option' + (st === o.status ? ' selected' : '') + '>' + st + '</option>';
+                    }).join('');
+                    return '<tr>' +
+                        '<td><strong>' + esc(o.id) + '</strong></td>' +
+                        '<td>' + esc(o.customer.name) + '</td>' +
+                        '<td>' + esc(o.customer.phone) + '</td>' +
+                        '<td>' + esc(o.date) + '</td>' +
+                        '<td class="text-danger fw-bold">' + fmt(o.total) + '</td>' +
+                        '<td><select class="form-select form-select-sm st-select" data-id="' + esc(o.id) + '">' + opts + '</select></td>' +
+                        '<td><button class="btn btn-sm btn-outline-info" data-view="' + esc(o.id) + '"><i class="fa-solid fa-eye"></i> Chi tiết</button></td>' +
+                        '</tr>';
+                }).join('');
+
+                $('#orderTable').DataTable({
+                    order: [],
+                    language: {
+                        search: 'Tìm kiếm:', lengthMenu: 'Hiển thị _MENU_ mục', emptyTable: 'Chưa có đơn hàng nào',
+                        info: 'Hiển thị _START_ đến _END_ trong _TOTAL_ mục',
+                        paginate: { previous: 'Trước', next: 'Sau' }
+                    }
+                });
+            }
+
+            function setText(id, v) { document.getElementById(id).textContent = v || '—'; }
+
+            // Bấm "Chi tiết" -> đổ dữ liệu vào modal
+            $('#orderTable').on('click', '[data-view]', function () {
+                var id = this.getAttribute('data-view');
+                var o = getOrders().filter(function (x) { return x.id === id; })[0];
+                if (!o) return;
+                setText('md-id', o.id); setText('md-name', o.customer.name); setText('md-phone', o.customer.phone);
+                setText('md-addr', o.customer.address); setText('md-note', o.customer.note);
+                setText('md-date', o.date); setText('md-pay', o.payment);
+                document.getElementById('md-items').innerHTML = o.items.map(function (i) {
+                    return '<tr><td>' + esc(i.name) + '</td><td class="text-center">' + i.qty +
+                           '</td><td class="text-end">' + fmt(i.price) + '</td></tr>';
+                }).join('');
+                new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
+            });
+
+            // Đổi trạng thái -> lưu lại vào localStorage (trang Hồ sơ sẽ thấy ngay)
+            $('#orderTable').on('change', '.st-select', function () {
+                var id = this.getAttribute('data-id'), val = this.value;
+                var orders = getOrders();
+                orders.forEach(function (o) { if (o.id === id) o.status = val; });
+                localStorage.setItem('gvn_orders', JSON.stringify(orders));
+            });
+
+            render();
+        })();
+    </script>
+}

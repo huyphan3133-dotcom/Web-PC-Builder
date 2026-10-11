@@ -50,44 +50,43 @@
                 <thead>
                     <tr>
                         <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
                         <th>Trạng thái</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @if (ViewBag.Orders != null)
-                    {
-                        foreach (string order in ViewBag.Orders)
-                        {
-                            var parts = order.Split(
-                                new[] { " - " },
-                                StringSplitOptions.None);
-
-                            <tr>
-                                <td>@parts[0]</td>
-                                <td>
-                                    <span class="order-status">
-                                        @(parts.Length > 1
-                                            ? parts[1]
-                                            : "Chưa xác định")
-                                    </span>
-                                </td>
-                            </tr>
-                        }
-                    }
-                    else
-                    {
-                        <tr>
-                            <td colspan="2">
-                                Bạn chưa có đơn hàng nào.
-                            </td>
-                        </tr>
-                    }
+                <tbody id="order-body">
+                    <tr><td colspan="4">Bạn chưa có đơn hàng nào.</td></tr>
                 </tbody>
             </table>
         </div>
 
         <p class="profile-note">
-            Đây là dữ liệu đơn hàng mẫu để minh họa giao diện.
+            Đơn hàng được lưu trên trình duyệt này sau khi bạn bấm "Đặt hàng".
         </p>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        (function () {
+            var orders = [];
+            try { orders = JSON.parse(localStorage.getItem('gvn_orders')) || []; } catch (e) { }
+            if (orders.length === 0) return;   // giữ dòng "chưa có đơn hàng"
+
+            function esc(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
+            document.getElementById('order-body').innerHTML = orders.map(function (o) {
+                return '<tr>' +
+                    '<td>' + esc(o.id) + '</td>' +
+                    '<td>' + esc(o.date) + '</td>' +
+                    '<td>' + Number(o.total).toLocaleString('vi-VN') + 'đ</td>' +
+                    '<td><span class="order-status">' + esc(o.status || 'Chờ xác nhận') + '</span></td>' +
+                    '</tr>';
+            }).join('');
+        })();
+    </script>
+}
