@@ -1,17 +1,116 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Đăng ký tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
+<div class="account-page">
+    <div class="account-card">
+        <h2>TẠO TÀI KHOẢN</h2>
+        <p class="account-subtitle">
+            Đăng ký để trải nghiệm PC Builder
+        </p>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+        @using (Html.BeginForm("Register", "Account",
+            FormMethod.Post, new { id = "registerForm" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+                <input type="text" id="fullName" name="fullName"
+                       class="form-control"
+                       placeholder="Nhập họ và tên"
+                       required minlength="2" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email"
+                       class="form-control"
+                       placeholder="Nhập email"
+                       required />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password"
+                       name="password" class="form-control"
+                       placeholder="Tối thiểu 6 ký tự"
+                       required minlength="6" />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">
+                    Xác nhận mật khẩu
+                </label>
+                <input type="password" id="confirmPassword"
+                       name="confirmPassword"
+                       class="form-control"
+                       placeholder="Nhập lại mật khẩu"
+                       required />
+            </div>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="account-error">
+                    @ViewBag.Error
+                </div>
+            }
+
+            <button type="submit" class="account-button">
+                ĐĂNG KÝ
+            </button>
+        }
+
+        <p class="account-footer">
+            Đã có tài khoản?
+            @Html.ActionLink("Đăng nhập", "Login", "Account")
+        </p>
     </div>
-</body>
-</html>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    <script>
+        $(function () {
+            $("#registerForm").validate({
+                rules: {
+                    fullName: {
+                        required: true,
+                        minlength: 2
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    password: {
+                        required: true,
+                        minlength: 6
+                    },
+                    confirmPassword: {
+                        required: true,
+                        equalTo: "#password"
+                    }
+                },
+                messages: {
+                    fullName: {
+                        required: "Vui lòng nhập họ tên.",
+                        minlength: "Họ tên phải có ít nhất 2 ký tự."
+                    },
+                    email: {
+                        required: "Vui lòng nhập email.",
+                        email: "Email không hợp lệ."
+                    },
+                    password: {
+                        required: "Vui lòng nhập mật khẩu.",
+                        minlength: "Mật khẩu tối thiểu 6 ký tự."
+                    },
+                    confirmPassword: {
+                        required: "Vui lòng xác nhận mật khẩu.",
+                        equalTo: "Hai mật khẩu không khớp."
+                    }
+                }
+            });
+        });
+    </script>
+}
