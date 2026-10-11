@@ -1,17 +1,112 @@
 ﻿@{
-    Layout = null;
+    ViewBag.Title = "Sản phẩm";
 }
 
-<!DOCTYPE html>
+@Html.Partial("_ProductCore")
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+<div class="pd-wrap">
+    <div class="pd-crumb" id="pd-crumb"></div>
+    <div class="pd-layout">
+        <aside class="pd-filter" id="pd-filter"></aside>
+        <section class="pd-main">
+            <div class="pd-top">
+                <h1 id="pd-title"></h1>
+                <span class="pd-count" id="pd-count"></span>
+                <select id="pd-sort" aria-label="Sắp xếp">
+                    <option value="">Sắp xếp mặc định</option>
+                    <option value="asc">Giá tăng dần</option>
+                    <option value="desc">Giá giảm dần</option>
+                </select>
+            </div>
+            <div class="pd-grid" id="pd-grid"></div>
+            <div class="pd-empty" id="pd-empty" hidden></div>
+        </section>
     </div>
-</body>
-</html>
+</div>
+
+<script>
+    (function () {
+        var P = window.PD;
+        var q = new URLSearchParams(location.search);
+        var loai = q.get('loai') || '';
+        var muc = q.get('muc') || '';
+        var base = P.products.filter(function (p) { return !loai || p.cat === loai; });
+
+        var RANGES = [
+            ['Tất cả', 0, Infinity],
+            ['Dưới 2 triệu', 0, 2000000],
+            ['2 - 10 triệu', 2000000, 10000000],
+            ['10 - 30 triệu', 10000000, 30000000],
+            ['Trên 30 triệu', 30000000, Infinity]
+        ];
+
+        // Lọc theo mục lấy từ menu hover (thương hiệu, dòng máy hoặc khoảng giá)
+        function matchMuc(p, m) {
+            if (!m) return true;
+            var r = P.priceRange(m);
+            if (r) return p.price >= r[0] && p.price < r[1];
+            var n = P.norm(m).replace(' series', '');
+            var hay = P.norm([p.name, p.brand].concat(p.tags || []).join(' '));
+            return hay.indexOf(n) !== -1;
+        }
+
+        // Thanh đường dẫn + tiêu đề
+        var crumb = '<a href="' + P.urls.home + '">Trang chủ</a> › ';
+        crumb += loai ? '<a href="' + P.urls.list + '?loai=' + encodeURIComponent(loai) + '">' + P.esc(loai) + '</a>' : 'Tất cả sản phẩm';
+        if (loai && muc) crumb += ' › ' + P.esc(muc);
+        document.getElementById('pd-crumb').innerHTML = crumb;
+        document.getElementById('pd-title').textContent = muc ? loai + ' - ' + muc : (loai || 'Tất cả sản phẩm');
+        document.title = document.getElementById('pd-title').textContent;
+
+        // Bộ lọc bên trái
+        var brands = [];
+        base.forEach(function (p) { if (brands.indexOf(p.brand) === -1) brands.push(p.brand); });
+        var f = '<h3>Thương hiệu</h3>';
+        brands.forEach(function (b) { f += '<label><input type="checkbox" class="pd-brand" value="' + P.esc(b) + '"> ' + P.esc(b) + '</label>'; });
+        f += '<h3 class="gap">Mức giá</h3>';
+        RANGES.forEach(function (r, i) {
+            f += '<label><input type="radio" name="pd-range" class="pd-range" value="' + i + '"' + (i === 0 ? ' checked' : '') + '> ' + r[0] + '</label>';
+        });
+        document.getElementById('pd-filter').innerHTML = f;
+
+        function render() {
+            var checked = [].map.call(document.querySelectorAll('.pd-brand:checked'), function (c) { return c.value; });
+            var r = RANGES[+document.querySelector('.pd-range:checked').value];
+            var list = base.filter(function (p) {
+                return matchMuc(p, muc) &&
+                    (checked.length === 0 || checked.indexOf(p.brand) > -1) &&
+                    p.price >= r[1] && p.price < r[2];
+            });
+
+            var s = document.getElementById('pd-sort').value;
+            if (s === 'asc') list.sort(function (a, b) { return a.price - b.price; });
+            if (s === 'desc') list.sort(function (a, b) { return b.price - a.price; });
+
+            document.getElementById('pd-count').textContent = list.length + ' sản phẩm';
+            document.getElementById('pd-grid').innerHTML = list.map(P.card).join('');
+
+            var empty = document.getElementById('pd-empty');
+            empty.hidden = list.length > 0;
+            if (list.length === 0) {
+                var all = P.urls.list + (loai ? '?loai=' + encodeURIComponent(loai) : '');
+                empty.innerHTML = base.length === 0
+                    ? 'Danh mục này chưa có sản phẩm mẫu.<br><a href="' + P.urls.list + '">Xem tất cả sản phẩm</a>'
+                    : 'Không có sản phẩm phù hợp.<br><a href="' + all + '">Bỏ bộ lọc</a>';
+            }
+        }
+
+        document.getElementById('pd-filter').addEventListener('change', render);
+        document.getElementById('pd-sort').addEventListener('change', render);
+
+        document.getElementById('pd-grid').addEventListener('click', function (e) {
+            var b = e.target.closest('.pd-add');
+            if (!b) return;
+            P.add(+b.dataset.id, 1);
+            var old = b.textContent;
+            b.textContent = 'Đã thêm ✓';
+            setTimeout(function () { b.textContent = old; }, 900);
+        });
+
+        render();
+    })();
+</script>

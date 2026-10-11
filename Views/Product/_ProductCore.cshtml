@@ -1,0 +1,455 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>_ProductCore</title>
+    <style>
+        .pd-wrap {
+            max-width: 1200px;
+            margin: 24px auto;
+            padding: 0 16px;
+            color: #333;
+        }
+
+        .pd-crumb {
+            font-size: 14px;
+            color: #777;
+            margin-bottom: 14px;
+        }
+
+            .pd-crumb a {
+                color: #d70018;
+                text-decoration: none;
+            }
+
+        .pd-layout {
+            display: flex;
+            gap: 24px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .pd-filter {
+            width: 240px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+        }
+
+            .pd-filter h3 {
+                font-size: 15px;
+                margin: 0 0 8px;
+                color: #222;
+            }
+
+                .pd-filter h3.gap {
+                    margin-top: 18px;
+                }
+
+            .pd-filter label {
+                display: block;
+                padding: 5px 0;
+                cursor: pointer;
+            }
+
+        .pd-main {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .pd-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+            .pd-top h1 {
+                font-size: 22px;
+                margin: 0;
+                flex: 1;
+                color: #222;
+            }
+
+        .pd-count {
+            color: #777;
+            font-size: 14px;
+        }
+
+        .pd-top select {
+            padding: 8px 10px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #fff;
+        }
+
+        .pd-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .pd-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .pd-tag {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 1;
+            background: #d70018;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 6px;
+            padding: 2px 8px;
+        }
+
+        .pd-img {
+            display: block;
+            aspect-ratio: 1 / 1;
+            background: #f3f4f6;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+            .pd-img img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+
+        .pd-name {
+            font-weight: 600;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #222;
+            text-decoration: none;
+        }
+
+            .pd-name:hover {
+                color: #d70018;
+            }
+
+        .pd-spec {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            font-size: 13px;
+            color: #666;
+            flex: 1;
+        }
+
+            .pd-spec li {
+                padding: 2px 0;
+            }
+
+        .pd-old {
+            color: #999;
+            text-decoration: line-through;
+            font-size: 13px;
+        }
+
+        .pd-price {
+            color: #d70018;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .pd-btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            color: #fff;
+            background: #d70018;
+        }
+
+            .pd-btn:hover {
+                background: #b8000f;
+            }
+
+            .pd-btn.dark {
+                background: #111;
+            }
+
+                .pd-btn.dark:hover {
+                    background: #333;
+                }
+
+        .pd-empty {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 40px 16px;
+            text-align: center;
+            color: #666;
+        }
+
+            .pd-empty a {
+                color: #d70018;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+        .pd-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 32px;
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .pd-dimg {
+            background: #f3f4f6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 300px;
+        }
+
+            .pd-dimg img {
+                max-width: 100%;
+                max-height: 420px;
+                object-fit: contain;
+            }
+
+        .pd-dinfo h1 {
+            font-size: 24px;
+            margin: 0 0 8px;
+            line-height: 1.3;
+            color: #222;
+        }
+
+        .pd-dprice {
+            color: #d70018;
+            font-weight: 700;
+            font-size: 30px;
+            margin: 10px 0;
+        }
+
+            .pd-dprice .pd-old {
+                font-size: 16px;
+                font-weight: 400;
+                margin-left: 8px;
+            }
+
+        .pd-specs {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 14px 0;
+        }
+
+            .pd-specs td {
+                padding: 8px 10px;
+                border-bottom: 1px solid #eee;
+                font-size: 14px;
+            }
+
+                .pd-specs td:first-child {
+                    color: #777;
+                    width: 35%;
+                }
+
+        .pd-qty {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 14px 0;
+        }
+
+            .pd-qty input {
+                width: 80px;
+                padding: 8px;
+                border: 1px solid #e5e7eb;
+                border-radius: 8px;
+            }
+
+        .pd-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+            .pd-actions .pd-btn {
+                padding: 12px 22px;
+                font-size: 15px;
+            }
+
+        .pd-related h2 {
+            font-size: 20px;
+            margin: 28px 0 14px;
+            color: #222;
+        }
+    </style>
+</head>
+<body>
+    <script>
+    window.PD = (function () {
+        var BASE = '@Url.Content("~/")';
+        var urls = {
+            home: '@Url.Action("Index", "Home")',
+            list: '@Url.Action("Home", "Product")',
+            detail: '@Url.Action("Details", "Product")',
+            cart: '@Url.Action("Checkout", "Cart")'
+        };
+        function img(f) { return BASE + 'Content/Images/' + f; }
+
+        // Mock data: cat phải TRÙNG chữ với mục trong cột danh mục của trang chủ
+        var products = [
+            // ---- PC GVN ----
+            { id: 1, cat: 'PC GVN', brand: 'GVN', name: 'PC GVN Intel i5-12400F/ VGA RTX 3050 (Main H)', price: 18390000, old: 20280000, img: 'pc1.png', tags: ['PC I5'],
+              specs: ['CPU: Intel Core i5-12400F', 'Mainboard: H610M', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 6GB'] },
+            { id: 2, cat: 'PC GVN', brand: 'GVN', name: 'PC GVN Intel i5-12400F/ VGA RX 6500XT (H610)', price: 16790000, old: 18680000, img: 'pc5.png', tags: ['PC I5'],
+              specs: ['CPU: Intel Core i5-12400F', 'Mainboard: H610M', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RX 6500XT 4GB'] },
+            { id: 3, cat: 'PC GVN', brand: 'GVN', name: 'PC GVN x MSI LIGHTNING (Intel Core Ultra 9 285K/ VGA RTX 5090)', price: 315990000, old: 317330000, img: 'pc3.png', tags: ['PC ULTRA 9', 'RTX 5090'],
+              specs: ['CPU: Core Ultra 9 285K', 'Mainboard: MSI MEG Z890', 'RAM: 64 GB', 'Ổ cứng: 1024 GB', 'VGA: RTX 5090 32GB'] },
+            { id: 4, cat: 'PC GVN', brand: 'GVN', name: 'PC GVN Intel i7-14700F/ VGA RTX 5070Ti (DDR5)', price: 73080000, old: 74020000, img: 'pc4.png', tags: ['PC I7', 'RTX 5070TI'],
+              specs: ['CPU: Intel Core i7-14700F', 'Mainboard: Z790', 'RAM: 32 GB', 'Ổ cứng: 1024 GB', 'VGA: RTX 5070 Ti'] },
+
+            // ---- Laptop Gaming ----
+            { id: 5, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Aspire 7 A715-59G-59RD (Core 5-210H/ RTX 3050 4GB/ 16GB/ 512GB)', price: 25990000, old: 27990000, img: 'gm1.png', tags: [],
+              specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 4GB', 'Màn hình: 15.6" FHD'] },
+            { id: 6, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Aspire 7 A715-59G-53RH (Core 5-210H/ RTX 4050 6GB/ 16GB/ 512GB)', price: 29790000, old: 29990000, img: 'gm2.png', tags: [],
+              specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 4050 6GB', 'Màn hình: 15.6" FHD IPS 144Hz'] },
+            { id: 7, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Nitro ProPanel ANV15-52-556L (Core 5-210H/ RTX 5050 8GB/ 16GB/ 512GB)', price: 38990000, old: 38990000, img: 'gm3.png', tags: [],
+              specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 5050 8GB', 'Màn hình: 15.6" FHD'] },
+            { id: 8, cat: 'Laptop Gaming', brand: 'ASUS', name: 'Laptop gaming ASUS V16 V3607VJ-TK189W (Core 5-210H/ RTX 3050 6GB/ 16GB/ 512GB)', price: 26990000, old: 29990000, img: 'gm4.png', tags: [],
+              specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 6GB', 'Màn hình: 16" WUXGA 144Hz'] },
+
+            // ---- Laptop (văn phòng) ----
+            { id: 9, cat: 'Laptop', brand: 'ACER', name: 'Laptop Acer Aspire Lite 15 AL15-53P-56QH (Core 5-120U/ 8GB/ 512GB/ 15.6" FHD)', price: 18890000, old: 24990000, img: 'vp1.png', tags: [],
+              specs: ['CPU: Core 5-120U', 'RAM: 8 GB', 'Ổ cứng: 512 GB', 'Đồ họa: Intel UHD Graphics', 'Màn hình: 15.6" FHD IPS'] },
+            { id: 10, cat: 'Laptop', brand: 'ASUS', name: 'Laptop Asus ExpertBook P1403CVA-C5H16-50W (Core 5-210H/ 16GB/ 512GB/ 14" FHD)', price: 23390000, old: 23390000, img: 'vp2.png', tags: [],
+              specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'Đồ họa: Intel UHD Graphics', 'Màn hình: 14" FHD IPS'] },
+            { id: 11, cat: 'Laptop', brand: 'ACER', name: 'Laptop Acer Swift Go 14 AI SFG14-75-5264 (Ultra 5-226V/ 16GB/ 512GB/ 14" FHD+ OLED)', price: 28690000, old: 28890000, img: 'vp3.png', tags: [],
+              specs: ['CPU: Core Ultra 5-226V', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'Đồ họa: Intel Arc', 'Màn hình: 14" FHD+ OLED'] },
+            { id: 12, cat: 'Laptop', brand: 'ASUS', name: 'Laptop Asus Vivobook 14 X1404V (Core 5-120U/ 8GB/ 256GB/ 14" FHD)', price: 16590000, old: 18990000, img: 'vp4.jpg', tags: [],
+              specs: ['CPU: Core 5-120U', 'RAM: 8 GB', 'Ổ cứng: 256 GB', 'Đồ họa: Intel UHD Graphics', 'Màn hình: 14" FHD IPS'] },
+
+            // ---- Màn hình ----
+            { id: 13, cat: 'Màn hình', brand: 'VSP', name: 'Màn hình VSP G2410QS 24" IPS 2K 100Hz USBC', price: 3190000, old: 3590000, img: 'mh1.png', tags: [],
+              specs: ['Kích thước: 24 inch', 'Tấm nền: IPS', 'Độ phân giải: 2K/QHD (2560 × 1440)', 'Tần số quét: 100 Hz', 'Phản hồi: 5 ms'] },
+            { id: 14, cat: 'Màn hình', brand: 'VSP', name: 'Màn hình VSP G2410Q1 24" IPS 2K 100Hz', price: 2590000, old: 2790000, img: 'mh2.png', tags: [],
+              specs: ['Kích thước: 24 inch', 'Tấm nền: IPS', 'Độ phân giải: 2K/QHD (2560 × 1440)', 'Tần số quét: 100 Hz', 'Phản hồi: 5 ms'] },
+            { id: 15, cat: 'Màn hình', brand: 'VSP', name: 'Màn hình VSP IP25Q180 25" IPS 2K 180Hz chuyên game', price: 3290000, old: 3990000, img: 'mh3.png', tags: [],
+              specs: ['Kích thước: 25 inch', 'Tấm nền: IPS', 'Độ phân giải: 2K/QHD (2560 × 1440)', 'Tần số quét: 180 Hz', 'Phản hồi: 1 ms'] },
+            { id: 16, cat: 'Màn hình', brand: 'ViewSonic', name: 'Màn hình ViewSonic VA24G1-H 24" IPS 144Hz', price: 2190000, old: 2590000, img: 'mh4.png', tags: [],
+              specs: ['Kích thước: 24 inch', 'Tấm nền: IPS', 'Tần số quét: 144 Hz', 'Phản hồi: 1 ms', 'Độ sáng: 400 cd/m²'] },
+
+            // ---- Bàn phím ----
+            { id: 17, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X White', price: 5890000, old: 5990000, img: 'ph1.png', tags: [],
+              specs: ['Layout: 75%', 'Keycap: PBT', 'Đèn: RGB'] },
+            { id: 18, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2X Black', price: 5890000, old: 5990000, img: 'ph3.png', tags: [],
+              specs: ['Layout: 75%', 'Keycap: PBT Double-shot', 'Đèn: RGB'] },
+            { id: 19, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2 White', price: 5890000, old: 5990000, img: 'ph4.png', tags: [],
+              specs: ['Layout: 75%', 'Keycap: PBT', 'Kết nối: Có dây USB-C', 'Đèn: RGB'] },
+            { id: 20, cat: 'Bàn phím', brand: 'ASUS', name: 'Bàn phím cơ ASUS ROG Falchion Ace 75 HE V2 Red', price: 5890000, old: 5990000, img: 'ph5.png', tags: [],
+              specs: ['Layout: 75%', 'Keycap: PBT Double-shot', 'Đèn: RGB'] },
+
+            // ---- Chuột + Lót chuột ----
+            { id: 21, cat: 'Chuột + Lót chuột', brand: 'AKKO', name: 'Chuột AKKO AG ONE 8K Joy of Life', price: 790000, old: 1590000, img: 'ch1.png', tags: [],
+              specs: ['Cảm biến: PAW3395', 'Polling rate: 8000 Hz', 'Trọng lượng: 65 g', 'DPI: 26000'] },
+            { id: 22, cat: 'Chuột + Lót chuột', brand: 'Logitech', name: 'Chuột gaming không dây Logitech G304 X Superlight Black', price: 1590000, old: 1790000, img: 'ch2.png', tags: [],
+              specs: ['Cảm biến: HERO 44K', 'Polling rate: 1000 Hz', 'Trọng lượng: 59 g', 'DPI: 44000'] },
+            { id: 23, cat: 'Chuột + Lót chuột', brand: 'Razer', name: 'Chuột Razer Basilisk V3 Pro 35K Phantom Green Edition', price: 3940000, old: 4290000, img: 'ch3.png', tags: [],
+              specs: ['Kết nối: Đa kết nối', 'Cảm biến: Focus Pro 35K', 'Polling rate: 8000 Hz', 'DPI: 35000'] },
+            { id: 24, cat: 'Chuột + Lót chuột', brand: 'HyperWork', name: 'Chuột không dây HyperWork Silentium MS01 Đen', price: 490000, old: 590000, img: 'ch4.png', tags: [],
+              specs: ['Màu: Đen', 'Pin: Sạc', 'DPI: 2400'] }
+        ];
+
+        /* ---------- Tiện ích ---------- */
+        function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
+        function esc(s) {
+            return String(s).replace(/[&<>"']/g, function (c) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+            });
+        }
+        function norm(s) {
+            return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+        }
+        // "Dưới 15 triệu", "Từ 15 đến 20 triệu", "Trên 20 triệu" -> [min, max]
+        function priceRange(text) {
+            var n = norm(text);
+            if (n.indexOf('trieu') === -1) return null;
+            var m = n.match(/\d+/g);
+            if (!m) return null;
+            var M = 1000000;
+            if (n.indexOf('duoi') === 0) return [0, m[0] * M];
+            if (n.indexOf('tren') === 0) return [m[0] * M, Infinity];
+            if (n.indexOf('tu') === 0 && m.length > 1) return [m[0] * M, m[1] * M];
+            return null;
+        }
+        function byId(id) {
+            return products.filter(function (p) { return p.id === id; })[0] || null;
+        }
+        function discount(p) {
+            return p.old > p.price ? Math.round((p.old - p.price) / p.old * 100) : 0;
+        }
+
+        /* ---------- Giỏ hàng (cùng khóa với trang Cart) ---------- */
+        var KEY = 'gvn_cart';
+        function getCart() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
+        function saveCart(c) { localStorage.setItem(KEY, JSON.stringify(c)); badge(); }
+        function badge() {
+            var el = document.getElementById('cart-count');
+            if (!el) return;
+            el.textContent = getCart().reduce(function (s, x) { return s + x.qty; }, 0);
+        }
+        function add(id, qty) {
+            var p = byId(id);
+            if (!p) return;
+            qty = Math.max(1, parseInt(qty, 10) || 1);
+            var cart = getCart();
+            var f = cart.filter(function (x) { return x.id === id; })[0];
+            if (f) f.qty += qty;
+            else cart.push({ id: p.id, name: p.name, price: p.price, image: img(p.img), qty: qty });
+            saveCart(cart);
+        }
+        badge();
+
+        /* ---------- Thẻ sản phẩm dùng chung ---------- */
+        function card(p) {
+            var d = discount(p);
+            var link = urls.detail + '?id=' + p.id;
+            return '<div class="pd-card">' +
+                (d ? '<span class="pd-tag">-' + d + '%</span>' : '') +
+                '<a class="pd-img" href="' + link + '"><img src="' + img(p.img) + '" alt="' + esc(p.name) + '"></a>' +
+                '<a class="pd-name" href="' + link + '">' + esc(p.name) + '</a>' +
+                '<ul class="pd-spec">' + p.specs.slice(0, 3).map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' +
+                '<div>' + (p.old > p.price ? '<span class="pd-old">' + fmt(p.old) + '</span>' : '') + '</div>' +
+                '<div class="pd-price">' + fmt(p.price) + '</div>' +
+                '<button type="button" class="pd-btn pd-add" data-id="' + p.id + '">Thêm vào giỏ</button>' +
+                '</div>';
+        }
+
+        return {
+            products: products, urls: urls, img: img, fmt: fmt, esc: esc, norm: norm,
+            priceRange: priceRange, byId: byId, discount: discount, add: add, badge: badge, card: card
+        };
+    })();
+    </script>
+</body>
+</html>

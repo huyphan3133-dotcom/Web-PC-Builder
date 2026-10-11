@@ -1,8 +1,283 @@
 ﻿@{
     ViewBag.Title = "Trang chủ";
-    var sp = Url.Action("Home", "Product");   // link tạm tới trang danh mục
+    var sp = Url.Action("Home","Product");   // link tạm tới trang danh mục
 }
 <main>
+    <style>
+        .dm-overlay {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, .5);
+            z-index: 998;
+            display: none;
+        }
+
+        .dm-open .dm-overlay {
+            display: block;
+        }
+
+        .dm-open .side {
+            position: relative;
+            z-index: 999;
+        }
+
+        .side a.dm-active {
+            background: #f1f1f1;
+            color: #d70018;
+            border-radius: 8px;
+        }
+        /*hover*/
+        .mm {
+            position: absolute;
+            z-index: 99999;
+            display: none;
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .18);
+            box-sizing: border-box;
+            min-width: 560px;
+        }
+
+        .mm-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 22px;
+        }
+
+            .mm-head h3 {
+                margin: 0;
+                font-size: 22px;
+                color: #222;
+            }
+
+            .mm-head a {
+                color: #d70018;
+                font-size: 14px;
+                font-weight: 600;
+                text-decoration: none;
+            }
+
+        .mm-cols {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .mm-g {
+            margin-bottom: 22px;
+        }
+
+        .mm-t {
+            display: block;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+            .mm-t:hover {
+                color: #d70018;
+            }
+
+        .mm-i {
+            display: block;
+            padding: 6px 0;
+            color: #444;
+            font-size: 15px;
+            text-decoration: none;
+        }
+
+            .mm-i:hover {
+                color: #d70018;
+            }
+    </style>
+
+    <div class="dm-overlay" id="dm-overlay"></div>
+
+    <script>
+        (function () {
+            var root = document.documentElement;
+            var overlay = document.getElementById('dm-overlay');
+            var openHTML = '<span style="font-size:20px;line-height:1;margin-right:8px">✕</span>Danh mục';
+
+            var btnOpen = false;      // đang mở bằng nút "Danh mục"
+            var hovering = false;     // đang hiện bảng hover
+            var savedBtn = null, savedHTML = '';
+            var panel = null, side = null, active = null, timer = null;
+
+            /* ---------- Nền tối ---------- */
+            function refresh() {
+                var on = btnOpen || hovering;
+                if (on) {
+                    var header = document.querySelector('header');
+                    var ref = header || savedBtn || side;
+                    var bottom = ref ? Math.round(ref.getBoundingClientRect().bottom) : 0;
+                    overlay.style.top = Math.max(bottom, 0) + 'px';
+                }
+                root.classList.toggle('dm-open', on);
+            }
+
+            /* ---------- Nút "Danh mục" ---------- */
+            function norm(s) {
+                return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    .replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase().trim();
+            }
+            function isMenuBtn(el) {
+                if (!el || el.closest('.side') || el.closest('.mm') || el.closest('.dm-overlay')) return false;
+                if (el.id === 'btn-danhmuc') return true;
+                var t = norm(el.textContent || '');
+                return t.indexOf('danh muc') !== -1 && t.length <= 20;
+            }
+            function setBtn(btn, open) {
+                if (open) {
+                    savedBtn = btn; savedHTML = btn.innerHTML;
+                    btn.innerHTML = openHTML;
+                    if (side) side.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } else if (savedBtn) {
+                    savedBtn.innerHTML = savedHTML;
+                }
+                btnOpen = open;
+                refresh();
+            }
+            function closeAll() {
+                if (btnOpen) setBtn(savedBtn, false);
+                hidePanel(true);
+            }
+
+            // Chạy ở pha "capture" để chặn link của nút trước khi chuyển trang
+            document.addEventListener('click', function (e) {
+                var btn = e.target.closest('a, button');
+                if (!isMenuBtn(btn)) return;
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                setBtn(btn, !btnOpen);
+            }, true);
+
+            overlay.addEventListener('click', closeAll);
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeAll(); });
+
+            /* ---------- Bảng hover ---------- */
+            function init() {
+                side = document.querySelector('.side');
+                if (!side) { console.log('[menu] KHONG THAY .side'); return; }
+                var links = side.querySelectorAll('a');
+                if (!links.length) { console.log('[menu] .side khong co the a'); return; }
+
+                var SP = links[0].getAttribute('href') || '#';   // link Product lấy từ chính cột danh mục
+                var PRICE = ['Dưới 15 triệu', 'Từ 15 đến 20 triệu', 'Trên 20 triệu'];
+
+                var MENU = {
+                    'Laptop': [
+                        [{ t: 'Thương hiệu', items: ['ACER', 'ASUS', 'DELL', 'LENOVO', 'MSI'] }],
+                        [{ t: 'Giá bán', items: PRICE }],
+                    ],
+                    'Laptop Gaming': [
+                        [{ t: 'Thương hiệu', items: ['ACER', 'ASUS', 'LENOVO', 'MSI', 'GIGABYTE'] }],
+                        [{ t: 'Giá bán', items: ['Dưới 20 triệu', 'Từ 20 đến 30 triệu', 'Trên 30 triệu'] }],
+                    ],
+                    'PC GVN': [
+                        [{ t: 'Theo CPU Intel', items: ['PC I3', 'PC I5', 'PC I7', 'PC I9'] }],
+                        [{ t: 'Theo CPU AMD', items: ['PC R3', 'PC R5', 'PC R7', 'PC R9'] }],
+                        [{ t: 'Giá bán', items: ['Dưới 20 triệu', 'Từ 20 đến 40 triệu', 'Trên 40 triệu'] }]
+                    ],
+                    'Màn hình': [
+                        [{ t: 'Thương hiệu', items: ['LG', 'ASUS', 'ViewSonic', 'Dell', 'AOC', 'Acer'] }],
+                        [{ t: 'Độ phân giải', items: ['Full HD', '2K / QHD', '4K'] }],
+                        [{ t: 'Tần số quét', items: ['100 - 144 Hz', '165 - 200 Hz', 'Trên 240 Hz'] }]
+                    ],
+                    'Bàn phím': [
+                        [{ t: 'Thương hiệu', items: ['Akko', 'ASUS', 'Razer', 'Logitech', 'Dareu'] }],
+                        [{ t: 'Kết nối', items: ['Có dây', 'Không dây', 'Đa kết nối'] }]
+                    ],
+                    'Chuột + Lót chuột': [
+                        [{ t: 'Thương hiệu', items: ['Logitech', 'Razer', 'ASUS', 'Corsair', 'Rapoo'] }],
+                        [{ t: 'Loại', items: ['Chuột gaming', 'Chuột văn phòng', 'Lót chuột'] }]
+                    ]
+
+                };
+
+                panel = document.createElement('div');
+                panel.className = 'mm';
+                document.body.appendChild(panel);
+
+                function enc(s) { return encodeURIComponent(s); }
+                function url(cat, extra) {
+                    return SP + (SP.indexOf('?') > -1 ? '&' : '?') + 'loai=' + enc(cat) + (extra || '');
+                }
+
+                // Bấm vào mục bên trái -> trang Product kèm loại sản phẩm
+                [].forEach.call(links, function (a) { a.setAttribute('href', url(a.textContent.trim())); });
+
+                function render(cat) {
+                    var cols = MENU[cat] || [[{ t: 'Giá bán', items: PRICE }]];
+                    var html = '<div class="mm-head"><h3>' + cat + '</h3><a href="' + url(cat) + '">Xem tất cả ›</a></div><div class="mm-cols">';
+                    cols.forEach(function (col) {
+                        html += '<div>';
+                        col.forEach(function (g) {
+                            html += '<div class="mm-g"><a class="mm-t" href="' + url(cat, '&nhom=' + enc(g.t)) + '">' + g.t + ' ›</a>';
+                            g.items.forEach(function (i) {
+                                html += '<a class="mm-i" href="' + url(cat, '&muc=' + enc(i)) + '">' + i + '</a>';
+                            });
+                            html += '</div>';
+                        });
+                        html += '</div>';
+                    });
+                    panel.innerHTML = html + '</div>';
+                }
+
+                function position() {
+                    var r = side.getBoundingClientRect();
+                    var hero = document.querySelector('.hero');
+                    var edge = hero ? hero.getBoundingClientRect().right : r.right + 880;
+                    panel.style.left = (r.right + window.pageXOffset + 8) + 'px';
+                    panel.style.top = (r.top + window.pageYOffset) + 'px';
+                    panel.style.width = Math.max(560, edge - r.right - 8) + 'px';
+                    panel.style.minHeight = r.height + 'px';
+                }
+
+                window.showPanel = function (a) {
+                    clearTimeout(timer);
+                    if (active) active.classList.remove('dm-active');
+                    active = a; a.classList.add('dm-active');
+                    render(a.textContent.trim());
+                    position();
+                    panel.style.display = 'block';
+                    hovering = true;
+                    refresh();
+                };
+
+                side.addEventListener('mouseover', function (e) {
+                    var a = e.target.closest('a');
+                    if (a && side.contains(a)) window.showPanel(a);
+                });
+                side.addEventListener('mouseleave', function () { hidePanel(false); });
+                panel.addEventListener('mouseenter', function () { clearTimeout(timer); });
+                panel.addEventListener('mouseleave', function () { hidePanel(false); });
+
+                console.log('[menu] OK: ' + links.length + ' muc');
+            }
+
+            function hidePanel(now) {
+                clearTimeout(timer);
+                var run = function () {
+                    if (panel) panel.style.display = 'none';
+                    if (active) active.classList.remove('dm-active');
+                    active = null;
+                    hovering = false;
+                    refresh();
+                };
+                if (now) run(); else timer = setTimeout(run, 150);
+            }
+
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+            else init();
+        })();
+    </script>
     <!-- ===== PHẦN TRÊN: danh mục - slider - banner phải ===== -->
     <div class="hero">
 
@@ -335,7 +610,7 @@
                     <a class="card-name" href="#">Laptop Asus ExpertBook P1403CVA-C5H16-50W (Core 5-210H/ 16GB/ 512GB/ 14" FHD/ Win 11)</a>
                     <div class="card-spec">
                         <span><i class="fas fa-microchip"></i>Intel® UHD Graphics</span>
-                        <span class="full" ><i class="fas fa-memory"></i>Core 5 &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
+                        <span class="full"><i class="fas fa-memory"></i>Core 5 &nbsp; <i class="fas fa-hdd"></i>512 GB</span>
                         <span class="full"><i class="fas fa-tv"></i>14 inch</span> <i class="fas fa-shapes">IPS</i>
                     </div>
                     <div>
@@ -415,7 +690,7 @@
                 <a class="sec-tag" href="#">Corsair</a>
                 <a class="sec-tag" href="#">Dareu-U</a>
                 <a class="sec-tag" href="#"> Rapoo</a>
-              
+
                 <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
             </div>
         </div>
@@ -439,7 +714,7 @@
                         <span class="price-old">1.590.000đ</span><span class="price-sale">-50%</span>
                     </div>
                     <div class="price-now">790.000đ</div>
-                   
+
                 </div>
 
                 <!-- Card 2 -->
@@ -455,7 +730,7 @@
                         <span class="price-old">1.790.000đ</span><span class="price-sale">-11%</span>
                     </div>
                     <div class="price-now">1.590.000đ</div>
-                    
+
                 </div>
 
                 <!-- Card 3 -->
@@ -471,7 +746,7 @@
                         <span class="price-old">4.290.000đ</span><span class="price-sale">-8%</span>
                     </div>
                     <div class="price-now">3.940.000đ</div>
-                   
+
                 </div>
 
                 <!-- Card 4 -->
@@ -480,14 +755,15 @@
                     <a class="card-name" href="#">Chuột không dây HyperWork Silentium MS01 Đen</a>
                     <div class="card-spec">
                         <span><i class="fas fa-shapes"></i>Đen</span>
-                        <span class="full"><i class="fas fa-battery-full"></i>Pin sạc &nbsp; 
-                        <span class="full"><i class="fas fa-tv"></i>2400 DPI</span>
+                        <span class="full">
+                            <i class="fas fa-battery-full"></i>Pin sạc &nbsp;
+                            <span class="full"><i class="fas fa-tv"></i>2400 DPI</span>
                     </div>
                     <div>
                         <span class="price-old">590.000đ</span><span class="price-sale">-17%</span>
                     </div>
                     <div class="price-now">490.000đ</div>
-                    
+
                 </div>
 
                 <!-- Card 5 -->
@@ -504,7 +780,7 @@
                         <span class="price-old">590.000đ</span><span class="price-sale">-17%</span>
                     </div>
                     <div class="price-now">490.000đ</div>
-                   
+
                 </div>
 
             </div>
@@ -529,7 +805,7 @@
                 <a class="sec-tag" href="#">Logitech</a>
                 <a class="sec-tag" href="#">Leopoid</a>
                 <a class="sec-tag" href="#">Dareu-U</a>
-               
+
                 <a class="sec-all" href="#">Xem tất cả <i class="fas fa-chevron-right"></i></a>
             </div>
         </div>
@@ -547,13 +823,13 @@
                     <div class="card-spec">
                         <span><i class="fas fa-shapes"></i>75%</span>
                         <span class="full"><i class="fas fa-shapes"></i>PBT &nbsp; <i class="far fa-lightbulb"></i>RBG &nbsp; </span>
-                        
+
                     </div>
                     <div>
                         <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
                     </div>
                     <div class="price-now">5.890.000đ</div>
-                   
+
                 </div>
 
                 <!-- Card 2 -->
@@ -569,7 +845,7 @@
                         <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
                     </div>
                     <div class="price-now">5.890.000đ</div>
-                   
+
                 </div>
 
                 <!-- Card 3 -->
@@ -584,7 +860,7 @@
                         <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
                     </div>
                     <div class="price-now">5.890.000đ</div>
-                    
+
                 </div>
 
                 <!-- Card 4 -->
@@ -600,7 +876,7 @@
                         <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
                     </div>
                     <div class="price-now">5.890.000đ</div>
-                    
+
                 </div>
 
                 <!-- Card 5 -->
@@ -615,7 +891,7 @@
                         <span class="price-old">5.990.000đ</span><span class="price-sale">-2%</span>
                     </div>
                     <div class="price-now">5.890.000đ</div>
-                    
+
                 </div>
 
             </div>
@@ -852,7 +1128,7 @@
     </section>
 
 
-   
+
     <section class="news">
         <div class="news-banner">
             <h2>Cập nhật <b>Tin Tức Công Nghệ</b><br>mới nhất cùng Gearvn</h2>
@@ -897,5 +1173,5 @@
     </section>
 
 
-    
+
 </main>
