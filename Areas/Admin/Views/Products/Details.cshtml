@@ -1,0 +1,15 @@
+﻿@model Web_PC_Builder.Models.Product
+@{
+    ViewBag.Title = "Chi tiết sản phẩm";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-gvn"><h5 class="mb-0">Chi tiết sản phẩm</h5></div>
+    <div class="card-body">
+        @Html.Partial("_PVProductInfo", Model)
+    </div>
+    <div class="card-footer bg-white d-flex gap-2">
+        @Html.ActionLink("Sửa", "Edit", new { id = Model.ProductID }, new { @class = "btn btn-primary" })
+        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+    </div>
+</div>

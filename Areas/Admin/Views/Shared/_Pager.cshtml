@@ -1,0 +1,52 @@
+﻿
+@model Web_PC_Builder.Models.ViewModel.PagerVM
+@{
+    var list = Model.List;
+    int start = Math.Max(1, list.PageNumber - 2);
+    int end = Math.Min(list.PageCount, list.PageNumber + 2);
+}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3">
+    <div class="text-muted small">
+        @if (list.TotalItemCount > 0)
+        {
+            <span>Hiển thị @list.FirstItemOnPage - @list.LastItemOnPage / @list.TotalItemCount</span>
+        }
+        else
+        {
+            <span>Không có dữ liệu</span>
+        }
+    </div>
+    @if (list.PageCount > 1)
+    {
+        <nav aria-label="Phân trang">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(list.HasPreviousPage ? "" : "disabled")">
+                    <a class="page-link" href="@(list.HasPreviousPage ? Model.UrlFor(list.PageNumber - 1) : "#")">&laquo;</a>
+                </li>
+                @if (start > 1)
+                {
+                    <li class="page-item"><a class="page-link" href="@Model.UrlFor(1)">1</a></li>
+                    if (start > 2)
+                    {
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                    }
+                }
+                @for (int i = start; i <= end; i++)
+                {
+                    <li class="page-item @(i == list.PageNumber ? "active" : "")"><a class="page-link" href="@Model.UrlFor(i)">@i</a></li>
+                }
+                @if (end < list.PageCount)
+                {
+                    if (end < list.PageCount - 1)
+                    {
+                        <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                    }
+                    <li class="page-item"><a class="page-link" href="@Model.UrlFor(list.PageCount)">@list.PageCount</a></li>
+                }
+                <li class="page-item @(list.HasNextPage ? "" : "disabled")">
+                    <a class="page-link" href="@(list.HasNextPage ? Model.UrlFor(list.PageNumber + 1) : "#")">&raquo;</a>
+                </li>
+            </ul>
+        </nav>
+    }
+</div>

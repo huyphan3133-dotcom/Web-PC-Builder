@@ -1,0 +1,32 @@
+﻿@model Web_PC_Builder.Models.Product
+
+<div class="row g-4">
+    <div class="col-md-4 text-center">
+        <img src="@Url.ProductImage(Model.ProductImage)" alt="@Model.ProductName" class="thumb-lg" />
+    </div>
+    <div class="col-md-8">
+        <dl class="row mb-0">
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ProductID)</dt>
+            <dd class="col-sm-8">@Model.ProductID</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ProductName)</dt>
+            <dd class="col-sm-8 fw-semibold">@Model.ProductName</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CategoryID)</dt>
+            <dd class="col-sm-8">@(Model.Category != null ? Model.Category.CategoryName : "-")</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Brand)</dt>
+            <dd class="col-sm-8">@(string.IsNullOrEmpty(Model.Brand) ? "-" : Model.Brand)</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ProductPrice)</dt>
+            <dd class="col-sm-8" style="color:var(--gvn-red);font-weight:700">@AppHelper.Vnd(Model.ProductPrice)</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.OldPrice)</dt>
+            <dd class="col-sm-8">@(Model.OldPrice.HasValue ? AppHelper.Vnd(Model.OldPrice) : "-")</dd>
+
+            <dt class="col-sm-4">@Html.DisplayNameFor(m => m.ProductDescription)</dt>
+            <dd class="col-sm-8" style="white-space:pre-line">@Model.ProductDescription</dd>
+        </dl>
+    </div>
+</div>
+
