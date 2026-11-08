@@ -1,0 +1,78 @@
+﻿@{
+    string ctrl = (ViewContext.RouteData.Values["controller"] as string ?? "").ToLowerInvariant();
+    Func<string, string> act = name => ctrl == name ? " active" : "";
+    string adminName = Session[AdminAuthorizeAttribute.SessionKey] as string;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Quản trị GEARVN</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/admin.css" rel="stylesheet" />
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container-fluid px-4">
+            @Html.ActionLink("GEARVN Admin", "Index", "Home", new { area = "Admin" }, new { @class = "navbar-brand fw-bold" })
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav"
+                    aria-controls="adminNav" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="adminNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">@Html.ActionLink("Thống kê", "Index", "Home", null, new { @class = "nav-link" + act("home") })</li>
+                    <li class="nav-item">@Html.ActionLink("Sản phẩm", "Index", "Products", null, new { @class = "nav-link" + act("products") })</li>
+                    <li class="nav-item">@Html.ActionLink("Danh mục", "Index", "Categories", null, new { @class = "nav-link" + act("categories") })</li>
+                    <li class="nav-item">@Html.ActionLink("Khách hàng", "Index", "Customers", null, new { @class = "nav-link" + act("customers") })</li>
+                    <li class="nav-item">@Html.ActionLink("Đơn hàng", "Index", "Orders", null, new { @class = "nav-link" + act("orders") })</li>
+                    <li class="nav-item">@Html.ActionLink("Tài khoản", "Index", "Users", null, new { @class = "nav-link" + act("users") })</li>
+                </ul>
+                <div class="d-flex align-items-center gap-2">
+                    @if (!string.IsNullOrEmpty(adminName))
+                    {
+                        <span class="navbar-text text-light small">Xin chào, <strong>@adminName</strong></span>
+                    }
+                    <a class="btn btn-sm btn-outline-secondary" href="@Url.Action("Index", "Home", new { area = "" })" target="_blank" rel="noopener">Xem website</a>
+                    @using (Html.BeginForm("Logout", "Account", FormMethod.Post, new { @class = "d-inline" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-outline-light">Đăng xuất</button>
+                    }
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 py-4 body-content">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+            </div>
+        }
+
+        @RenderBody()
+
+        <hr />
+        <footer class="text-muted small">
+            <p class="mb-1">&copy; @DateTime.Now.Year - GEARVN</p>
+            <p class="mb-0">Phan Nhật Huy &middot; Lê Trần Nguyên Khang &middot; Trần Minh Nhân &middot; Nguyễn Gia Bảo</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

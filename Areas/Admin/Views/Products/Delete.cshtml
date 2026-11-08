@@ -1,0 +1,23 @@
+﻿@model Web_PC_Builder.Models.Product
+@{
+    ViewBag.Title = "Xóa sản phẩm";
+}
+
+<div class="card shadow-sm border-danger">
+    <div class="card-header bg-danger text-white"><h5 class="mb-0">Xóa sản phẩm</h5></div>
+    <div class="card-body">
+        @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2" })
+        <p class="mb-3">Bạn có chắc chắn muốn xóa sản phẩm này?</p>
+        @Html.Partial("_PVProductInfo", Model)
+    </div>
+    <div class="card-footer bg-white">
+        @using (Html.BeginForm("Delete", "Products", new { id = Model.ProductID }, FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-danger">Xóa</button>
+                @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+            </div>
+        }
+    </div>
+</div>

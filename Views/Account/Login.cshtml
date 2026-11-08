@@ -1,4 +1,5 @@
-﻿﻿@{
+﻿@model Web_PC_Builder.Models.ViewModel.LoginVM
+@{
     ViewBag.Title = "Đăng nhập";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -6,41 +7,31 @@
 <div class="account-page">
     <div class="account-card">
         <h2>ĐĂNG NHẬP</h2>
-        <p class="account-subtitle">
-            Chào mừng bạn đến với PC Builder
-        </p>
+        <p class="account-subtitle">Chào mừng bạn đến với PC Builder</p>
 
-        @using (Html.BeginForm("Login", "Account",
-            FormMethod.Post, new { id = "loginForm" }))
+        @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl },
+            FormMethod.Post, new { id = "loginForm", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email"
-                       class="form-control"
-                       placeholder="Nhập email của bạn"
-                       required />
+                <input type="email" id="email" name="Email" value="@Model.Email"
+                       class="form-control" placeholder="Nhập email của bạn" required />
             </div>
 
             <div class="form-group">
                 <label for="password">Mật khẩu</label>
-                <input type="password" id="password"
-                       name="password" class="form-control"
-                       placeholder="Nhập mật khẩu"
-                       required minlength="6" />
+                <input type="password" id="password" name="Password"
+                       class="form-control" placeholder="Nhập mật khẩu" required minlength="6" />
             </div>
 
             if (ViewBag.Error != null)
             {
-                <div class="account-error">
-                    @ViewBag.Error
-                </div>
+                <div class="account-error">@ViewBag.Error</div>
             }
 
-            <button type="submit" class="account-button">
-                ĐĂNG NHẬP
-            </button>
+            <button type="submit" class="account-button">ĐĂNG NHẬP</button>
         }
 
         <p class="account-footer">
@@ -51,26 +42,21 @@
 </div>
 
 @section scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.validate.min.js"></script>
     <script>
         $(function () {
             $("#loginForm").validate({
+                errorClass: "field-error",
                 rules: {
-                    email: {
-                        required: true,
-                        email: true
-                    },
-                    password: {
-                        required: true,
-                        minlength: 6
-                    }
+                    Email: { required: true, email: true },
+                    Password: { required: true, minlength: 6 }
                 },
                 messages: {
-                    email: {
+                    Email: {
                         required: "Vui lòng nhập email.",
                         email: "Email không đúng định dạng."
                     },
-                    password: {
+                    Password: {
                         required: "Vui lòng nhập mật khẩu.",
                         minlength: "Mật khẩu tối thiểu 6 ký tự."
                     }

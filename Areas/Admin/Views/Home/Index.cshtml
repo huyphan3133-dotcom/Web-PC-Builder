@@ -1,0 +1,163 @@
+﻿
+@model Web_PC_Builder.Models.ViewModel.DashboardVM
+@{
+    ViewBag.Title = "Thống kê";
+}
+
+<h3 class="mb-3">Thống kê tổng quan</h3>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-2">
+        <a href="@Url.Action("Index", "Products")" class="text-decoration-none text-reset">
+            <div class="card stat-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Sản phẩm</div>
+                    <div class="stat-value">@Model.TotalProducts</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-2">
+        <a href="@Url.Action("Index", "Categories")" class="text-decoration-none text-reset">
+            <div class="card stat-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Danh mục</div>
+                    <div class="stat-value">@Model.TotalCategories</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-2">
+        <a href="@Url.Action("Index", "Customers")" class="text-decoration-none text-reset">
+            <div class="card stat-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Khách hàng</div>
+                    <div class="stat-value">@Model.TotalCustomers</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-6 col-lg-2">
+        <a href="@Url.Action("Index", "Orders")" class="text-decoration-none text-reset">
+            <div class="card stat-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="text-muted small">Đơn hàng</div>
+                    <div class="stat-value">@Model.TotalOrders</div>
+                    <div class="small text-muted">@Model.OpenOrders đang chờ xử lý</div>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col-12 col-lg-4">
+        <div class="card stat-card shadow-sm h-100">
+            <div class="card-body">
+                <div class="text-muted small">Doanh thu (không tính đơn đã hủy)</div>
+                <div class="stat-value" style="color:var(--gvn-red)">@AppHelper.Vnd(Model.TotalRevenue)</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Doanh thu 6 tháng gần nhất</div>
+            <div class="card-body"><div id="chartRevenue" class="chart-box"></div></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Đơn hàng theo trạng thái</div>
+            <div class="card-body"><div id="chartStatus" class="chart-box"></div></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white fw-semibold">Top 5 sản phẩm bán chạy</div>
+            <div class="card-body"><div id="chartTop" class="chart-box"></div></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Đơn hàng mới nhất</span>
+                @Html.ActionLink("Xem tất cả", "Index", "Orders", null, new { @class = "small" })
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr><th>Mã</th><th>Khách hàng</th><th>Ngày</th><th class="text-end">Tổng tiền</th><th>Trạng thái</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in Model.RecentOrders)
+                        {
+                            <tr>
+                                <td>@Html.ActionLink("#" + o.OrderID, "Details", "Orders", new { id = o.OrderID }, null)</td>
+                                <td>@o.Customer.CustomerName</td>
+                                <td>@AppHelper.Date(o.OrderDate)</td>
+                                <td class="text-end">@AppHelper.Vnd(o.TotalAmount)</td>
+                                <td><span class="badge @OrderConst.StatusBadge(o.OrderStatus)">@o.OrderStatus</span></td>
+                            </tr>
+                        }
+                        @if (!Model.RecentOrders.Any())
+                        {
+                            <tr><td colspan="5" class="text-center text-muted py-4">Chưa có đơn hàng nào.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(drawCharts);
+
+        function emptyBox(id) {
+            document.getElementById(id).innerHTML = '<p class="text-muted text-center pt-5">Chưa có dữ liệu.</p>';
+        }
+
+        function drawCharts() {
+            var revenue = google.visualization.arrayToDataTable(@Html.Raw(Model.RevenueByMonthJson));
+            var status = google.visualization.arrayToDataTable(@Html.Raw(Model.OrdersByStatusJson));
+            var top = google.visualization.arrayToDataTable(@Html.Raw(Model.TopProductsJson));
+
+            new google.visualization.ColumnChart(document.getElementById('chartRevenue')).draw(revenue, {
+                legend: { position: 'none' },
+                colors: ['#d70018'],
+                chartArea: { width: '85%', height: '75%' },
+                vAxis: { format: 'short', minValue: 0 }
+            });
+
+            if (status.getNumberOfRows() === 0) {
+                emptyBox('chartStatus');
+            } else {
+                new google.visualization.PieChart(document.getElementById('chartStatus')).draw(status, {
+                    pieHole: 0.45,
+                    chartArea: { width: '95%', height: '85%' },
+                    legend: { position: 'bottom' }
+                });
+            }
+
+            if (top.getNumberOfRows() === 0) {
+                emptyBox('chartTop');
+            } else {
+                new google.visualization.BarChart(document.getElementById('chartTop')).draw(top, {
+                    legend: { position: 'none' },
+                    colors: ['#0d6efd'],
+                    chartArea: { left: 190, width: '60%', height: '80%' }
+                });
+            }
+        }
+
+        window.addEventListener('resize', function () {
+            if (window.google && google.visualization) { drawCharts(); }
+        });
+    </script>
+}

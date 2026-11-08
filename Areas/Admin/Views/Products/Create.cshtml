@@ -1,0 +1,24 @@
+﻿@model Web_PC_Builder.Models.Product
+@{
+    ViewBag.Title = "Thêm sản phẩm";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-gvn"><h5 class="mb-0">Thêm sản phẩm mới</h5></div>
+    <div class="card-body">
+        @using (Html.BeginForm("Create", "Products", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+            @Html.Partial("_PVCreateEditProduct", Model)
+
+            <div class="d-flex gap-2 mt-2">
+                <button type="submit" class="btn btn-gvn">Lưu sản phẩm</button>
+                @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+            </div>
+        }
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

@@ -1,4 +1,5 @@
-﻿@{
+﻿@model Web_PC_Builder.Models.ViewModel.RegisterVM
+@{
     ViewBag.Title = "Đăng ký tài khoản";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -6,60 +7,49 @@
 <div class="account-page">
     <div class="account-card">
         <h2>TẠO TÀI KHOẢN</h2>
-        <p class="account-subtitle">
-            Đăng ký để trải nghiệm PC Builder
-        </p>
+        <p class="account-subtitle">Đăng ký để trải nghiệm PC Builder</p>
 
-        @using (Html.BeginForm("Register", "Account",
-            FormMethod.Post, new { id = "registerForm" }))
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post,
+            new { id = "registerForm", novalidate = "novalidate" }))
         {
             @Html.AntiForgeryToken()
 
             <div class="form-group">
                 <label for="fullName">Họ và tên</label>
-                <input type="text" id="fullName" name="fullName"
-                       class="form-control"
-                       placeholder="Nhập họ và tên"
-                       required minlength="2" />
+                <input type="text" id="fullName" name="FullName" value="@Model.FullName"
+                       class="form-control" placeholder="Nhập họ và tên" required minlength="2" />
             </div>
 
             <div class="form-group">
                 <label for="email">Email</label>
-                <input type="email" id="email" name="email"
-                       class="form-control"
-                       placeholder="Nhập email"
-                       required />
+                <input type="email" id="email" name="Email" value="@Model.Email"
+                       class="form-control" placeholder="Nhập email" required />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Số điện thoại</label>
+                <input type="tel" id="phone" name="Phone" value="@Model.Phone"
+                       class="form-control" placeholder="VD: 0901234567" required />
             </div>
 
             <div class="form-group">
                 <label for="password">Mật khẩu</label>
-                <input type="password" id="password"
-                       name="password" class="form-control"
-                       placeholder="Tối thiểu 6 ký tự"
-                       required minlength="6" />
+                <input type="password" id="password" name="Password"
+                       class="form-control" placeholder="Tối thiểu 6 ký tự" required minlength="6" />
             </div>
 
             <div class="form-group">
-                <label for="confirmPassword">
-                    Xác nhận mật khẩu
-                </label>
-                <input type="password" id="confirmPassword"
-                       name="confirmPassword"
-                       class="form-control"
-                       placeholder="Nhập lại mật khẩu"
-                       required />
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <input type="password" id="confirmPassword" name="ConfirmPassword"
+                       class="form-control" placeholder="Nhập lại mật khẩu" required />
             </div>
 
             if (ViewBag.Error != null)
             {
-                <div class="account-error">
-                    @ViewBag.Error
-                </div>
+                <div class="account-error">@ViewBag.Error</div>
             }
 
-            <button type="submit" class="account-button">
-                ĐĂNG KÝ
-            </button>
+            <button type="submit" class="account-button">ĐĂNG KÝ</button>
         }
 
         <p class="account-footer">
@@ -70,42 +60,54 @@
 </div>
 
 @section scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    <script src="~/Scripts/jquery.validate.min.js"></script>
     <script>
         $(function () {
+            $.validator.addMethod("vnphone", function (value, element) {
+                return this.optional(element) || /^(0|\+84)\d{9,10}$/.test(value);
+            }, "Số điện thoại không hợp lệ (VD: 0901234567).");
+
+            $.validator.addMethod("trimmedMin", function (value, element, min) {
+                return $.trim(value).length >= min;
+            }, "Họ tên phải có ít nhất 2 ký tự (không tính khoảng trắng).");
+
+            $.validator.addMethod("nospace", function (value) {
+                return !/\s/.test(value);
+            }, "Không được chứa khoảng trắng.");
+
+            // Tự cắt khoảng trắng thừa khi rời khỏi ô nhập
+            $("#fullName").on("blur", function () {
+                $(this).val($.trim($(this).val()).replace(/\s+/g, " "));
+            });
+            $("#email, #phone").on("blur", function () {
+                $(this).val($.trim($(this).val()));
+            });
+
             $("#registerForm").validate({
+                errorClass: "field-error",
                 rules: {
-                    fullName: {
-                        required: true,
-                        minlength: 2
-                    },
-                    email: {
-                        required: true,
-                        email: true
-                    },
-                    password: {
-                        required: true,
-                        minlength: 6
-                    },
-                    confirmPassword: {
-                        required: true,
-                        equalTo: "#password"
-                    }
+                    FullName: { required: true, trimmedMin: 2 },
+                    Email: { required: true, email: true },
+                    Phone: { required: true, vnphone: true },
+                    Password: { required: true, minlength: 6, nospace: true },
+                    ConfirmPassword: { required: true, equalTo: "#password" }
                 },
                 messages: {
-                    fullName: {
+                    FullName: {
                         required: "Vui lòng nhập họ tên.",
-                        minlength: "Họ tên phải có ít nhất 2 ký tự."
+                        trimmedMin: "Họ tên phải có ít nhất 2 ký tự (không tính khoảng trắng)."
                     },
-                    email: {
+                    Email: {
                         required: "Vui lòng nhập email.",
                         email: "Email không hợp lệ."
                     },
-                    password: {
+                    Phone: { required: "Vui lòng nhập số điện thoại.", vnphone: "Số điện thoại không hợp lệ, không chứa khoảng trắng (VD: 0901234567)." },
+                    Password: {
                         required: "Vui lòng nhập mật khẩu.",
-                        minlength: "Mật khẩu tối thiểu 6 ký tự."
+                        minlength: "Mật khẩu tối thiểu 6 ký tự.",
+                        nospace: "Mật khẩu không được chứa khoảng trắng."
                     },
-                    confirmPassword: {
+                    ConfirmPassword: {
                         required: "Vui lòng xác nhận mật khẩu.",
                         equalTo: "Hai mật khẩu không khớp."
                     }

@@ -1,0 +1,31 @@
+﻿@model Web_PC_Builder.Models.User
+@{
+    ViewBag.Title = "Xóa tài khoản";
+    string reason = ViewBag.CannotDeleteReason as string;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white"><h5 class="mb-0">Xóa tài khoản quản trị</h5></div>
+            <div class="card-body">
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2" })
+
+                <p>Bạn có chắc chắn muốn xóa tài khoản <strong>@Model.Username</strong>?</p>
+                @if (!string.IsNullOrEmpty(reason))
+                {
+                    <div class="alert alert-warning py-2">@reason</div>
+                }
+
+                @using (Html.BeginForm("Delete", "Users", new { username = Model.Username }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger" @(string.IsNullOrEmpty(reason) ? "" : "disabled")>Xóa</button>
+                        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

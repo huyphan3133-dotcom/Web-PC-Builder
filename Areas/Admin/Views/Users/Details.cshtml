@@ -1,0 +1,26 @@
+﻿@model Web_PC_Builder.Models.User
+@{
+    ViewBag.Title = "Chi tiết tài khoản";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Chi tiết tài khoản</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Username)</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.Username</dd>
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.UserRole)</dt>
+                    <dd class="col-sm-8"><span class="badge bg-danger">Quản trị</span></dd>
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Password)</dt>
+                    <dd class="col-sm-8 text-muted">•••••••• (đã mã hóa)</dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-white d-flex gap-2">
+                @Html.ActionLink("Đổi mật khẩu", "Edit", new { username = Model.Username }, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+            </div>
+        </div>
+    </div>
+</div>
