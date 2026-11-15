@@ -1,10 +1,20 @@
-﻿@model Web_PC_Builder.Models.Order
+﻿
+@model Web_PC_Builder.Models.Order
 @{
     ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID;
     decimal linesTotal = 0m;
     bool locked = OrderConst.IsLocked(Model.OrderStatus);
     bool isCod = OrderRules.IsCod(Model.PaymentMethod);
     string serverError = TempData["OrderError"] as string;
+
+    var customer = Model.Customer;
+    string curStatus = (Model.OrderStatus ?? "").Trim();
+    string curPayment = (Model.PaymentStatus ?? "").Trim();
+
+    // Thông báo cho phần cảnh báo ở client, dựng từ hằng của OrderConst để luôn khớp tên trạng thái.
+    string paidText = OrderConst.PaymentText(OrderConst.PayPaid);
+    string errCancelledPaid = "Không thể đánh dấu \"" + paidText + "\" cho đơn \"" + OrderConst.Cancelled + "\".";
+    string errCodNotDelivered = "Đơn COD chỉ được đánh dấu \"" + paidText + "\" sau khi đơn ở trạng thái \"" + OrderConst.Delivered + "\".";
 }
 
 <style>
@@ -52,11 +62,20 @@
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-5">Họ và tên</dt>
-                    <dd class="col-sm-7 fw-semibold wrap-text">@Html.ActionLink(Model.Customer.CustomerName, "Details", "Customers", new { id = Model.CustomerID }, null)</dd>
+                    <dd class="col-sm-7 fw-semibold wrap-text">
+                        @if (customer != null)
+                        {
+                            @Html.ActionLink(customer.CustomerName, "Details", "Customers", new { id = Model.CustomerID }, null)
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </dd>
                     <dt class="col-sm-5">Điện thoại</dt>
-                    <dd class="col-sm-7 wrap-text">@Model.Customer.CustomerPhone</dd>
+                    <dd class="col-sm-7 wrap-text">@(customer == null || string.IsNullOrEmpty(customer.CustomerPhone) ? "-" : customer.CustomerPhone)</dd>
                     <dt class="col-sm-5">Email</dt>
-                    <dd class="col-sm-7 wrap-text">@(string.IsNullOrEmpty(Model.Customer.CustomerEmail) ? "-" : Model.Customer.CustomerEmail)</dd>
+                    <dd class="col-sm-7 wrap-text">@(customer == null || string.IsNullOrEmpty(customer.CustomerEmail) ? "-" : customer.CustomerEmail)</dd>
                 </dl>
             </div>
         </div>
@@ -111,7 +130,7 @@
                             <select id="orderStatus" name="orderStatus" class="form-select">
                                 @foreach (var s in OrderConst.Statuses)
                                 {
-                                    <option value="@s" @(Model.OrderStatus == s ? "selected" : "")>@s</option>
+                                    <option value="@s" @(curStatus == s ? "selected" : "")>@s</option>
                                 }
                             </select>
                         </div>
@@ -120,7 +139,7 @@
                             <select id="paymentStatus" name="paymentStatus" class="form-select">
                                 @foreach (var s in OrderConst.PaymentStatuses)
                                 {
-                                    <option value="@s" data-paid="@(OrderRules.IsPaid(s) ? "1" : "0")" @(Model.PaymentStatus == s ? "selected" : "")>@OrderConst.PaymentText(s)</option>
+                                    <option value="@s" data-paid="@(s == OrderConst.PayPaid ? "1" : "0")" @(curPayment == s ? "selected" : "")>@OrderConst.PaymentText(s)</option>
                                 }
                             </select>
                         </div>
@@ -159,9 +178,16 @@
                     decimal lineTotal = d.TotalPrice ?? (d.UnitPrice * d.Quantity);
                     linesTotal += lineTotal;
                     <tr>
-                        <td><img src="@Url.ProductImage(d.Product.ProductImage)" alt="" class="thumb" /></td>
+                        <td><img src="@Url.ProductImage(d.Product == null ? null : d.Product.ProductImage)" alt="" class="thumb" /></td>
                         <td class="wrap-text">
-                            @Html.ActionLink(d.Product.ProductName, "Details", "Products", new { id = d.ProductID }, null)
+                            @if (d.Product != null)
+                            {
+                                @Html.ActionLink(d.Product.ProductName, "Details", "Products", new { id = d.ProductID }, null)
+                            }
+                            else
+                            {
+                                <span>Sản phẩm #@d.ProductID</span>
+                            }
                         </td>
                         <td class="text-end">@AppHelper.Vnd(d.UnitPrice)</td>
                         <td class="text-center">@d.Quantity</td>
@@ -187,13 +213,13 @@
 {
     <script>
         (function () {
-            // Cảnh báo sớm ở client, dùng chung hằng và thông báo với server (OrderConst / OrderRules).
+            // Cảnh báo sớm ở client, dùng chung tên trạng thái với server (OrderConst).
             // Server (OrderRules.Validate trong controller) vẫn quyết định cuối cùng.
             var isCod      = @(isCod ? "true" : "false");
             var CANCELLED  = @Html.Raw(Json.Encode(OrderConst.Cancelled));
             var DELIVERED  = @Html.Raw(Json.Encode(OrderConst.Delivered));
-            var ERR_CANCEL = @Html.Raw(Json.Encode(OrderRules.ErrCancelledPaid));
-            var ERR_COD    = @Html.Raw(Json.Encode(OrderRules.ErrCodNotDelivered));
+            var ERR_CANCEL = @Html.Raw(Json.Encode(errCancelledPaid));
+            var ERR_COD    = @Html.Raw(Json.Encode(errCodNotDelivered));
 
             var form   = document.getElementById('statusForm');
             var selOrd = document.getElementById('orderStatus');

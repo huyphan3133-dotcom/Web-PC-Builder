@@ -4,9 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Linq;
 using System.Web;
-
-// Các file Category.cs, Product.cs... do EF (T4) sinh ra và sẽ bị ghi đè khi "Update Model from Database".
-// Vì vậy phần nhãn tiếng Việt + validation + trường UploadImg được đặt ở file riêng này (partial class + MetadataType).
 namespace Web_PC_Builder.Models
 {
     // ------------------------------------------------------------ Chuẩn hóa SĐT (dùng chung)
@@ -221,7 +218,7 @@ namespace Web_PC_Builder.Models
 
     // ------------------------------------------------------------ DbContext
     // Tự chuẩn hóa SĐT khách hàng ngay trước khi lưu, nên mọi nơi (Create, Edit, đăng ký, đặt hàng...)
-    // đều không cần tự xử lý. Tên class phải trùng với DbContext của bạn.
+    // đều không cần tự xử lý. Tên class phải trùng với DbContext (My_StoreEntities).
     public partial class My_StoreEntities
     {
         public override int SaveChanges()

@@ -60,7 +60,8 @@ namespace Web_PC_Builder.Models.ViewModel
         /// <summary>
         /// SĐT di động VN: 10 số, đầu số 03/05/07/08/09.
         /// Khi gán giá trị, tự bỏ khoảng trắng/dấu chấm/gạch và đổi +84 / 84 ở đầu thành 0,
-        /// nên giá trị lưu vào DB luôn có dạng 0xxxxxxxxx.
+        /// nên giá trị kiểm tra và lưu vào DB luôn có dạng 0xxxxxxxxx.
+        /// Chuỗi như "00000000000000000000" không khớp quy tắc nên bị báo lỗi.
         /// </summary>
         [Display(Name = "Số điện thoại")]
         [Required(ErrorMessage = "Vui lòng nhập số điện thoại.")]
@@ -87,7 +88,9 @@ namespace Web_PC_Builder.Models.ViewModel
         {
             if (string.IsNullOrWhiteSpace(phone)) return phone;
 
-            string p = new string(phone.Where(c => !char.IsWhiteSpace(c) && c != '.' && c != '-' && c != '(' && c != ')').ToArray());
+            string p = new string(phone
+                .Where(c => !char.IsWhiteSpace(c) && c != '.' && c != '-' && c != '(' && c != ')')
+                .ToArray());
 
             if (p.StartsWith("+84")) p = "0" + p.Substring(3);
             else if (p.StartsWith("84") && p.Length == 11) p = "0" + p.Substring(2);
