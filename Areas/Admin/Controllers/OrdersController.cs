@@ -103,7 +103,10 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult UpdateStatus(int id, string orderStatus, string paymentStatus)
         {
-            Order order = db.Orders.Find(id);
+            // Nạp kèm chi tiết đơn + sản phẩm để hoàn kho khi hủy.
+            Order order = db.Orders
+                .Include(o => o.OrderDetails.Select(d => d.Product))
+                .SingleOrDefault(o => o.OrderID == id);
             if (order == null)
             {
                 return HttpNotFound();
@@ -121,16 +124,53 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
                 return RedirectToAction("Details", new { id = id });
             }
 
+            // Quy tắc nghiệp vụ dùng chung (cùng luật với JS trên form): kiểm tra ở SERVER, không tin client.
+            string error = OrderRules.Validate(orderStatus, paymentStatus, order.PaymentMethod);
+            if (error != null)
+            {
+                TempData["Error"] = error;
+                return RedirectToAction("Details", new { id = id });
+            }
+
+            // Chỉ hoàn kho một lần: khi đơn CHUYỂN sang "Đã hủy" (đơn đã hủy sẽ bị IsLocked chặn ở trên).
+            bool becomingCancelled = orderStatus == OrderConst.Cancelled
+                                     && order.OrderStatus != OrderConst.Cancelled;
+
             if (order.OrderStatus != orderStatus)
             {
                 order.StatusUpdatedAt = DateTime.Now;   // đếm lại thời gian từ lúc đổi trạng thái
             }
             order.OrderStatus = orderStatus;
             order.PaymentStatus = paymentStatus;
+
+            if (becomingCancelled)
+            {
+                RestoreStock(order);   // hoàn tồn kho, cùng lần SaveChanges bên dưới
+            }
+
             db.SaveChanges();
 
-            TempData["Success"] = "Đã cập nhật đơn hàng #" + id + ".";
+            TempData["Success"] = becomingCancelled
+                ? "Đã hủy đơn hàng #" + id + " và hoàn lại tồn kho."
+                : "Đã cập nhật đơn hàng #" + id + ".";
             return RedirectToAction("Details", new { id = id });
+        }
+
+        /// <summary>
+        /// Hoàn lại tồn kho khi đơn bị hủy: cộng Quantity của từng dòng chi tiết trả về Product.Stock.
+        /// Không gọi SaveChanges ở đây: UpdateStatus lưu cùng lúc với việc đổi trạng thái đơn.
+        /// Nếu TV1 đã có hàm RestoreStock riêng thì thay thân hàm này bằng lời gọi hàm đó.
+        /// </summary>
+        private void RestoreStock(Order order)
+        {
+            foreach (var d in order.OrderDetails)
+            {
+                Product product = d.Product ?? db.Products.Find(d.ProductID);
+                if (product != null)
+                {
+                    product.Stock += d.Quantity;
+                }
+            }
         }
     }
 }

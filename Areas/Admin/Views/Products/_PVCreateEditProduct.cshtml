@@ -43,6 +43,17 @@
             </div>
         </div>
 
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                @Html.LabelFor(m => m.Stock, "Tồn kho", new { @class = "form-label fw-semibold" })
+                <div class="input-group">
+                    @Html.TextBoxFor(m => m.Stock, new { @class = "form-control", type = "number", min = 0, step = 1, inputmode = "numeric", placeholder = "Số lượng còn trong kho" })
+                    <span class="input-group-text">sản phẩm</span>
+                </div>
+                @Html.ValidationMessageFor(m => m.Stock, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
         <div class="mb-3">
             @Html.LabelFor(m => m.ProductDescription, new { @class = "form-label fw-semibold" })
             @Html.TextAreaFor(m => m.ProductDescription, 8, 20, new { @class = "form-control", placeholder = "Mỗi dòng một thông số, VD:\nCPU: Intel Core i5-12400F\nRAM: 16GB DDR4" })

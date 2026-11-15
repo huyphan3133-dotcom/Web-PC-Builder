@@ -31,6 +31,9 @@
             return '<tr><td>' + P.esc(s.slice(0, i)) + '</td><td>' + P.esc(s.slice(i + 1).trim()) + '</td></tr>';
         }).join('');
 
+        var soldOut = (p.stock === 0);
+        var maxQty = (p.stock === null) ? 10 : Math.max(1, Math.min(10, p.stock));
+
         var related = P.products.filter(function (x) { return x.cat === p.cat && x.id !== p.id; }).slice(0, 4);
 
         root.innerHTML =
@@ -43,26 +46,28 @@
             '<div class="pd-dprice">' + P.fmt(p.price) +
             (p.old > p.price ? '<span class="pd-old">' + P.fmt(p.old) + '</span> <span class="pd-tag" style="position:static;display:inline-block;vertical-align:middle">-' + d + '%</span>' : '') +
             '</div>' +
+            P.stockLabel(p) +
             '<table class="pd-specs">' + specRows + '</table>' +
-            '<div class="pd-qty"><label for="pd-qty">Số lượng</label><input type="number" id="pd-qty" value="1" min="1" max="10"></div>' +
+            '<div class="pd-qty"><label for="pd-qty">Số lượng</label><input type="number" id="pd-qty" value="1" min="1" max="' + maxQty + '"' + (soldOut ? ' disabled' : '') + '></div>' +
             '<div class="pd-actions">' +
-            '<button type="button" class="pd-btn" id="pd-add">Thêm vào giỏ</button>' +
-            '<button type="button" class="pd-btn dark" id="pd-buy">Mua ngay</button>' +
+            '<button type="button" class="pd-btn" id="pd-add"' + (soldOut ? ' disabled' : '') + '>' + (soldOut ? 'Hết hàng' : 'Thêm vào giỏ') + '</button>' +
+            '<button type="button" class="pd-btn dark" id="pd-buy"' + (soldOut ? ' disabled' : '') + '>Mua ngay</button>' +
             '</div>' +
             '</div>' +
             '</div>' +
             (related.length ? '<div class="pd-related"><h2>Sản phẩm cùng danh mục</h2><div class="pd-grid" id="pd-rel">' + related.map(P.card).join('') + '</div></div>' : '');
 
-        function qty() { return Math.max(1, parseInt(document.getElementById('pd-qty').value, 10) || 1); }
+        // Số lượng nhập tối đa = min(10, tồn kho)
+        function qty() { return Math.min(maxQty, Math.max(1, parseInt(document.getElementById('pd-qty').value, 10) || 1)); }
 
         document.getElementById('pd-add').addEventListener('click', function () {
-            P.add(p.id, qty());
+            if (!P.add(p.id, qty())) return;
             var b = this, old = b.textContent;
             b.textContent = 'Đã thêm ✓';
             setTimeout(function () { b.textContent = old; }, 900);
         });
         document.getElementById('pd-buy').addEventListener('click', function () {
-            P.add(p.id, qty());
+            if (!P.add(p.id, qty())) return;
             location.href = P.urls.cart;
         });
 
@@ -70,7 +75,7 @@
         if (rel) rel.addEventListener('click', function (e) {
             var b = e.target.closest('.pd-add');
             if (!b) return;
-            P.add(+b.dataset.id, 1);
+            if (!P.add(+b.dataset.id, 1)) return;
             var old = b.textContent;
             b.textContent = 'Đã thêm ✓';
             setTimeout(function () { b.textContent = old; }, 900);

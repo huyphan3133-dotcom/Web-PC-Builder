@@ -102,6 +102,13 @@ namespace Web_PC_Builder.Helpers
                             o.OrderStatus = OrderConst.Cancelled;
                             o.PaymentStatus = OrderConst.PayCancelled;
                             o.StatusUpdatedAt = now;
+
+                            // Đơn tự hủy thì hoàn lại tồn kho (giống khi admin hủy).
+                            foreach (OrderDetail d in o.OrderDetails)
+                            {
+                                Product product = d.Product ?? db.Products.Find(d.ProductID);
+                                if (product != null) product.Stock += d.Quantity;
+                            }
                             changed = true;
                         }
                     }

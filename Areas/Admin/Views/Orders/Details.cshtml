@@ -1,9 +1,40 @@
-﻿@model Web_PC_Builder.Models.Order
+﻿
+@model Web_PC_Builder.Models.Order
 @{
     ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID;
     decimal linesTotal = 0m;
     bool locked = OrderConst.IsLocked(Model.OrderStatus);
+    bool isCod = OrderRules.IsCod(Model.PaymentMethod);
+    string serverError = TempData["OrderError"] as string;
+
+    var customer = Model.Customer;
+    string curStatus = (Model.OrderStatus ?? "").Trim();
+    string curPayment = (Model.PaymentStatus ?? "").Trim();
+
+    // Thông báo cho phần cảnh báo ở client, dựng từ hằng của OrderConst để luôn khớp tên trạng thái.
+    string paidText = OrderConst.PaymentText(OrderConst.PayPaid);
+    string errCancelledPaid = "Không thể đánh dấu \"" + paidText + "\" cho đơn \"" + OrderConst.Cancelled + "\".";
+    string errCodNotDelivered = "Đơn COD chỉ được đánh dấu \"" + paidText + "\" sau khi đơn ở trạng thái \"" + OrderConst.Delivered + "\".";
 }
+
+<style>
+    /* Chữ dài tự xuống dòng, không tràn khung */
+    .wrap-text {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .wrap-pre {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: pre-line;
+    }
+
+    td.wrap-text {
+        max-width: 360px;
+    }
+</style>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="mb-0">
@@ -16,6 +47,14 @@
     </div>
 </div>
 
+@if (!string.IsNullOrEmpty(serverError))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @serverError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
 <div class="row g-3 mb-3">
     <div class="col-lg-4">
         <div class="card shadow-sm h-100">
@@ -23,11 +62,20 @@
             <div class="card-body">
                 <dl class="row mb-0">
                     <dt class="col-sm-5">Họ và tên</dt>
-                    <dd class="col-sm-7 fw-semibold">@Html.ActionLink(Model.Customer.CustomerName, "Details", "Customers", new { id = Model.CustomerID }, null)</dd>
+                    <dd class="col-sm-7 fw-semibold wrap-text">
+                        @if (customer != null)
+                        {
+                            @Html.ActionLink(customer.CustomerName, "Details", "Customers", new { id = Model.CustomerID }, null)
+                        }
+                        else
+                        {
+                            <span>-</span>
+                        }
+                    </dd>
                     <dt class="col-sm-5">Điện thoại</dt>
-                    <dd class="col-sm-7">@Model.Customer.CustomerPhone</dd>
+                    <dd class="col-sm-7 wrap-text">@(customer == null || string.IsNullOrEmpty(customer.CustomerPhone) ? "-" : customer.CustomerPhone)</dd>
                     <dt class="col-sm-5">Email</dt>
-                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.Customer.CustomerEmail) ? "-" : Model.Customer.CustomerEmail)</dd>
+                    <dd class="col-sm-7 wrap-text">@(customer == null || string.IsNullOrEmpty(customer.CustomerEmail) ? "-" : customer.CustomerEmail)</dd>
                 </dl>
             </div>
         </div>
@@ -40,13 +88,13 @@
                     <dt class="col-sm-5">@Html.DisplayNameFor(m => m.OrderDate)</dt>
                     <dd class="col-sm-7">@AppHelper.Date(Model.OrderDate)</dd>
                     <dt class="col-sm-5">Giao tới</dt>
-                    <dd class="col-sm-7">@Model.ShippingAddress</dd>
+                    <dd class="col-sm-7 wrap-text">@Model.ShippingAddress</dd>
                     <dt class="col-sm-5">Hình thức giao</dt>
-                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.DeliveryMethod) ? "-" : Model.DeliveryMethod)</dd>
+                    <dd class="col-sm-7 wrap-text">@(string.IsNullOrEmpty(Model.DeliveryMethod) ? "-" : Model.DeliveryMethod)</dd>
                     <dt class="col-sm-5">Hình thức TT</dt>
-                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.PaymentMethod) ? "-" : Model.PaymentMethod)</dd>
+                    <dd class="col-sm-7 wrap-text">@(string.IsNullOrEmpty(Model.PaymentMethod) ? "-" : Model.PaymentMethod)</dd>
                     <dt class="col-sm-5">Ghi chú</dt>
-                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.Note) ? "-" : Model.Note)</dd>
+                    <dd class="col-sm-7 wrap-pre">@(string.IsNullOrEmpty(Model.Note) ? "-" : Model.Note)</dd>
                 </dl>
             </div>
         </div>
@@ -73,15 +121,16 @@
                 }
                 else
                 {
-                    using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderID }, FormMethod.Post))
+                    using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderID }, FormMethod.Post, new { id = "statusForm" }))
                     {
                         @Html.AntiForgeryToken()
+                        <div id="ruleAlert" class="alert alert-danger py-2 small d-none" role="alert"></div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold" for="orderStatus">Trạng thái đơn</label>
                             <select id="orderStatus" name="orderStatus" class="form-select">
                                 @foreach (var s in OrderConst.Statuses)
                                 {
-                                    <option value="@s" @(Model.OrderStatus == s ? "selected" : "")>@s</option>
+                                    <option value="@s" @(curStatus == s ? "selected" : "")>@s</option>
                                 }
                             </select>
                         </div>
@@ -90,15 +139,18 @@
                             <select id="paymentStatus" name="paymentStatus" class="form-select">
                                 @foreach (var s in OrderConst.PaymentStatuses)
                                 {
-                                    <option value="@s" @(Model.PaymentStatus == s ? "selected" : "")>@OrderConst.PaymentText(s)</option>
+                                    <option value="@s" data-paid="@(s == OrderConst.PayPaid ? "1" : "0")" @(curPayment == s ? "selected" : "")>@OrderConst.PaymentText(s)</option>
                                 }
                             </select>
                         </div>
-                        <button type="submit" class="btn btn-gvn w-100">Lưu thay đổi</button>
+                        <button type="submit" id="btnSave" class="btn btn-gvn w-100">Lưu thay đổi</button>
                         <p class="text-muted small mt-2 mb-0">
                             Đơn tự chuyển trạng thái theo thời gian (tính từ lần đổi trạng thái gần nhất):
                             Đang xử lý → Đang vận chuyển sau @OrderAutoUpdater.Format(OrderAutoUpdater.ShippingAfterMinutes) → Đã giao sau @OrderAutoUpdater.Format(OrderAutoUpdater.DeliveredAfterMinutes).
                             Đơn chờ thanh toán quá @OrderAutoUpdater.Format(OrderAutoUpdater.UnpaidCancelAfterMinutes) sẽ tự hủy.
+                        </p>
+                        <p class="text-muted small mt-1 mb-0">
+                            Quy tắc: không thể "Đã thanh toán" khi đơn "Đã hủy"@(isCod ? "; đơn COD chỉ được \"Đã thanh toán\" sau khi \"Đã giao\"" : "").
                         </p>
                     }
                 }
@@ -126,9 +178,16 @@
                     decimal lineTotal = d.TotalPrice ?? (d.UnitPrice * d.Quantity);
                     linesTotal += lineTotal;
                     <tr>
-                        <td><img src="@Url.ProductImage(d.Product.ProductImage)" alt="" class="thumb" /></td>
-                        <td>
-                            @Html.ActionLink(d.Product.ProductName, "Details", "Products", new { id = d.ProductID }, null)
+                        <td><img src="@Url.ProductImage(d.Product == null ? null : d.Product.ProductImage)" alt="" class="thumb" /></td>
+                        <td class="wrap-text">
+                            @if (d.Product != null)
+                            {
+                                @Html.ActionLink(d.Product.ProductName, "Details", "Products", new { id = d.ProductID }, null)
+                            }
+                            else
+                            {
+                                <span>Sản phẩm #@d.ProductID</span>
+                            }
                         </td>
                         <td class="text-end">@AppHelper.Vnd(d.UnitPrice)</td>
                         <td class="text-center">@d.Quantity</td>
@@ -149,3 +208,46 @@
         </table>
     </div>
 </div>
+
+@if (!locked)
+{
+    <script>
+        (function () {
+            // Cảnh báo sớm ở client, dùng chung tên trạng thái với server (OrderConst).
+            // Server (OrderRules.Validate trong controller) vẫn quyết định cuối cùng.
+            var isCod      = @(isCod ? "true" : "false");
+            var CANCELLED  = @Html.Raw(Json.Encode(OrderConst.Cancelled));
+            var DELIVERED  = @Html.Raw(Json.Encode(OrderConst.Delivered));
+            var ERR_CANCEL = @Html.Raw(Json.Encode(errCancelledPaid));
+            var ERR_COD    = @Html.Raw(Json.Encode(errCodNotDelivered));
+
+            var form   = document.getElementById('statusForm');
+            var selOrd = document.getElementById('orderStatus');
+            var selPay = document.getElementById('paymentStatus');
+            var alertB = document.getElementById('ruleAlert');
+            var btn    = document.getElementById('btnSave');
+
+            function validate() {
+                var paid = selPay.options[selPay.selectedIndex].getAttribute('data-paid') === '1';
+                if (!paid) return null;
+                if (selOrd.value === CANCELLED) return ERR_CANCEL;
+                if (isCod && selOrd.value !== DELIVERED) return ERR_COD;
+                return null;
+            }
+
+            function refresh() {
+                var err = validate();
+                alertB.textContent = err || '';
+                alertB.classList.toggle('d-none', !err);
+                btn.disabled = !!err;
+            }
+
+            selOrd.addEventListener('change', refresh);
+            selPay.addEventListener('change', refresh);
+            form.addEventListener('submit', function (e) {
+                if (validate()) { e.preventDefault(); refresh(); }
+            });
+            refresh();
+        })();
+    </script>
+}

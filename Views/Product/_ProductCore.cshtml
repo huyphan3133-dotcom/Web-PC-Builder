@@ -302,6 +302,28 @@
             margin: 28px 0 14px;
             color: #222;
         }
+
+        .pd-stock {
+            margin: 8px 0;
+            font-weight: 600;
+        }
+
+            .pd-stock.in {
+                color: #1b6e32;
+            }
+
+            .pd-stock.low {
+                color: #e67e22;
+            }
+
+            .pd-stock.out {
+                color: #e30019;
+            }
+
+        .pd-btn:disabled {
+            background: #bbb;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -328,7 +350,7 @@
             { id: 4, cat: 'PC GVN', brand: 'GVN', name: 'PC GVN Intel i7-14700F/ VGA RTX 5070Ti (DDR5)', price: 73080000, old: 74020000, img: 'pc4.png', tags: ['PC I7', 'RTX 5070TI'],
               specs: ['CPU: Intel Core i7-14700F', 'Mainboard: Z790', 'RAM: 32 GB', 'Ổ cứng: 1024 GB', 'VGA: RTX 5070 Ti'] },
 
-            //  Laptop Gaming 
+            //  Laptop Gaming
             { id: 5, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Aspire 7 A715-59G-59RD (Core 5-210H/ RTX 3050 4GB/ 16GB/ 512GB)', price: 25990000, old: 27990000, img: 'gm1.png', tags: [],
               specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 4GB', 'Màn hình: 15.6" FHD'] },
             { id: 6, cat: 'Laptop Gaming', brand: 'ACER', name: 'Laptop gaming Acer Aspire 7 A715-59G-53RH (Core 5-210H/ RTX 4050 6GB/ 16GB/ 512GB)', price: 29790000, old: 29990000, img: 'gm2.png', tags: [],
@@ -338,7 +360,7 @@
             { id: 8, cat: 'Laptop Gaming', brand: 'ASUS', name: 'Laptop gaming ASUS V16 V3607VJ-TK189W (Core 5-210H/ RTX 3050 6GB/ 16GB/ 512GB)', price: 26990000, old: 29990000, img: 'gm4.png', tags: [],
               specs: ['CPU: Core 5-210H', 'RAM: 16 GB', 'Ổ cứng: 512 GB', 'VGA: RTX 3050 6GB', 'Màn hình: 16" WUXGA 144Hz'] },
 
-            // Laptop (văn phòng) 
+            // Laptop (văn phòng)
             { id: 9, cat: 'Laptop', brand: 'ACER', name: 'Laptop Acer Aspire Lite 15 AL15-53P-56QH (Core 5-120U/ 8GB/ 512GB/ 15.6" FHD)', price: 18890000, old: 24990000, img: 'vp1.png', tags: [],
               specs: ['CPU: Core 5-120U', 'RAM: 8 GB', 'Ổ cứng: 512 GB', 'Đồ họa: Intel UHD Graphics', 'Màn hình: 15.6" FHD IPS'] },
             { id: 10, cat: 'Laptop', brand: 'ASUS', name: 'Laptop Asus ExpertBook P1403CVA-C5H16-50W (Core 5-210H/ 16GB/ 512GB/ 14" FHD)', price: 23390000, old: 23390000, img: 'vp2.png', tags: [],
@@ -379,6 +401,12 @@
               specs: ['Màu: Đen', 'Pin: Sạc', 'DPI: 2400'] }
         ];
 
+        // Tồn kho lấy từ database (nối theo tên sản phẩm). p.stock = null nghĩa là sản phẩm chưa có trong DB.
+        var STOCK = @Html.Raw(ViewBag.StockJson ?? "{}");
+        products.forEach(function (p) {
+            p.stock = STOCK.hasOwnProperty(p.name) ? STOCK[p.name] : null;
+        });
+
         /*  Tiện ích */
         function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
         function esc(s) {
@@ -418,17 +446,35 @@
             if (!el) return;
             el.textContent = getCart().reduce(function (s, x) { return s + x.qty; }, 0);
         }
+        // Trả về true nếu đã thêm vào giỏ, false nếu hết hàng / đã đạt giới hạn tồn kho.
         function add(id, qty) {
             var p = byId(id);
-            if (!p) return;
+            if (!p) return false;
             qty = Math.max(1, parseInt(qty, 10) || 1);
             var cart = getCart();
             var f = cart.filter(function (x) { return x.id === id; })[0];
+            if (p.stock !== null) {
+                var room = p.stock - (f ? f.qty : 0);
+                if (room <= 0) {
+                    alert(p.stock <= 0 ? 'Sản phẩm này đã hết hàng.' : 'Trong giỏ đã có tối đa ' + p.stock + ' sản phẩm này (hết tồn kho).');
+                    return false;
+                }
+                qty = Math.min(qty, room);
+            }
             if (f) f.qty += qty;
             else cart.push({ id: p.id, name: p.name, price: p.price, image: img(p.img), qty: qty, cat: p.cat, brand: p.brand, file: p.img, desc: p.specs.join(', ') });
             saveCart(cart);
+            return true;
         }
         badge();
+
+        // Nhãn tồn kho: "Còn 20 sản phẩm" / "Chỉ còn 3 sản phẩm" / "Hết hàng"
+        function stockLabel(p) {
+            if (p.stock === null) return '';
+            if (p.stock <= 0) return '<div class="pd-stock out">Hết hàng</div>';
+            if (p.stock <= 5) return '<div class="pd-stock low">Chỉ còn ' + p.stock + ' sản phẩm</div>';
+            return '<div class="pd-stock in">Còn ' + p.stock + ' sản phẩm</div>';
+        }
 
         /*Thẻ sản phẩm dùng chung  */
         function card(p) {
@@ -441,13 +487,16 @@
                 '<ul class="pd-spec">' + p.specs.slice(0, 3).map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ul>' +
                 '<div>' + (p.old > p.price ? '<span class="pd-old">' + fmt(p.old) + '</span>' : '') + '</div>' +
                 '<div class="pd-price">' + fmt(p.price) + '</div>' +
-                '<button type="button" class="pd-btn pd-add" data-id="' + p.id + '">Thêm vào giỏ</button>' +
+                stockLabel(p) +
+                (p.stock === 0
+                    ? '<button type="button" class="pd-btn" disabled>Hết hàng</button>'
+                    : '<button type="button" class="pd-btn pd-add" data-id="' + p.id + '">Thêm vào giỏ</button>') +
                 '</div>';
         }
 
         return {
             products: products, urls: urls, img: img, fmt: fmt, esc: esc, norm: norm,
-            priceRange: priceRange, byId: byId, discount: discount, add: add, badge: badge, card: card
+            priceRange: priceRange, byId: byId, discount: discount, add: add, badge: badge, card: card, stockLabel: stockLabel
         };
     })();
     </script>
