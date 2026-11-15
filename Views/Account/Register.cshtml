@@ -29,7 +29,7 @@
             <div class="form-group">
                 <label for="phone">Số điện thoại</label>
                 <input type="tel" id="phone" name="Phone" value="@Model.Phone"
-                       class="form-control" placeholder="VD: 0901234567" required />
+                       class="form-control" placeholder="VD: 0901234567" required maxlength="10" />
             </div>
 
             <div class="form-group">
@@ -64,8 +64,8 @@
     <script>
         $(function () {
             $.validator.addMethod("vnphone", function (value, element) {
-                return this.optional(element) || /^(0|\+84)\d{9,10}$/.test(value);
-            }, "Số điện thoại không hợp lệ (VD: 0901234567).");
+                return this.optional(element) || /^0\d{9}$/.test(value);
+            }, "Số điện thoại gồm 10 số, bắt đầu bằng 0 (VD: 0901234567).");
 
             $.validator.addMethod("trimmedMin", function (value, element, min) {
                 return $.trim(value).length >= min;
@@ -101,7 +101,7 @@
                         required: "Vui lòng nhập email.",
                         email: "Email không hợp lệ."
                     },
-                    Phone: { required: "Vui lòng nhập số điện thoại.", vnphone: "Số điện thoại không hợp lệ, không chứa khoảng trắng (VD: 0901234567)." },
+                    Phone: { required: "Vui lòng nhập số điện thoại.", vnphone: "Số điện thoại gồm 10 số, bắt đầu bằng 0, không chứa khoảng trắng (VD: 0901234567)." },
                     Password: {
                         required: "Vui lòng nhập mật khẩu.",
                         minlength: "Mật khẩu tối thiểu 6 ký tự.",

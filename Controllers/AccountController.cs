@@ -156,7 +156,110 @@ namespace Web_PC_Builder.Controllers
         public ActionResult Profile()
         {
             OrderAutoUpdater.Run(db);
+            return View(BuildProfileVM());
+        }
 
+        // POST: Account/UpdateProfile  (sửa họ tên, SĐT, địa chỉ của chính khách đang đăng nhập)
+        [CustomerAuthorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult UpdateProfile(UpdateProfileVM model)
+        {
+            model.FullName = CleanSpaces(model.FullName);
+            model.Phone = (model.Phone ?? "").Trim();
+            model.Address = CleanSpaces(model.Address);
+            ModelState.Clear();
+            TryValidateModel(model);
+
+            string username = (string)Session[CustomerAuthorizeAttribute.SessionKey];
+
+            if (!ModelState.IsValid)
+            {
+                // Hiện lại trang Profile, giữ nguyên những gì khách vừa nhập và mở sẵn form sửa.
+                ProfileVM vm = BuildProfileVM();
+                vm.FullName = model.FullName;
+                vm.Phone = model.Phone;
+                vm.Address = model.Address;
+                ViewBag.Error = FirstError();
+                ViewBag.EditMode = true;
+                return View("Profile", vm);
+            }
+
+            Customer customer = db.Customers.FirstOrDefault(c => c.Username == username);
+            if (customer == null)
+            {
+                customer = new Customer { Username = username, CustomerEmail = username };
+                db.Customers.Add(customer);
+            }
+
+            customer.CustomerName = model.FullName;
+            customer.CustomerPhone = model.Phone;
+            customer.CustomerAddress = string.IsNullOrEmpty(model.Address) ? null : model.Address;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateException)
+            {
+                ProfileVM vm = BuildProfileVM();
+                ViewBag.Error = "Không thể lưu thông tin lúc này. Vui lòng thử lại.";
+                ViewBag.EditMode = true;
+                return View("Profile", vm);
+            }
+
+            // Cập nhật tên hiển thị trên thanh menu.
+            Session[CustomerAuthorizeAttribute.SessionNameKey] = model.FullName;
+            TempData["ProfileMsg"] = "Đã cập nhật thông tin cá nhân.";
+            return RedirectToAction("Profile");
+        }
+
+        // GET: Account/OrderDetail/5  (chỉ xem được đơn của chính mình)
+        [CustomerAuthorize]
+        public ActionResult OrderDetail(int id)
+        {
+            OrderAutoUpdater.Run(db);
+
+            string username = (string)Session[CustomerAuthorizeAttribute.SessionKey];
+
+            // Lọc theo Username của khách đang đăng nhập: đơn của người khác -> 404, không lộ là có tồn tại.
+            OrderDetailVM vm = db.Orders
+                .Where(o => o.OrderID == id && o.Customer.Username == username)
+                .Select(o => new OrderDetailVM
+                {
+                    OrderID = o.OrderID,
+                    OrderDate = o.OrderDate,
+                    TotalAmount = o.TotalAmount,
+                    OrderStatus = o.OrderStatus,
+                    PaymentStatus = o.PaymentStatus,
+                    PaymentMethod = o.PaymentMethod,
+                    DeliveryMethod = o.DeliveryMethod,
+                    ShippingAddress = o.ShippingAddress,
+                    Note = o.Note
+                })
+                .FirstOrDefault();
+
+            if (vm == null) return HttpNotFound();
+
+            vm.Items = db.OrderDetails
+                .Where(d => d.OrderID == id)
+                .Select(d => new OrderItemVM
+                {
+                    ProductName = d.Product.ProductName,
+                    ProductImage = d.Product.ProductImage,
+                    Quantity = d.Quantity,
+                    UnitPrice = d.UnitPrice
+                })
+                .ToList();
+
+            return View(vm);
+        }
+
+        // ---------------- HỖ TRỢ ----------------
+
+        // Dựng dữ liệu trang Profile (thông tin khách + lịch sử đơn) cho khách đang đăng nhập.
+        private ProfileVM BuildProfileVM()
+        {
             string username = (string)Session[CustomerAuthorizeAttribute.SessionKey];
             Customer customer = db.Customers.FirstOrDefault(c => c.Username == username);
 
@@ -176,20 +279,22 @@ namespace Web_PC_Builder.Controllers
                 vm.Orders = db.Orders
                     .Where(o => o.CustomerID == customerId)
                     .OrderByDescending(o => o.OrderDate)
+                    .ThenByDescending(o => o.OrderID)
                     .Select(o => new OrderRowVM2
                     {
                         OrderID = o.OrderID,
                         OrderDate = o.OrderDate,
                         TotalAmount = o.TotalAmount,
-                        OrderStatus = o.OrderStatus
+                        OrderStatus = o.OrderStatus,
+                        PaymentMethod = o.PaymentMethod,
+                        PaymentStatus = o.PaymentStatus,
+                        ItemCount = o.OrderDetails.Sum(d => (int?)d.Quantity) ?? 0
                     })
                     .ToList();
             }
 
-            return View(vm);
+            return vm;
         }
-
-        // ---------------- HỖ TRỢ ----------------
 
         private bool IsLoggedIn()
         {

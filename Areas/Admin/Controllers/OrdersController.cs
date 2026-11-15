@@ -84,7 +84,7 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
         {
             if (id == null)
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return RedirectToAction("Index");
             }
             int orderId = id.Value;
             Order order = db.Orders

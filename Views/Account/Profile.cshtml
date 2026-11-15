@@ -1,8 +1,20 @@
 ﻿@model Web_PC_Builder.Models.ViewModel.ProfileVM
+@using Web_PC_Builder.Helpers
 @{
     ViewBag.Title = "Hồ sơ cá nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
     string initial = string.IsNullOrEmpty(Model.FullName) ? "U" : Model.FullName.Substring(0, 1).ToUpper();
+    bool editMode = ViewBag.EditMode == true;
+}
+
+@functions {
+    // Màu nhãn trạng thái đơn (khớp với OrderConst dùng ở trang admin)
+    static string StatusClass(string status)
+    {
+        if (status == OrderConst.Delivered) return "st-done";
+        if (status == OrderConst.Cancelled) return "st-cancel";
+        return "";
+    }
 }
 
 <div class="profile-page">
@@ -11,29 +23,67 @@
         <p>Quản lý thông tin tài khoản PC Builder</p>
     </div>
 
+    @if (TempData["ProfileMsg"] != null)
+    {
+        <div class="pf-msg">@TempData["ProfileMsg"]</div>
+    }
+
     <div class="profile-card">
         <h3>Thông tin cá nhân</h3>
 
-        <div class="profile-info">
-            <div class="profile-avatar">@initial</div>
-            <div>
-                <p><strong>Họ và tên:</strong> @Model.FullName</p>
-                <p><strong>Email:</strong> @Model.Email</p>
-                @if (!string.IsNullOrEmpty(Model.Phone))
+        <div id="profileView" @(editMode ? "style=display:none" : "")>
+            <div class="profile-info">
+                <div class="profile-avatar">@initial</div>
+                <div>
+                    <p><strong>Họ và tên:</strong> @Model.FullName</p>
+                    <p><strong>Email:</strong> @Model.Email</p>
+                    <p><strong>Số điện thoại:</strong> @(string.IsNullOrEmpty(Model.Phone) ? "Chưa cập nhật" : Model.Phone)</p>
+                    <p><strong>Địa chỉ:</strong> @(string.IsNullOrEmpty(Model.Address) ? "Chưa cập nhật" : Model.Address)</p>
+                </div>
+            </div>
+            <div class="pf-actions">
+                <button type="button" id="btnEdit" class="account-button pf-edit"><i class="fas fa-pen"></i> SỬA THÔNG TIN</button>
+                @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
                 {
-                    <p><strong>Số điện thoại:</strong> @Model.Phone</p>
-                }
-                @if (!string.IsNullOrEmpty(Model.Address))
-                {
-                    <p><strong>Địa chỉ:</strong> @Model.Address</p>
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="account-button logout-button">ĐĂNG XUẤT</button>
                 }
             </div>
         </div>
 
-        @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
+        @using (Html.BeginForm("UpdateProfile", "Account", FormMethod.Post,
+            new { id = "profileForm", novalidate = "novalidate", style = editMode ? "" : "display:none" }))
         {
             @Html.AntiForgeryToken()
-            <button type="submit" class="account-button logout-button">ĐĂNG XUẤT</button>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="account-error">@ViewBag.Error</div>
+            }
+
+            <div class="pf-field">
+                <label for="pfName">Họ và tên</label>
+                <input type="text" id="pfName" name="FullName" value="@Model.FullName" class="pf-input" maxlength="200" />
+                <span class="pf-err" id="errName"></span>
+            </div>
+            <div class="pf-field">
+                <label>Email (không thể thay đổi)</label>
+                <input type="text" value="@Model.Email" class="pf-input" disabled />
+            </div>
+            <div class="pf-field">
+                <label for="pfPhone">Số điện thoại</label>
+                <input type="tel" id="pfPhone" name="Phone" value="@Model.Phone" class="pf-input" maxlength="10" placeholder="VD: 0901234567" />
+                <span class="pf-err" id="errPhone"></span>
+            </div>
+            <div class="pf-field">
+                <label for="pfAddress">Địa chỉ</label>
+                <input type="text" id="pfAddress" name="Address" value="@Model.Address" class="pf-input" maxlength="500" placeholder="Số nhà, đường, phường, quận/huyện, tỉnh/thành" />
+            </div>
+
+            <div class="pf-actions">
+                <button type="submit" class="account-button pf-edit">LƯU THAY ĐỔI</button>
+                <button type="button" id="btnCancel" class="account-button logout-button">HỦY</button>
+            </div>
         }
     </div>
 
@@ -46,14 +96,17 @@
                     <tr>
                         <th>Mã đơn hàng</th>
                         <th>Ngày đặt</th>
+                        <th>Số SP</th>
                         <th>Tổng tiền</th>
+                        <th>Thanh toán</th>
                         <th>Trạng thái</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @if (Model.Orders.Count == 0)
                     {
-                        <tr><td colspan="4">Bạn chưa có đơn hàng nào.</td></tr>
+                        <tr><td colspan="7">Bạn chưa có đơn hàng nào.</td></tr>
                     }
                     else
                     {
@@ -61,9 +114,12 @@
                         {
                             <tr>
                                 <td>#@o.OrderID</td>
-                                <td>@Web_PC_Builder.Helpers.AppHelper.Date(o.OrderDate)</td>
-                                <td>@Web_PC_Builder.Helpers.AppHelper.Vnd(o.TotalAmount)</td>
-                                <td><span class="order-status">@(string.IsNullOrEmpty(o.OrderStatus) ? "Chưa xác định" : o.OrderStatus)</span></td>
+                                <td>@AppHelper.Date(o.OrderDate)</td>
+                                <td>@o.ItemCount</td>
+                                <td>@AppHelper.Vnd(o.TotalAmount)</td>
+                                <td>@OrderConst.PaymentText(o.PaymentStatus)</td>
+                                <td><span class="order-status @StatusClass(o.OrderStatus)">@(string.IsNullOrEmpty(o.OrderStatus) ? "Chưa xác định" : o.OrderStatus)</span></td>
+                                <td>@Html.ActionLink("Xem chi tiết", "OrderDetail", "Account", new { id = o.OrderID }, new { @class = "order-link" })</td>
                             </tr>
                         }
                     }
@@ -72,3 +128,37 @@
         </div>
     </div>
 </div>
+
+@section scripts {
+    <script>
+        (function () {
+            var view = document.getElementById("profileView");
+            var form = document.getElementById("profileForm");
+
+            document.getElementById("btnEdit").onclick = function () {
+                view.style.display = "none";
+                form.style.display = "block";
+            };
+            document.getElementById("btnCancel").onclick = function () {
+                form.style.display = "none";
+                view.style.display = "block";
+            };
+
+            // Kiểm tra form trước khi gửi (server vẫn kiểm tra lại)
+            form.onsubmit = function (e) {
+                var name = document.getElementById("pfName");
+                var phone = document.getElementById("pfPhone");
+                name.value = name.value.trim().replace(/\s+/g, " ");
+                phone.value = phone.value.trim();
+
+                var okName = name.value.length >= 2;
+                var okPhone = /^0\d{9}$/.test(phone.value);
+
+                document.getElementById("errName").textContent = okName ? "" : "Họ tên phải có ít nhất 2 ký tự.";
+                document.getElementById("errPhone").textContent = okPhone ? "" : "Số điện thoại gồm 10 số, bắt đầu bằng 0.";
+
+                if (!okName || !okPhone) e.preventDefault();
+            };
+        })();
+    </script>
+}
