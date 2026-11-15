@@ -16,7 +16,7 @@
             <div class="container">
                 <a href="@Url.Action("Index", "Home")" class="logo"><img src="~/Content/Images/logo-gearvn.svg" alt="GEARVN" /></a>
 
-                <a href="@Url.Action("Home", "Product")" class="cat"><i class="fas fa-bars"></i> Danh mục</a>
+                <a href="@Url.Action("Home", "Product")" id="btn-danhmuc" class="cat"><i class="fas fa-bars"></i> Danh mục</a>
 
                 <form action="@Url.Action("Home", "Product")" method="get" class="search">
                     <input type="text" name="q" placeholder="Bạn cần tìm gì?" />
@@ -29,7 +29,7 @@
             </div>
         </div>
     </header>
-        @*<div class="nav">
+    @*<div class="nav">
             <div class="container">
                 <a href="#"><i class="fas fa-tag"></i>Tất cả khuyến mãi</a>
                 <a href="#"><i class="fas fa-newspaper"></i>Tin tức - Review</a>
@@ -39,94 +39,409 @@
                 <a href="#"><i class="fas fa-map-marker-alt"></i>Hệ thống showroom</a>
             </div>
         </div>*@
-       
-        <!-- 3. NỘI DUNG TỪNG TRANG -->
-        <div class="content container">
-            @RenderBody()
+
+    <!-- 3. NỘI DUNG TỪNG TRANG -->
+    <div class="content container">
+        @RenderBody()
+    </div>
+
+    <!-- 4. FOOTER -->
+    <footer class="footer">
+        <div class="container footer-grid">
+
+            <!-- Cột 1: logo + mạng xã hội -->
+            <div>
+                <a href="/"><img class="footer-logo" src="~/Content/Images/logo-gearvn.svg" alt="GEARVN"></a>
+                <h4 class="mt">Kết nối với chúng tôi</h4>
+                <div class="social">
+                    <a href="https://www.facebook.com/gearvnhcm" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.tiktok.com/%40gearvn.store" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
+                    <a href="https://www.youtube.com/%40GEARVNOfficial" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="https://zalo.me/450955578960321912" aria-label="Messenger"><i class="fab fa-facebook-messenger"></i></a>
+                </div>
+            </div>
+
+            <!-- Cột 2: tổng đài -->
+            <div>
+                <h4>Tổng đài hỗ trợ (8:00 - 21:00)</h4>
+                <p>Tư vấn mua hàng<br><strong>1900.5301</strong></p>
+                <p>Hỗ trợ kỹ thuật, bảo hành<br><strong>1900.5325</strong></p>
+                <p>Góp ý, khiếu nại<br><strong>1800.6173</strong></p>
+                <p>Email<br><strong>cskh@gearvn.com</strong></p>
+            </div>
+
+            <!-- Cột 3: về GEARVN + chính sách -->
+            <div>
+                <h4>Về GEARVN</h4>
+                <a href="#">Giới thiệu</a>
+                <a href="#">Tuyển dụng</a>
+                <a href="#">Liên hệ</a>
+
+                <h4 class="mt">Chính sách</h4>
+                <a href="#">Chính sách bảo hành</a>
+                <a href="#">Chính sách vận chuyển</a>
+                <a href="#">Chính sách bảo mật</a>
+                <a href="#">Cài đặt cookie</a>
+            </div>
+
+            <!-- Cột 4: thông tin -->
+            <div>
+                <h4>Thông tin</h4>
+                <a href="#">Hệ thống cửa hàng</a>
+                <a href="#">Hướng dẫn mua hàng</a>
+                <a href="#">Hướng dẫn thanh toán</a>
+                <a href="#">Hướng dẫn trả góp</a>
+                <a href="#">Tra cứu địa chỉ bảo hành</a>
+                <a href="#">Build PC</a>
+            </div>
+
+            <!-- Cột 5: thanh toán + vận chuyển -->
+            <div>
+                <h4>Hỗ trợ thanh toán</h4>
+                <div class="pay">
+                    <img src="~/Content/Images/pay-1.png" alt="">
+                    <img src="~/Content/Images/pay-2.png" alt="">
+                    <img src="~/Content/Images/pay-3.png" alt="">
+                    <img src="~/Content/Images/pay-4.png" alt="">
+                    <img src="~/Content/Images/pay-5.png" alt="">
+                    <img src="~/Content/Images/pay-6.png" alt="">
+                    <img src="~/Content/Images/pay-7.png" alt="">
+                    <img src="~/Content/Images/pay-8.png" alt="">
+                </div>
+
+                <h4>Đơn vị vận chuyển</h4>
+                <div class="pay">
+                    <img src="~/Content/Images/ship-1.png" alt="">
+                    <img src="~/Content/Images/ship-2.png" alt="">
+                    <img src="~/Content/Images/ship-3.png" alt="">
+                    <img src="~/Content/Images/ship-4.png" alt="">
+                </div>
+            </div>
         </div>
 
-        <!-- 4. FOOTER -->
-        <footer class="footer">
-            <div class="container footer-grid">
+        <!-- Dòng cuối: thông tin công ty + dấu bộ công thương -->
+        <div class="container footer-bottom">
+            <p>Công ty TNHH Thương Mại GearVN, địa chỉ: 82 Hoàng Hoa Thám, Phường Bảy Hiền, Thành phố Hồ Chí Minh. MST/GCN ĐKDN số: 0316517394, đăng ký lần đầu: ngày 01/10/2020. Đăng ký thay đổi lần thứ 9: ngày 23/12/2025. Đại diện pháp luật: Nguyễn Thế Anh.</p>
+            <a href="#"><img src="da-thong-bao-bct.png" alt="Đã thông báo Bộ Công Thương"></a>
+        </div>
+    </footer>
+    @* ===== MENU DANH MỤC DÙNG CHUNG (trang chủ đã có menu riêng nên tự tắt) ===== *@
+    @{ var sp = Url.Action("Home", "Product"); }
+    <style>
+        .cm-overlay {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,.5);
+            z-index: 998;
+            display: none;
+        }
 
-                <!-- Cột 1: logo + mạng xã hội -->
-                <div>
-                    <a href="/"><img class="footer-logo" src="~/Content/Images/logo-gearvn.svg" alt="GEARVN"></a>
-                    <h4 class="mt">Kết nối với chúng tôi</h4>
-                    <div class="social">
-                        <a href="https://www.facebook.com/gearvnhcm" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                        <a href="https://www.tiktok.com/%40gearvn.store" aria-label="TikTok"><i class="fab fa-tiktok"></i></a>
-                        <a href="https://www.youtube.com/%40GEARVNOfficial" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-                        <a href="https://zalo.me/450955578960321912" aria-label="Messenger"><i class="fab fa-facebook-messenger"></i></a>
-                    </div>
-                </div>
+        .cm-open .cm-overlay {
+            display: block;
+        }
 
-                <!-- Cột 2: tổng đài -->
-                <div>
-                    <h4>Tổng đài hỗ trợ (8:00 - 21:00)</h4>
-                    <p>Tư vấn mua hàng<br><strong>1900.5301</strong></p>
-                    <p>Hỗ trợ kỹ thuật, bảo hành<br><strong>1900.5325</strong></p>
-                    <p>Góp ý, khiếu nại<br><strong>1800.6173</strong></p>
-                    <p>Email<br><strong>cskh@gearvn.com</strong></p>
-                </div>
+        .cm-side {
+            position: absolute;
+            z-index: 999;
+            display: none;
+            width: 260px;
+            box-sizing: border-box;
+            background: #fff;
+            border-radius: 12px;
+            padding: 8px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.18);
+        }
 
-                <!-- Cột 3: về GEARVN + chính sách -->
-                <div>
-                    <h4>Về GEARVN</h4>
-                    <a href="#">Giới thiệu</a>
-                    <a href="#">Tuyển dụng</a>
-                    <a href="#">Liên hệ</a>
+            .cm-side a {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 8px 10px;
+                color: #222;
+                text-decoration: none;
+                font-size: 15px;
+                border-radius: 8px;
+            }
 
-                    <h4 class="mt">Chính sách</h4>
-                    <a href="#">Chính sách bảo hành</a>
-                    <a href="#">Chính sách vận chuyển</a>
-                    <a href="#">Chính sách bảo mật</a>
-                    <a href="#">Cài đặt cookie</a>
-                </div>
+                .cm-side a i {
+                    width: 20px;
+                    text-align: center;
+                    color: #f26522;
+                }
 
-                <!-- Cột 4: thông tin -->
-                <div>
-                    <h4>Thông tin</h4>
-                    <a href="#">Hệ thống cửa hàng</a>
-                    <a href="#">Hướng dẫn mua hàng</a>
-                    <a href="#">Hướng dẫn thanh toán</a>
-                    <a href="#">Hướng dẫn trả góp</a>
-                    <a href="#">Tra cứu địa chỉ bảo hành</a>
-                    <a href="#">Build PC</a>
-                </div>
+                .cm-side a:hover, .cm-side a.cm-active {
+                    background: #f1f1f1;
+                    color: #d70018;
+                }
 
-                <!-- Cột 5: thanh toán + vận chuyển -->
-                <div>
-                    <h4>Hỗ trợ thanh toán</h4>
-                    <div class="pay">
-                        <img src="~/Content/Images/pay-1.png" alt="">
-                        <img src="~/Content/Images/pay-2.png" alt="">
-                        <img src="~/Content/Images/pay-3.png" alt="">
-                        <img src="~/Content/Images/pay-4.png" alt="">
-                        <img src="~/Content/Images/pay-5.png" alt="">
-                        <img src="~/Content/Images/pay-6.png" alt="">
-                        <img src="~/Content/Images/pay-7.png" alt="">
-                        <img src="~/Content/Images/pay-8.png" alt="">
-                    </div>
+        .cm-mm {
+            position: absolute;
+            z-index: 1000;
+            display: none;
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px 28px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.18);
+            box-sizing: border-box;
+        }
 
-                    <h4>Đơn vị vận chuyển</h4>
-                    <div class="pay">
-                        <img src="~/Content/Images/ship-1.png" alt="">
-                        <img src="~/Content/Images/ship-2.png" alt="">
-                        <img src="~/Content/Images/ship-3.png" alt="">
-                        <img src="~/Content/Images/ship-4.png" alt="">
-                    </div>
-                </div>
-            </div>
+            .cm-mm h3 {
+                margin: 0 0 22px;
+                font-size: 22px;
+                color: #222;
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+            }
 
-            <!-- Dòng cuối: thông tin công ty + dấu bộ công thương -->
-            <div class="container footer-bottom">
-                <p>Công ty TNHH Thương Mại GearVN, địa chỉ: 82 Hoàng Hoa Thám, Phường Bảy Hiền, Thành phố Hồ Chí Minh. MST/GCN ĐKDN số: 0316517394, đăng ký lần đầu: ngày 01/10/2020. Đăng ký thay đổi lần thứ 9: ngày 23/12/2025. Đại diện pháp luật: Nguyễn Thế Anh.</p>
-                <a href="#"><img src="da-thong-bao-bct.png" alt="Đã thông báo Bộ Công Thương"></a>
-            </div>
-        </footer>
-        <script src="~/Scripts/jquery-3.7.0.min.js"></script>
-        <script src="~/Scripts/Java/main.js"></script>
-        @RenderSection("scripts", required: false)
+                .cm-mm h3 a {
+                    color: #d70018;
+                    font-size: 14px;
+                    font-weight: 600;
+                    text-decoration: none;
+                }
+
+        .cm-cols {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .cm-g {
+            margin-bottom: 22px;
+        }
+
+        .cm-mm a.t {
+            display: block;
+            font-weight: 700;
+            color: #222;
+            margin-bottom: 10px;
+            text-decoration: none;
+        }
+
+        .cm-mm a.i {
+            display: block;
+            padding: 6px 0;
+            color: #444;
+            font-size: 15px;
+            text-decoration: none;
+        }
+
+        .cm-mm a:hover {
+            color: #d70018;
+        }
+
+        .cm-none {
+            color: #777;
+            padding: 6px 0;
+        }
+
+        @@media (max-width: 900px) {
+            .cm-mm {
+                display: none !important;
+            }
+        }
+    </style>
+
+    <div class="cm-overlay" id="cm-overlay"></div>
+    <div class="cm-side" id="cm-side">
+        <a href="@sp"><i class="fas fa-laptop"></i>Laptop</a>
+        <a href="@sp"><i class="fas fa-laptop-code"></i>Laptop Gaming</a>
+        <a href="@sp"><i class="fas fa-desktop"></i>PC GVN</a>
+        <a href="@sp"><i class="fas fa-microchip"></i>Main, CPU, VGA</a>
+        <a href="@sp"><i class="fas fa-server"></i>Case, Nguồn, Tản</a>
+        <a href="@sp"><i class="fas fa-hdd"></i>Ổ cứng, RAM, Thẻ nhớ</a>
+        <a href="@sp"><i class="fas fa-volume-up"></i>Loa, Micro, Webcam</a>
+        <a href="@sp"><i class="fas fa-tv"></i>Màn hình</a>
+        <a href="@sp"><i class="fas fa-keyboard"></i>Bàn phím</a>
+        <a href="@sp"><i class="fas fa-mouse"></i>Chuột + Lót chuột</a>
+        <a href="@sp"><i class="fas fa-headphones"></i>Tai nghe</a>
+        <a href="@sp"><i class="fas fa-chair"></i>Ghế - Bàn</a>
+        <a href="@sp"><i class="fas fa-wifi"></i>Phần mềm, mạng</a>
+        <a href="@sp"><i class="fas fa-gamepad"></i>Phụ kiện - Console</a>
+        <a href="@sp"><i class="fas fa-sync-alt"></i>Thu cũ đổi mới</a>
+        <a href="@sp"><i class="fas fa-concierge-bell"></i>Dịch vụ và thông tin khác</a>
+    </div>
+    <div class="cm-mm" id="cm-mm"></div>
+
+    <script>
+        (function () {
+            if (document.querySelector('.hero .side')) return;
+            var btn = document.getElementById('btn-danhmuc');
+            if (!btn) return;
+
+            var BUILDPC = '@Url.Action("Home", "PCBuilder")';
+            var NO_HOVER = ['Thu cũ đổi mới'];
+            var PLAIN = ['Dịch vụ và thông tin khác'];
+            var MENU = {
+                'Laptop': [
+                    [['Thương hiệu', 'ACER', 'ASUS']],
+                    [['Giá bán', 'Dưới 20 triệu', 'Từ 20 đến 30 triệu']],
+                    [['ACER', 'Aspire Series', 'Swift Series']],
+                    [['ASUS', 'Vivobook Series', 'ExpertBook Series']]
+                ],
+                'Laptop Gaming': [
+                    [['Thương hiệu', 'ACER', 'ASUS']],
+                    [['Giá bán', 'Dưới 30 triệu', 'Từ 30 đến 50 triệu']],
+                    [['ACER', 'Aspire 7 Series', 'Nitro Series']],
+                    [['ASUS', 'V16 Series']]
+                ],
+                'PC GVN': [
+                    [['PC theo CPU', 'PC I5', 'PC I7', 'PC Ultra 9']],
+                    [['PC theo giá', 'Dưới 20 triệu', 'Từ 70 đến 100 triệu', 'Trên 200 triệu']]
+                ],
+                'Màn hình': [
+                    [['Thương hiệu', 'VSP', 'ViewSonic']],
+                    [['Giá bán', 'Dưới 3 triệu', 'Từ 3 đến 4 triệu']]
+                ],
+                'Bàn phím': [
+                    [['Thương hiệu', 'ASUS']],
+                    [['Giá bán', 'Từ 5 đến 6 triệu']]
+                ],
+                'Chuột + Lót chuột': [
+                    [['Thương hiệu', 'AKKO', 'Logitech', 'Razer', 'HyperWork']],
+                    [['Giá bán', 'Dưới 1 triệu', 'Từ 1 đến 5 triệu']]
+                ],
+                'Dịch vụ và thông tin khác': [
+                    [['Dịch vụ', 'Dịch vụ kỹ thuật tận nhà', 'Dịch vụ sửa chữa']],
+                    [['Chính sách', 'Chính sách &amp; bảng giá thu VGA qua sử dụng', 'Chính sách bảo hành', 'Chính sách giao hàng', 'Chính sách đổi trả']],
+                    [['Build PC']]
+                ]
+            };
+
+            var root = document.documentElement;
+            var side = document.getElementById('cm-side');
+            var mm = document.getElementById('cm-mm');
+            var overlay = document.getElementById('cm-overlay');
+            var SP = '@sp';
+            var btnHTML = btn.innerHTML;
+            var X_HTML = '<i class="fas fa-times"></i> Danh mục';
+            var open = false, active = null, timer;
+
+            function enc(s) { return encodeURIComponent(s); }
+            function url(cat, extra) { return SP + (SP.indexOf('?') > -1 ? '&' : '?') + 'loai=' + enc(cat) + (extra || ''); }
+
+            [].forEach.call(side.querySelectorAll('a'), function (a) { a.setAttribute('href', url(a.textContent.trim())); });
+
+            function headerBottom() {
+                var h = document.querySelector('header') || btn.parentNode;
+                return h.getBoundingClientRect().bottom;
+            }
+
+            function setOpen(on) {
+                open = on;
+                if (on) {
+                    window.scrollTo(0, 0);
+                    var c = document.querySelector('.content.container');
+                    side.style.left = ((c ? c.getBoundingClientRect().left : 16) + window.pageXOffset) + 'px';
+                    side.style.top = (headerBottom() + window.pageYOffset + 12) + 'px';
+                    overlay.style.top = Math.max(0, Math.round(headerBottom())) + 'px';
+                    side.style.display = 'block';
+                    btn.innerHTML = X_HTML;
+                } else {
+                    side.style.display = 'none';
+                    hideMM(true);
+                    btn.innerHTML = btnHTML;
+                }
+                root.classList.toggle('cm-open', on);
+            }
+
+            function render(cat) {
+                var cols = MENU[cat], plain = PLAIN.indexOf(cat) > -1;
+                var h = '<h3>' + cat + (cols && !plain ? '<a href="' + url(cat) + '">Xem tất cả ›</a>' : '') + '</h3>';
+                if (!cols) return h + '<div class="cm-none">Chưa có thêm thông tin về danh mục này.</div>';
+                h += '<div class="cm-cols">';
+                cols.forEach(function (col) {
+                    h += '<div>';
+                    col.forEach(function (g) {
+                        var t = g[0];
+                        var href = t === 'Build PC' ? BUILDPC : plain ? '#' : url(cat, '&nhom=' + enc(t));
+                        h += '<div class="cm-g"><a class="t" href="' + href + '">' + t + ' ›</a>';
+                        g.slice(1).forEach(function (i) {
+                            h += '<a class="i" href="' + (plain ? '#' : url(cat, '&muc=' + enc(i))) + '">' + i + '</a>';
+                        });
+                        h += '</div>';
+                    });
+                    h += '</div>';
+                });
+                return h + '</div>';
+            }
+
+            function hideMM(now) {
+                clearTimeout(timer);
+                var run = function () {
+                    mm.style.display = 'none';
+                    if (active) { active.classList.remove('cm-active'); active = null; }
+                };
+                if (now) run(); else timer = setTimeout(run, 150);
+            }
+
+            function show(a) {
+                var name = a.textContent.trim();
+                clearTimeout(timer);
+                if (NO_HOVER.indexOf(name) > -1) { hideMM(true); return; }
+                if (active) active.classList.remove('cm-active');
+                active = a; a.classList.add('cm-active');
+                mm.innerHTML = render(name);
+                var r = side.getBoundingClientRect();
+                mm.style.left = (r.right + window.pageXOffset + 8) + 'px';
+                mm.style.top = (r.top + window.pageYOffset) + 'px';
+                mm.style.width = Math.max(420, Math.min(900, document.documentElement.clientWidth - r.right - 24)) + 'px';
+                mm.style.minHeight = r.height + 'px';
+                mm.style.display = 'block';
+            }
+
+            btn.addEventListener('click', function (e) { e.preventDefault(); setOpen(!open); });
+            overlay.addEventListener('click', function () { setOpen(false); });
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && open) setOpen(false); });
+
+            side.addEventListener('mouseover', function (e) {
+                var a = e.target.closest('a');
+                if (a && side.contains(a)) show(a);
+            });
+            side.addEventListener('mouseleave', function () { hideMM(false); });
+            mm.addEventListener('mouseenter', function () { clearTimeout(timer); });
+            mm.addEventListener('mouseleave', function () { hideMM(false); });
+            mm.addEventListener('click', function (e) {
+                var a = e.target.closest('a');
+                if (a && a.getAttribute('href') === '#') e.preventDefault();
+            });
+        })();
+    </script>
+
+    @* ===== Cập nhật số giỏ hàng trên mọi trang ===== *@
+    <script>
+        (function () {
+            function updateCartBadge() {
+                var el = document.getElementById('cart-count');
+                if (!el) return;
+                try {
+                    var c = JSON.parse(localStorage.getItem('gvn_cart')) || [];
+                    el.textContent = c.reduce(function (s, x) { return s + (x.qty || 0); }, 0);
+                } catch (e) { el.textContent = 0; }
+            }
+            updateCartBadge();
+            window.addEventListener('storage', updateCartBadge);
+        })();
+    </script>
+    <script src="~/Scripts/jquery-3.7.0.min.js"></script>
+    <script src="~/Scripts/Java/main.js"></script>
+    <script>
+        (function () {
+            function updateCartBadge() {
+                var el = document.getElementById('cart-count');
+                if (!el) return;
+                try {
+                    var c = JSON.parse(localStorage.getItem('gvn_cart')) || [];
+                    el.textContent = c.reduce(function (s, x) { return s + (x.qty || 0); }, 0);
+                } catch (e) { el.textContent = 0; }
+            }
+            updateCartBadge();
+            window.addEventListener('storage', updateCartBadge);   // đồng bộ khi mở nhiều tab
+        })();
+    </script>
+    @RenderSection("scripts", required: false)
 </body>
 </html>

@@ -378,6 +378,9 @@
             { id: 24, cat: 'Chuột + Lót chuột', brand: 'HyperWork', name: 'Chuột không dây HyperWork Silentium MS01 Đen', price: 490000, old: 590000, img: 'ch4.png', tags: [],
               specs: ['Màu: Đen', 'Pin: Sạc', 'DPI: 2400'] }
         ];
+        var savedStock = {};
+        try { savedStock = JSON.parse(localStorage.getItem('gvn_stock')) || {}; } catch (e) { }
+        products.forEach(function (p) { if (savedStock[p.id] !== undefined) p.stock = savedStock[p.id]; });
 
         /*  Tiện ích */
         function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }

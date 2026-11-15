@@ -300,7 +300,9 @@
         }
         function $(id) { return document.getElementById(id); }
 
-        var cart = getCart();
+        var cart = PD.cartLines().map(function (l) {
+            return { id: l.p.id, name: l.p.name, price: l.p.price, image: PD.img(l.p.img), qty: l.qty, stock: l.p.stock };
+        });
         badge();
 
         if (cart.length === 0) {
@@ -355,7 +357,14 @@
                 if (bad) bad.focus();
                 return;
             }
-
+            var raw = [];
+            try { raw = JSON.parse(localStorage.getItem(KEY)) || []; } catch (err) { }
+            var lack = raw.filter(function (x) { var p = PD.byId(x.id); return !p || p.stock < x.qty; });
+            if (lack.length) {
+                alert('Một số sản phẩm không đủ tồn kho. Vui lòng kiểm tra lại giỏ hàng.');
+                location.href = PD.urls.cart;
+                return;
+            }
             var code = 'GVN' + Date.now().toString().slice(-8);
             var order = {
                 id: code,
@@ -373,6 +382,13 @@
             var orders = getOrders();
             orders.unshift(order);
             localStorage.setItem(ORDERS, JSON.stringify(orders));
+            var st = {};
+            try { st = JSON.parse(localStorage.getItem('gvn_stock')) || {}; } catch (err) { }
+            cart.forEach(function (x) {
+                var cur = st[x.id] !== undefined ? st[x.id] : PD.byId(x.id).stock;
+                st[x.id] = Math.max(0, cur - x.qty);
+            });
+            localStorage.setItem('gvn_stock', JSON.stringify(st));
             localStorage.setItem(KEY, '[]');
             badge();
 
