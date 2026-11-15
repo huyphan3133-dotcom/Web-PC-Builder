@@ -3,6 +3,11 @@
     Func<string, string> act = name => ctrl == name ? " active" : "";
     string adminName = Session[AdminAuthorizeAttribute.SessionKey] as string;
 }
+@{
+    var cssPath = Server.MapPath("~/Content/admin.css");
+    var cssVer = System.IO.File.GetLastWriteTimeUtc(cssPath).Ticks;
+}
+<link href="~/Content/admin.css?v=@cssVer" rel="stylesheet" />
 <!DOCTYPE html>
 <html lang="vi">
 <head>

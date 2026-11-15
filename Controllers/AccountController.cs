@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Web.Mvc;
@@ -165,7 +166,8 @@ namespace Web_PC_Builder.Controllers
                 FullName = customer != null ? customer.CustomerName : username,
                 Email = customer != null && !string.IsNullOrEmpty(customer.CustomerEmail) ? customer.CustomerEmail : username,
                 Phone = customer != null ? customer.CustomerPhone : null,
-                Address = customer != null ? customer.CustomerAddress : null
+                Address = customer != null ? customer.CustomerAddress : null,
+                Orders = new List<OrderRowVM2>()
             };
 
             if (customer != null)
