@@ -24,7 +24,7 @@ namespace Web_PC_Builder.Models.ViewModel
         [StringLength(100, ErrorMessage = "Từ khóa tìm kiếm tối đa 100 ký tự.")]
         public string SearchTerm { get; set; }
 
-        public string SortOrder { get; set; }           // name_asc | name_desc | orders_desc | spent_desc
+        public string SortOrder { get; set; }            // name_asc | name_desc | orders_desc | spent_desc
         public int PageNumber { get; set; }
         public int PageSize { get; set; }
         public IPagedList<CustomerRowVM> Customers { get; set; }
