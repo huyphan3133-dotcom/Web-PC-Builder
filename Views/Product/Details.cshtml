@@ -65,6 +65,7 @@
             var b = this, old = b.textContent;
             b.textContent = 'Đã thêm ✓';
             setTimeout(function () { b.textContent = old; }, 900);
+            location.href = P.urls.cart;
         });
         document.getElementById('pd-buy').addEventListener('click', function () {
             if (!P.add(p.id, qty())) return;
@@ -79,6 +80,7 @@
             var old = b.textContent;
             b.textContent = 'Đã thêm ✓';
             setTimeout(function () { b.textContent = old; }, 900);
+            location.href = P.urls.cart;
         });
     })();
 </script>
