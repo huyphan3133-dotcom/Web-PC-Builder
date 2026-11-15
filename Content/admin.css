@@ -59,21 +59,317 @@ body {
     font-size: .85rem;
 }
 
-/* ----- Trang thống kê ----- */
-.stat-card {
-    border: 0;
-    border-left: 4px solid var(--gvn-red);
+/* ----- Trang thống kê (giao diện riêng cho GEARVN) ----- */
+:root {
+    --ink: #1f2430;
+    --muted: #6b7280;
+    --line: #e6e8ec;
+    --tint: #fff3f4;
 }
 
-.stat-value {
-    font-size: 1.6rem;
+.dash-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .25rem 1rem;
+    margin-bottom: 1rem;
+}
+
+    .dash-head h3 {
+        margin: 0;
+        font-weight: 700;
+        letter-spacing: -.01em;
+        color: var(--ink);
+    }
+
+.dash-date {
+    font-size: .85rem;
+    color: var(--muted);
+}
+
+/* Dải chỉ số: một khối, các ô ngăn bằng đường kẻ mảnh */
+.spec-strip {
+    display: grid;
+    grid-template-columns: 1.7fr repeat(4, 1fr);
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+}
+
+.spec {
+    display: block;
+    padding: 1.1rem 1.25rem;
+    color: var(--ink);
+    text-decoration: none;
+    border-left: 1px solid var(--line);
+    transition: background-color .15s;
+}
+
+a.spec:hover {
+    background: #f8f9fb;
+    color: var(--ink);
+}
+
+a.spec:focus-visible {
+    outline: 2px solid var(--gvn-red);
+    outline-offset: -2px;
+}
+
+.spec-lead {
+    border-left: 0;
+    background: var(--tint);
+    box-shadow: inset 0 3px 0 var(--gvn-red);
+}
+
+.spec-label {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-bottom: .35rem;
+}
+
+.spec-num {
+    font-size: 1.75rem;
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    font-variant-numeric: tabular-nums;
 }
 
-.chart-box {
+.spec-num-lg {
+    font-size: 2.1rem;
+    color: var(--gvn-red);
+}
+
+.spec-note {
+    margin-top: .3rem;
+    font-size: .8rem;
+    color: var(--muted);
+}
+
+    .spec-note.is-open::before {
+        content: "";
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        margin-right: .4rem;
+        border-radius: 50%;
+        background: #f0a500;
+    }
+
+/* Lưới các khối nội dung */
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 1.25rem;
+}
+
+.panel {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    min-width: 0;
+}
+
+.panel-revenue, .panel-top {
+    grid-column: span 6;
+}
+
+.panel-recent {
+    grid-column: 1 / -1;
+}
+
+.panel-head {
+    margin-bottom: 1rem;
+}
+
+    .panel-head h4 {
+        margin: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: var(--ink);
+    }
+
+    .panel-head p {
+        margin: .15rem 0 0;
+        font-size: .82rem;
+        color: var(--muted);
+    }
+
+.panel-head-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+}
+
+.panel-link {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--gvn-red);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+    .panel-link:hover {
+        color: var(--gvn-red-dark);
+        text-decoration: underline;
+    }
+
+.empty-note, .empty-row {
+    color: var(--muted);
+    text-align: center;
+    padding: 2rem 0;
+}
+
+/* Đơn hàng mới nhất */
+.recent-table {
     width: 100%;
-    height: 300px;
+    border-collapse: collapse;
+    font-size: .9rem;
+}
+
+    .recent-table th {
+        padding: .5rem .6rem;
+        font-size: .82rem;
+        font-weight: 600;
+        color: var(--muted);
+        border-bottom: 1px solid var(--line);
+        white-space: nowrap;
+    }
+
+    .recent-table td {
+        padding: .7rem .6rem;
+        border-bottom: 1px solid #f0f1f4;
+        white-space: nowrap;
+        vertical-align: middle;
+    }
+
+    .recent-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .recent-table tbody tr:hover td {
+        background: #fafbfc;
+    }
+
+    .recent-table td.cell-wrap {
+        white-space: normal;
+    }
+
+.order-code {
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+    .order-code:hover {
+        color: var(--gvn-red);
+    }
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    margin-right: .5rem;
+    border-radius: 50%;
+    background: var(--tint);
+    color: var(--gvn-red);
+    font-size: .75rem;
+    font-weight: 700;
+}
+
+.status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .2rem .65rem;
+    border-radius: 99px;
+    font-size: .8rem;
+    font-weight: 600;
+    background: #eef0f3;
+    color: #4b5563;
+}
+
+    .status-pill::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+.st-wait {
+    background: #fff4d6;
+    color: #8a5d00;
+}
+
+.st-proc {
+    background: #dff4f8;
+    color: #0b6677;
+}
+
+.st-ship {
+    background: #e4ecff;
+    color: #1f4fbf;
+}
+
+.st-done {
+    background: #dcf3e5;
+    color: #136c3f;
+}
+
+.st-cancel {
+    background: #eceef2;
+    color: #5b6472;
+}
+
+@media (max-width: 1199.98px) {
+    .spec-strip {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .spec-lead {
+        grid-column: 1 / -1;
+        border-bottom: 1px solid var(--line);
+    }
+
+        .spec-lead + .spec {
+            border-left: 0;
+        }
+}
+
+@media (max-width: 991.98px) {
+    .panel-revenue, .panel-top {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .spec-strip {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .spec {
+        border-top: 1px solid var(--line);
+    }
+
+    .spec-lead {
+        border-top: 0;
+    }
+
+        .spec-lead + .spec, .spec:nth-child(4) {
+            border-left: 0;
+        }
+
+    .panel {
+        padding: 1rem;
+    }
 }
 
 /* ----- Trang đăng nhập ----- */

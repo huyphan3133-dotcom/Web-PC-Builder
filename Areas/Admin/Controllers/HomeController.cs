@@ -79,7 +79,6 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
             foreach (var t in top)
             {
                 string name = names.ContainsKey(t.ProductID) ? names[t.ProductID] : ("#" + t.ProductID);
-                if (name.Length > 28) name = name.Substring(0, 28) + "…";
                 topRows.Add(new object[] { name, t.Qty });
             }
             vm.TopProductsJson = ToJson(topRows);
