@@ -1,6 +1,8 @@
-﻿﻿@{
+﻿@model Web_PC_Builder.Models.ViewModel.ProfileVM
+@{
     ViewBag.Title = "Hồ sơ cá nhân";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    string initial = string.IsNullOrEmpty(Model.FullName) ? "U" : Model.FullName.Substring(0, 1).ToUpper();
 }
 
 <div class="profile-page">
@@ -13,32 +15,25 @@
         <h3>Thông tin cá nhân</h3>
 
         <div class="profile-info">
-            <div class="profile-avatar">
-                @(ViewBag.FullName != null
-                    ? ViewBag.FullName.ToString().Substring(0, 1).ToUpper()
-                    : "U")
-            </div>
-
+            <div class="profile-avatar">@initial</div>
             <div>
-                <p>
-                    <strong>Họ và tên:</strong>
-                    @(ViewBag.FullName ?? "Chưa cập nhật")
-                </p>
-                <p>
-                    <strong>Email:</strong>
-                    @(ViewBag.Email ?? "Chưa cập nhật")
-                </p>
+                <p><strong>Họ và tên:</strong> @Model.FullName</p>
+                <p><strong>Email:</strong> @Model.Email</p>
+                @if (!string.IsNullOrEmpty(Model.Phone))
+                {
+                    <p><strong>Số điện thoại:</strong> @Model.Phone</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.Address))
+                {
+                    <p><strong>Địa chỉ:</strong> @Model.Address</p>
+                }
             </div>
         </div>
 
-        @using (Html.BeginForm("Logout", "Account",
-            FormMethod.Post))
+        @using (Html.BeginForm("Logout", "Account", FormMethod.Post))
         {
             @Html.AntiForgeryToken()
-
-            <button type="submit" class="account-button logout-button">
-                ĐĂNG XUẤT
-            </button>
+            <button type="submit" class="account-button logout-button">ĐĂNG XUẤT</button>
         }
     </div>
 
@@ -50,44 +45,30 @@
                 <thead>
                     <tr>
                         <th>Mã đơn hàng</th>
+                        <th>Ngày đặt</th>
+                        <th>Tổng tiền</th>
                         <th>Trạng thái</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @if (ViewBag.Orders != null)
+                    @if (Model.Orders.Count == 0)
                     {
-                        foreach (string order in ViewBag.Orders)
-                        {
-                            var parts = order.Split(
-                                new[] { " - " },
-                                StringSplitOptions.None);
-
-                            <tr>
-                                <td>@parts[0]</td>
-                                <td>
-                                    <span class="order-status">
-                                        @(parts.Length > 1
-                                            ? parts[1]
-                                            : "Chưa xác định")
-                                    </span>
-                                </td>
-                            </tr>
-                        }
+                        <tr><td colspan="4">Bạn chưa có đơn hàng nào.</td></tr>
                     }
                     else
                     {
-                        <tr>
-                            <td colspan="2">
-                                Bạn chưa có đơn hàng nào.
-                            </td>
-                        </tr>
+                        foreach (var o in Model.Orders)
+                        {
+                            <tr>
+                                <td>#@o.OrderID</td>
+                                <td>@Web_PC_Builder.Helpers.AppHelper.Date(o.OrderDate)</td>
+                                <td>@Web_PC_Builder.Helpers.AppHelper.Vnd(o.TotalAmount)</td>
+                                <td><span class="order-status">@(string.IsNullOrEmpty(o.OrderStatus) ? "Chưa xác định" : o.OrderStatus)</span></td>
+                            </tr>
+                        }
                     }
                 </tbody>
             </table>
         </div>
-
-        <p class="profile-note">
-            Đây là dữ liệu đơn hàng mẫu để minh họa giao diện.
-        </p>
     </div>
 </div>

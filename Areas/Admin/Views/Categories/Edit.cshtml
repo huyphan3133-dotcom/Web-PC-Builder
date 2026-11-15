@@ -1,0 +1,29 @@
+﻿@model Web_PC_Builder.Models.Category
+@{
+    ViewBag.Title = "Sửa danh mục";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Sửa danh mục #@Model.CategoryID</h5></div>
+            <div class="card-body">
+                @using (Html.BeginForm("Edit", "Categories", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(m => m.CategoryID)
+                    @Html.Partial("_PVCreateEditCategory", Model)
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-gvn">Cập nhật</button>
+                        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

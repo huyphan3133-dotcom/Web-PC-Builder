@@ -1,0 +1,227 @@
+﻿@model Web_PC_Builder.Models.Order
+@{
+    ViewBag.Title = "Chi tiết đơn hàng #" + Model.OrderID;
+    decimal linesTotal = 0m;
+    bool locked = OrderConst.IsLocked(Model.OrderStatus);
+    bool isCod = OrderRules.IsCod(Model.PaymentMethod);
+    string serverError = TempData["OrderError"] as string;
+}
+
+<style>
+    /* Chữ dài tự xuống dòng, không tràn khung */
+    .wrap-text {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: normal;
+    }
+
+    .wrap-pre {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        white-space: pre-line;
+    }
+
+    td.wrap-text {
+        max-width: 360px;
+    }
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">
+        Đơn hàng #@Model.OrderID
+        <span class="badge fs-6 align-middle @OrderConst.StatusBadge(Model.OrderStatus)">@Model.OrderStatus</span>
+    </h3>
+    <div class="d-flex gap-2">
+        @Html.ActionLink("Đơn hàng của khách này", "Index", new { customerId = Model.CustomerID }, new { @class = "btn btn-outline-secondary" })
+        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(serverError))
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @serverError
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+    </div>
+}
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Khách hàng</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">Họ và tên</dt>
+                    <dd class="col-sm-7 fw-semibold wrap-text">@Html.ActionLink(Model.Customer.CustomerName, "Details", "Customers", new { id = Model.CustomerID }, null)</dd>
+                    <dt class="col-sm-5">Điện thoại</dt>
+                    <dd class="col-sm-7 wrap-text">@Model.Customer.CustomerPhone</dd>
+                    <dt class="col-sm-5">Email</dt>
+                    <dd class="col-sm-7 wrap-text">@(string.IsNullOrEmpty(Model.Customer.CustomerEmail) ? "-" : Model.Customer.CustomerEmail)</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Giao hàng &amp; thanh toán</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.OrderDate)</dt>
+                    <dd class="col-sm-7">@AppHelper.Date(Model.OrderDate)</dd>
+                    <dt class="col-sm-5">Giao tới</dt>
+                    <dd class="col-sm-7 wrap-text">@Model.ShippingAddress</dd>
+                    <dt class="col-sm-5">Hình thức giao</dt>
+                    <dd class="col-sm-7 wrap-text">@(string.IsNullOrEmpty(Model.DeliveryMethod) ? "-" : Model.DeliveryMethod)</dd>
+                    <dt class="col-sm-5">Hình thức TT</dt>
+                    <dd class="col-sm-7 wrap-text">@(string.IsNullOrEmpty(Model.PaymentMethod) ? "-" : Model.PaymentMethod)</dd>
+                    <dt class="col-sm-5">Ghi chú</dt>
+                    <dd class="col-sm-7 wrap-pre">@(string.IsNullOrEmpty(Model.Note) ? "-" : Model.Note)</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Cập nhật trạng thái</h5></div>
+            <div class="card-body">
+                @if (locked)
+                {
+                    <div class="alert alert-secondary mb-3">
+                        <strong>Đơn hàng đã khóa.</strong><br />
+                        Đơn ở trạng thái "@Model.OrderStatus" nên không thể thay đổi trạng thái hay thanh toán.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Trạng thái đơn</label>
+                        <input type="text" class="form-control" value="@Model.OrderStatus" disabled />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Thanh toán</label>
+                        <input type="text" class="form-control" value="@OrderConst.PaymentText(Model.PaymentStatus)" disabled />
+                    </div>
+                    <button type="button" class="btn btn-secondary w-100" disabled>Đã khóa</button>
+                }
+                else
+                {
+                    using (Html.BeginForm("UpdateStatus", "Orders", new { id = Model.OrderID }, FormMethod.Post, new { id = "statusForm" }))
+                    {
+                        @Html.AntiForgeryToken()
+                        <div id="ruleAlert" class="alert alert-danger py-2 small d-none" role="alert"></div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="orderStatus">Trạng thái đơn</label>
+                            <select id="orderStatus" name="orderStatus" class="form-select">
+                                @foreach (var s in OrderConst.Statuses)
+                                {
+                                    <option value="@s" @(Model.OrderStatus == s ? "selected" : "")>@s</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold" for="paymentStatus">Thanh toán</label>
+                            <select id="paymentStatus" name="paymentStatus" class="form-select">
+                                @foreach (var s in OrderConst.PaymentStatuses)
+                                {
+                                    <option value="@s" data-paid="@(OrderRules.IsPaid(s) ? "1" : "0")" @(Model.PaymentStatus == s ? "selected" : "")>@OrderConst.PaymentText(s)</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" id="btnSave" class="btn btn-gvn w-100">Lưu thay đổi</button>
+                        <p class="text-muted small mt-2 mb-0">
+                            Đơn tự chuyển trạng thái theo thời gian (tính từ lần đổi trạng thái gần nhất):
+                            Đang xử lý → Đang vận chuyển sau @OrderAutoUpdater.Format(OrderAutoUpdater.ShippingAfterMinutes) → Đã giao sau @OrderAutoUpdater.Format(OrderAutoUpdater.DeliveredAfterMinutes).
+                            Đơn chờ thanh toán quá @OrderAutoUpdater.Format(OrderAutoUpdater.UnpaidCancelAfterMinutes) sẽ tự hủy.
+                        </p>
+                        <p class="text-muted small mt-1 mb-0">
+                            Quy tắc: không thể "Đã thanh toán" khi đơn "Đã hủy"@(isCod ? "; đơn COD chỉ được \"Đã thanh toán\" sau khi \"Đã giao\"" : "").
+                        </p>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white fw-semibold">Sản phẩm trong đơn</div>
+    <div class="table-responsive">
+        <table class="table align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th style="width:70px">Ảnh</th>
+                    <th>Sản phẩm</th>
+                    <th class="text-end">Đơn giá</th>
+                    <th class="text-center">Số lượng</th>
+                    <th class="text-end">Thành tiền</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var d in Model.OrderDetails)
+                {
+                    decimal lineTotal = d.TotalPrice ?? (d.UnitPrice * d.Quantity);
+                    linesTotal += lineTotal;
+                    <tr>
+                        <td><img src="@Url.ProductImage(d.Product.ProductImage)" alt="" class="thumb" /></td>
+                        <td class="wrap-text">
+                            @Html.ActionLink(d.Product.ProductName, "Details", "Products", new { id = d.ProductID }, null)
+                        </td>
+                        <td class="text-end">@AppHelper.Vnd(d.UnitPrice)</td>
+                        <td class="text-center">@d.Quantity</td>
+                        <td class="text-end fw-semibold">@AppHelper.Vnd(lineTotal)</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4" class="text-end fw-semibold">Tổng tiền hàng</td>
+                    <td class="text-end">@AppHelper.Vnd(linesTotal)</td>
+                </tr>
+                <tr>
+                    <td colspan="4" class="text-end fw-bold">Tổng thanh toán</td>
+                    <td class="text-end fw-bold" style="color:var(--gvn-red)">@AppHelper.Vnd(Model.TotalAmount)</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+@if (!locked)
+{
+    <script>
+        (function () {
+            // Cảnh báo sớm ở client, dùng chung hằng và thông báo với server (OrderConst / OrderRules).
+            // Server (OrderRules.Validate trong controller) vẫn quyết định cuối cùng.
+            var isCod      = @(isCod ? "true" : "false");
+            var CANCELLED  = @Html.Raw(Json.Encode(OrderConst.Cancelled));
+            var DELIVERED  = @Html.Raw(Json.Encode(OrderConst.Delivered));
+            var ERR_CANCEL = @Html.Raw(Json.Encode(OrderRules.ErrCancelledPaid));
+            var ERR_COD    = @Html.Raw(Json.Encode(OrderRules.ErrCodNotDelivered));
+
+            var form   = document.getElementById('statusForm');
+            var selOrd = document.getElementById('orderStatus');
+            var selPay = document.getElementById('paymentStatus');
+            var alertB = document.getElementById('ruleAlert');
+            var btn    = document.getElementById('btnSave');
+
+            function validate() {
+                var paid = selPay.options[selPay.selectedIndex].getAttribute('data-paid') === '1';
+                if (!paid) return null;
+                if (selOrd.value === CANCELLED) return ERR_CANCEL;
+                if (isCod && selOrd.value !== DELIVERED) return ERR_COD;
+                return null;
+            }
+
+            function refresh() {
+                var err = validate();
+                alertB.textContent = err || '';
+                alertB.classList.toggle('d-none', !err);
+                btn.disabled = !!err;
+            }
+
+            selOrd.addEventListener('change', refresh);
+            selPay.addEventListener('change', refresh);
+            form.addEventListener('submit', function (e) {
+                if (validate()) { e.preventDefault(); refresh(); }
+            });
+            refresh();
+        })();
+    </script>
+}

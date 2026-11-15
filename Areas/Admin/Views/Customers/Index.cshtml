@@ -1,0 +1,86 @@
+﻿@model Web_PC_Builder.Models.ViewModel.CustomerSearchVM
+@{
+    ViewBag.Title = "Quản lý khách hàng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">Quản lý khách hàng</h3>
+    @Html.ActionLink("+ Thêm khách hàng", "Create", null, new { @class = "btn btn-gvn" })
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        @using (Html.BeginForm("Index", "Customers", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+        {
+            <div class="col-md-6">
+                <label class="form-label small mb-1" for="searchTerm">Từ khóa</label>
+                <input type="text" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+                       placeholder="Họ tên, số điện thoại, email hoặc tên đăng nhập..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="sortOrder">Sắp xếp</label>
+                <select id="sortOrder" name="sortOrder" class="form-select">
+                    <option value="" @(string.IsNullOrEmpty(Model.SortOrder) ? "selected" : "")>Mới nhất</option>
+                    <option value="name_asc" @(Model.SortOrder == "name_asc" ? "selected" : "")>Tên A → Z</option>
+                    <option value="name_desc" @(Model.SortOrder == "name_desc" ? "selected" : "")>Tên Z → A</option>
+                    <option value="orders_desc" @(Model.SortOrder == "orders_desc" ? "selected" : "")>Nhiều đơn nhất</option>
+                    <option value="spent_desc" @(Model.SortOrder == "spent_desc" ? "selected" : "")>Chi tiêu nhiều nhất</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">Tìm</button>
+                @Html.ActionLink("Xóa lọc", "Index", null, new { @class = "btn btn-outline-secondary flex-fill" })
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th style="width:70px">Mã</th>
+                    <th>Họ và tên</th>
+                    <th>Số điện thoại</th>
+                    <th>Email</th>
+                    <th>Tài khoản</th>
+                    <th class="text-center">Số đơn</th>
+                    <th class="text-end">Tổng chi tiêu</th>
+                    <th class="text-end" style="width:270px">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Customers)
+                {
+                    <tr>
+                        <td>@item.CustomerID</td>
+                        <td class="fw-semibold">@item.CustomerName</td>
+                        <td>@item.CustomerPhone</td>
+                        <td>@item.CustomerEmail</td>
+                        <td>@item.Username</td>
+                        <td class="text-center">@item.OrderCount</td>
+                        <td class="text-end">@AppHelper.Vnd(item.TotalSpent)</td>
+                        <td class="text-end">
+                            @Html.ActionLink("Chi tiết", "Details", new { id = item.CustomerID }, new { @class = "btn btn-sm btn-outline-secondary" })
+                            @Html.ActionLink("Sửa", "Edit", new { id = item.CustomerID }, new { @class = "btn btn-sm btn-outline-primary" })
+                            @Html.ActionLink("Xóa", "Delete", new { id = item.CustomerID }, new { @class = "btn btn-sm btn-outline-danger" })
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Customers.Any())
+                {
+                    <tr><td colspan="8" class="text-center text-muted py-4">Không tìm thấy khách hàng nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer bg-white">
+        @Html.Partial("_Pager", new PagerVM(Model.Customers, p => Url.Action("Index", new
+        {
+            searchTerm = Model.SearchTerm,
+            sortOrder = Model.SortOrder,
+            page = p
+        })))
+    </div>
+</div>

@@ -425,7 +425,7 @@
             var cart = getCart();
             var f = cart.filter(function (x) { return x.id === id; })[0];
             if (f) f.qty += qty;
-            else cart.push({ id: p.id, name: p.name, price: p.price, image: img(p.img), qty: qty });
+            else cart.push({ id: p.id, name: p.name, price: p.price, image: img(p.img), qty: qty, cat: p.cat, brand: p.brand, file: p.img, desc: p.specs.join(', ') });
             saveCart(cart);
         }
         badge();

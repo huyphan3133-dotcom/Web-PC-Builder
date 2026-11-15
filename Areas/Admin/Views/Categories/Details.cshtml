@@ -1,0 +1,24 @@
+﻿@model Web_PC_Builder.Models.Category
+@{
+    ViewBag.Title = "Chi tiết danh mục";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Chi tiết danh mục</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CategoryID)</dt>
+                    <dd class="col-sm-8">@Model.CategoryID</dd>
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CategoryName)</dt>
+                    <dd class="col-sm-8">@Model.CategoryName</dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-white d-flex gap-2">
+                @Html.ActionLink("Sửa", "Edit", new { id = Model.CategoryID }, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+            </div>
+        </div>
+    </div>
+</div>

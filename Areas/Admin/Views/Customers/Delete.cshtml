@@ -1,0 +1,41 @@
+﻿@model Web_PC_Builder.Models.Customer
+@{
+    ViewBag.Title = "Xóa khách hàng";
+    int orderCount = Model.Orders.Count;
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white"><h5 class="mb-0">Xóa khách hàng</h5></div>
+            <div class="card-body">
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2" })
+
+                <p>Bạn có chắc chắn muốn xóa khách hàng này?</p>
+                <dl class="row">
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CustomerID)</dt>
+                    <dd class="col-sm-8">@Model.CustomerID</dd>
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CustomerName)</dt>
+                    <dd class="col-sm-8 fw-semibold">@Model.CustomerName</dd>
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.CustomerPhone)</dt>
+                    <dd class="col-sm-8">@Model.CustomerPhone</dd>
+                    <dt class="col-sm-4">@Html.DisplayNameFor(m => m.Username)</dt>
+                    <dd class="col-sm-8">@Model.Username</dd>
+                </dl>
+                @if (orderCount > 0)
+                {
+                    <div class="alert alert-warning py-2">Khách hàng này có <strong>@orderCount</strong> đơn hàng nên sẽ không xóa được.</div>
+                }
+
+                @using (Html.BeginForm("Delete", "Customers", new { id = Model.CustomerID }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger" @(orderCount > 0 ? "disabled" : "")>Xóa</button>
+                        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
