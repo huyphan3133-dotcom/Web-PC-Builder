@@ -1,17 +1,67 @@
-﻿@{
-    Layout = null;
+﻿@model Web_PC_Builder.Models.ViewModel.LoginVM
+@{
+    ViewBag.Title = "Đăng nhập";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
+<div class="account-page">
+    <div class="account-card">
+        <h2>ĐĂNG NHẬP</h2>
+        <p class="account-subtitle">Chào mừng bạn đến với PC Builder</p>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+        @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl },
+            FormMethod.Post, new { id = "loginForm", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="Email" value="@Model.Email"
+                       class="form-control" placeholder="Nhập email của bạn" required />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="Password"
+                       class="form-control" placeholder="Nhập mật khẩu" required minlength="6" />
+            </div>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="account-error">@ViewBag.Error</div>
+            }
+
+            <button type="submit" class="account-button">ĐĂNG NHẬP</button>
+        }
+
+        <p class="account-footer">
+            Chưa có tài khoản?
+            @Html.ActionLink("Đăng ký ngay", "Register", "Account")
+        </p>
     </div>
-</body>
-</html>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script>
+        $(function () {
+            $("#loginForm").validate({
+                errorClass: "field-error",
+                rules: {
+                    Email: { required: true, email: true },
+                    Password: { required: true, minlength: 6 }
+                },
+                messages: {
+                    Email: {
+                        required: "Vui lòng nhập email.",
+                        email: "Email không đúng định dạng."
+                    },
+                    Password: {
+                        required: "Vui lòng nhập mật khẩu.",
+                        minlength: "Mật khẩu tối thiểu 6 ký tự."
+                    }
+                }
+            });
+        });
+    </script>
+}

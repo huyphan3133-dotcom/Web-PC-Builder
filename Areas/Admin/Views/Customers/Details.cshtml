@@ -1,0 +1,73 @@
+﻿@model Web_PC_Builder.Models.Customer
+@{
+    ViewBag.Title = "Chi tiết khách hàng";
+    var orders = Model.Orders.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderID).ToList();
+}
+
+<div class="row g-3">
+    <div class="col-lg-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-gvn"><h5 class="mb-0">Thông tin khách hàng</h5></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.CustomerID)</dt>
+                    <dd class="col-sm-7">@Model.CustomerID</dd>
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.CustomerName)</dt>
+                    <dd class="col-sm-7 fw-semibold">@Model.CustomerName</dd>
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.CustomerPhone)</dt>
+                    <dd class="col-sm-7">@Model.CustomerPhone</dd>
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.CustomerEmail)</dt>
+                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.CustomerEmail) ? "-" : Model.CustomerEmail)</dd>
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.CustomerAddress)</dt>
+                    <dd class="col-sm-7">@(string.IsNullOrEmpty(Model.CustomerAddress) ? "-" : Model.CustomerAddress)</dd>
+                    <dt class="col-sm-5">@Html.DisplayNameFor(m => m.Username)</dt>
+                    <dd class="col-sm-7">@Model.Username</dd>
+                </dl>
+            </div>
+            <div class="card-footer bg-white d-flex gap-2">
+                @Html.ActionLink("Sửa", "Edit", new { id = Model.CustomerID }, new { @class = "btn btn-primary" })
+                @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <span class="fw-semibold">Đơn hàng của khách (@orders.Count)</span>
+                @Html.ActionLink("Mở trong mục Đơn hàng", "Index", "Orders", new { customerId = Model.CustomerID }, new { @class = "small" })
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Ngày đặt</th>
+                            <th class="text-end">Tổng tiền</th>
+                            <th>Thanh toán</th>
+                            <th>Trạng thái</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var o in orders)
+                        {
+                            <tr>
+                                <td>#@o.OrderID</td>
+                                <td>@AppHelper.Date(o.OrderDate)</td>
+                                <td class="text-end">@AppHelper.Vnd(o.TotalAmount)</td>
+                                <td><span class="badge @OrderConst.PaymentBadge(o.PaymentStatus)">@OrderConst.PaymentText(o.PaymentStatus)</span></td>
+                                <td><span class="badge @OrderConst.StatusBadge(o.OrderStatus)">@o.OrderStatus</span></td>
+                                <td class="text-end">@Html.ActionLink("Xem chi tiết", "Details", "Orders", new { id = o.OrderID }, new { @class = "btn btn-sm btn-outline-secondary" })</td>
+                            </tr>
+                        }
+                        @if (orders.Count == 0)
+                        {
+                            <tr><td colspan="6" class="text-center text-muted py-4">Khách hàng này chưa có đơn hàng nào.</td></tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

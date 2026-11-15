@@ -1,0 +1,49 @@
+﻿@model Web_PC_Builder.Models.ViewModel.AdminLoginVM
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập quản trị - GEARVN</title>
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/admin.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="login-wrap px-3">
+        <div class="card shadow-lg border-0" style="width:100%;max-width:420px;">
+            <div class="card-body p-4 p-md-5">
+                <h3 class="text-center fw-bold mb-1" style="color:var(--gvn-red)">GEARVN Admin</h3>
+                <p class="text-center text-muted mb-4">Đăng nhập trang quản trị</p>
+
+                @using (Html.BeginForm("Login", "Account", new { returnUrl = ViewBag.ReturnUrl }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2" })
+
+                    <div class="mb-3">
+                        @Html.LabelFor(m => m.Username, new { @class = "form-label" })
+                        @Html.TextBoxFor(m => m.Username, new { @class = "form-control", autofocus = "autofocus", autocomplete = "username" })
+                        @Html.ValidationMessageFor(m => m.Username, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="mb-4">
+                        @Html.LabelFor(m => m.Password, new { @class = "form-label" })
+                        @Html.PasswordFor(m => m.Password, new { @class = "form-control", autocomplete = "current-password" })
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                    <button type="submit" class="btn btn-gvn w-100 py-2">Đăng nhập</button>
+                }
+
+                <div class="text-center mt-3">
+                    <a href="@Url.Action("Index", "Home", new { area = "" })" class="small text-muted">&larr; Về trang chủ website</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/jqueryval")
+</body>
+</html>

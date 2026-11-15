@@ -25,7 +25,16 @@
 
 
                 <a href="@Url.Action("Home", "Cart")" class="btn-dark"><i class="fas fa-shopping-cart"></i> <span id="cart-count">0</span></a>
-                <a href="@Url.Action("Login", "Account")" class="btn-dark"><i class="fas fa-user"></i> Đăng nhập</a>
+                @if (Session["CustomerUser"] != null)
+                {
+                    string shownName = Session["CustomerName"] as string ?? "Tài khoản";
+                    if (shownName.Length > 18) { shownName = shownName.Substring(0, 18) + "…"; }
+                    <a href="@Url.Action("Profile", "Account")" class="btn-dark"><i class="fas fa-user"></i> @shownName</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("Login", "Account")" class="btn-dark"><i class="fas fa-user"></i> Đăng nhập</a>
+                }
             </div>
         </div>
     </header>

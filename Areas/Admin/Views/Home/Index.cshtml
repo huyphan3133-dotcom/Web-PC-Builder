@@ -1,0 +1,138 @@
+﻿@model Web_PC_Builder.Models.ViewModel.DashboardVM
+@{
+    ViewBag.Title = "Thống kê";
+
+    Func<string, string> pill = s =>
+        s == OrderConst.WaitingPayment ? "st-wait" :
+        s == OrderConst.Processing ? "st-proc" :
+        s == OrderConst.Shipping ? "st-ship" :
+        s == OrderConst.Delivered ? "st-done" :
+        s == OrderConst.Cancelled ? "st-cancel" : "st-other";
+}
+
+<div class="dash-head">
+    <h3>Thống kê tổng quan</h3>
+    <span class="dash-date">Cập nhật lúc @DateTime.Now.ToString("HH:mm dd/MM/yyyy")</span>
+</div>
+
+@* Dải chỉ số: 1 khối duy nhất, các ô ngăn bằng đường kẻ mảnh *@
+<section class="spec-strip" aria-label="Chỉ số chính">
+    <div class="spec spec-lead">
+        <div class="spec-label">Doanh thu (không tính đơn đã hủy)</div>
+        <div class="spec-num spec-num-lg">@AppHelper.Vnd(Model.TotalRevenue)</div>
+    </div>
+    <a class="spec" href="@Url.Action("Index", "Products")">
+        <div class="spec-label">Sản phẩm</div>
+        <div class="spec-num">@Model.TotalProducts</div>
+    </a>
+    <a class="spec" href="@Url.Action("Index", "Categories")">
+        <div class="spec-label">Danh mục</div>
+        <div class="spec-num">@Model.TotalCategories</div>
+    </a>
+    <a class="spec" href="@Url.Action("Index", "Customers")">
+        <div class="spec-label">Khách hàng</div>
+        <div class="spec-num">@Model.TotalCustomers</div>
+    </a>
+    <a class="spec" href="@Url.Action("Index", "Orders")">
+        <div class="spec-label">Đơn hàng</div>
+        <div class="spec-num">@Model.TotalOrders</div>
+        <div class="spec-note @(Model.OpenOrders > 0 ? "is-open" : "")">@Model.OpenOrders đang chờ xử lý</div>
+    </a>
+</section>
+
+<div class="dash-grid">
+    <section class="panel panel-revenue">
+        <header class="panel-head">
+            <h4>Doanh thu 6 tháng gần nhất</h4>
+            <p id="revenueNote">&nbsp;</p>
+        </header>
+        <div class="table-responsive">
+            <table class="recent-table">
+                <thead><tr><th>Tháng</th><th class="text-end">Doanh thu</th></tr></thead>
+                <tbody id="chartRevenue"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel panel-top">
+        <header class="panel-head">
+            <h4>Top 5 sản phẩm bán chạy</h4>
+            <p>Theo số lượng, không tính đơn đã hủy</p>
+        </header>
+        <div class="table-responsive">
+            <table class="recent-table">
+                <thead><tr><th>Sản phẩm</th><th class="text-end">Đã bán</th></tr></thead>
+                <tbody id="chartTop"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="panel panel-recent">
+        <header class="panel-head panel-head-row">
+            <div>
+                <h4>Đơn hàng mới nhất</h4>
+                <p>5 đơn gần đây</p>
+            </div>
+            @Html.ActionLink("Xem tất cả", "Index", "Orders", null, new { @class = "panel-link" })
+        </header>
+        <div class="table-responsive">
+            <table class="recent-table">
+                <thead>
+                    <tr><th>Mã</th><th>Khách hàng</th><th>Ngày</th><th class="text-end">Tổng tiền</th><th>Trạng thái</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model.RecentOrders)
+                    {
+                        string cname = o.Customer != null ? o.Customer.CustomerName : null;
+                        string initial = string.IsNullOrWhiteSpace(cname) ? "?" : cname.Trim().Substring(0, 1).ToUpper();
+                        <tr>
+                            <td>@Html.ActionLink("#" + o.OrderID, "Details", "Orders", new { id = o.OrderID }, new { @class = "order-code" })</td>
+                            <td><span class="avatar" aria-hidden="true">@initial</span>@cname</td>
+                            <td class="text-muted">@AppHelper.Date(o.OrderDate)</td>
+                            <td class="text-end fw-semibold">@AppHelper.Vnd(o.TotalAmount)</td>
+                            <td><span class="status-pill @pill(o.OrderStatus)">@o.OrderStatus</span></td>
+                        </tr>
+                    }
+                    @if (!Model.RecentOrders.Any())
+                    {
+                        <tr><td colspan="5" class="empty-row">Chưa có đơn hàng nào.</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+@section scripts {
+    <script>
+        (function () {
+            // Dữ liệu từ controller: dòng đầu là tiêu đề cột, các dòng sau là dữ liệu.
+            var revenue = (@Html.Raw(Model.RevenueByMonthJson)).slice(1);
+            var top     = (@Html.Raw(Model.TopProductsJson)).slice(1);
+
+            function esc(s) {
+                return String(s).replace(/[&<>"']/g, function (c) {
+                    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+                });
+            }
+            function full(v) { return Number(v).toLocaleString('vi-VN') + 'đ'; }
+
+            // ---- Doanh thu theo tháng: bảng đơn giản
+            var best = 0;
+            revenue.forEach(function (r, i) { if (r[1] > revenue[best][1]) best = i; });
+            document.getElementById('chartRevenue').innerHTML = revenue.map(function (r) {
+                return '<tr><td>' + esc(r[0]) + '</td><td class="text-end fw-semibold">' + full(r[1]) + '</td></tr>';
+            }).join('');
+            document.getElementById('revenueNote').textContent = revenue[best][1] > 0
+                ? 'Cao nhất: tháng ' + revenue[best][0] + ' (' + full(revenue[best][1]) + ')'
+                : 'Chưa có doanh thu trong 6 tháng qua';
+
+            // ---- Top sản phẩm: bảng đơn giản
+            document.getElementById('chartTop').innerHTML = top.length
+                ? top.map(function (r) {
+                    return '<tr><td class="cell-wrap">' + esc(r[0]) + '</td><td class="text-end fw-semibold">' + r[1] + '</td></tr>';
+                }).join('')
+                : '<tr><td colspan="2" class="empty-row">Chưa có sản phẩm nào được bán.</td></tr>';
+        })();
+    </script>
+}

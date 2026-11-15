@@ -1,0 +1,35 @@
+﻿@model Web_PC_Builder.Models.Category
+@{
+    ViewBag.Title = "Xóa danh mục";
+    int productCount = 0;
+    if (ViewBag.ProductCount is int)
+    {
+        productCount = (int)ViewBag.ProductCount;
+    }
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white"><h5 class="mb-0">Xóa danh mục</h5></div>
+            <div class="card-body">
+                @Html.ValidationSummary(true, "", new { @class = "alert alert-danger py-2" })
+
+                <p>Bạn có chắc chắn muốn xóa danh mục <strong>@Model.CategoryName</strong> (mã #@Model.CategoryID)?</p>
+                @if (productCount > 0)
+                {
+                    <div class="alert alert-warning py-2">Danh mục này đang có <strong>@productCount</strong> sản phẩm nên sẽ không xóa được.</div>
+                }
+
+                @using (Html.BeginForm("Delete", "Categories", new { id = Model.CategoryID }, FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger" @(productCount > 0 ? "disabled" : "")>Xóa</button>
+                        @Html.ActionLink("Quay lại", "Index", null, new { @class = "btn btn-outline-secondary" })
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

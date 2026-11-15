@@ -1,0 +1,107 @@
+﻿@model Web_PC_Builder.Models.ViewModel.OrderSearchVM
+@{
+    ViewBag.Title = "Quản lý đơn hàng";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="mb-0">
+        Quản lý đơn hàng
+        @if (Model.Customer != null)
+        {
+            <small class="text-muted fs-6">&middot; khách hàng: @Html.ActionLink(Model.Customer.CustomerName, "Details", "Customers", new { id = Model.Customer.CustomerID }, null)</small>
+        }
+    </h3>
+    @if (Model.CustomerID.HasValue)
+    {
+        @Html.ActionLink("Xem tất cả đơn hàng", "Index", null, new { @class = "btn btn-outline-secondary" })
+    }
+</div>
+
+<div class="card shadow-sm mb-3">
+    <div class="card-body">
+        @using (Html.BeginForm("Index", "Orders", FormMethod.Get, new { @class = "row g-2 align-items-end" }))
+        {
+            if (Model.CustomerID.HasValue)
+            {
+                <input type="hidden" name="customerId" value="@Model.CustomerID.Value" />
+            }
+            <div class="col-md-4">
+                <label class="form-label small mb-1" for="searchTerm">Từ khóa</label>
+                <input type="text" id="searchTerm" name="searchTerm" value="@Model.SearchTerm" class="form-control"
+                       placeholder="Mã đơn, tên hoặc SĐT khách hàng..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small mb-1" for="status">Trạng thái</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">Tất cả</option>
+                    @foreach (var s in OrderConst.Statuses)
+                    {
+                        <option value="@s" @(Model.Status == s ? "selected" : "")>@s</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small mb-1" for="sortOrder">Sắp xếp</label>
+                <select id="sortOrder" name="sortOrder" class="form-select">
+                    <option value="" @(string.IsNullOrEmpty(Model.SortOrder) ? "selected" : "")>Mới nhất</option>
+                    <option value="date_asc" @(Model.SortOrder == "date_asc" ? "selected" : "")>Cũ nhất</option>
+                    <option value="amount_desc" @(Model.SortOrder == "amount_desc" ? "selected" : "")>Giá trị cao</option>
+                    <option value="amount_asc" @(Model.SortOrder == "amount_asc" ? "selected" : "")>Giá trị thấp</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-dark flex-fill">Lọc</button>
+                @Html.ActionLink("Xóa lọc", "Index", new { customerId = Model.CustomerID }, new { @class = "btn btn-outline-secondary flex-fill" })
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Mã đơn</th>
+                    <th>Khách hàng</th>
+                    <th>Ngày đặt</th>
+                    <th class="text-end">Tổng tiền</th>
+                    <th>Thanh toán</th>
+                    <th>Trạng thái</th>
+                    <th class="text-end"></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model.Orders)
+                {
+                    <tr>
+                        <td class="fw-semibold">#@o.OrderID</td>
+                        <td>
+                            @o.Customer.CustomerName
+                            <div class="small text-muted">@o.Customer.CustomerPhone</div>
+                        </td>
+                        <td>@AppHelper.Date(o.OrderDate)</td>
+                        <td class="text-end fw-semibold">@AppHelper.Vnd(o.TotalAmount)</td>
+                        <td><span class="badge @OrderConst.PaymentBadge(o.PaymentStatus)">@OrderConst.PaymentText(o.PaymentStatus)</span></td>
+                        <td><span class="badge @OrderConst.StatusBadge(o.OrderStatus)">@o.OrderStatus</span></td>
+                        <td class="text-end">@Html.ActionLink("Chi tiết", "Details", new { id = o.OrderID }, new { @class = "btn btn-sm btn-outline-primary" })</td>
+                    </tr>
+                }
+                @if (!Model.Orders.Any())
+                {
+                    <tr><td colspan="7" class="text-center text-muted py-4">Không có đơn hàng nào.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="card-footer bg-white">
+        @Html.Partial("_Pager", new PagerVM(Model.Orders, p => Url.Action("Index", new
+        {
+            searchTerm = Model.SearchTerm,
+            status = Model.Status,
+            customerId = Model.CustomerID,
+            sortOrder = Model.SortOrder,
+            page = p
+        })))
+    </div>
+</div>

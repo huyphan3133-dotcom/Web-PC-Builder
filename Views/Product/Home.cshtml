@@ -202,7 +202,7 @@
         $('pd-grid').addEventListener('click', function (e) {
             var b = e.target.closest('.pd-add');
             if (!b) return;
-            P.add(+b.dataset.id, 1);
+            if (!P.add(+b.dataset.id, 1)) return;
             var old = b.textContent;
             b.textContent = 'Đã thêm ✓';
             setTimeout(function () { b.textContent = old; }, 900);

@@ -229,27 +229,28 @@
 
     <div id="ck-main" class="ck-grid">
         <form id="ck-form" class="ck-box" novalidate>
+            @Html.AntiForgeryToken()
             <h2>Thông tin giao hàng</h2>
 
             <div class="ck-two">
                 <div>
                     <label class="f" for="fullName">Họ và tên *</label>
-                    <input type="text" id="fullName" autocomplete="name" />
+                    <input type="text" id="fullName" value="@ViewBag.FullName" autocomplete="name" />
                     <span class="ck-err" id="err-fullName"></span>
                 </div>
                 <div>
                     <label class="f" for="phone">Số điện thoại *</label>
-                    <input type="tel" id="phone" placeholder="0901234567" autocomplete="tel" />
+                    <input type="tel" id="phone" value="@ViewBag.Phone" placeholder="0901234567" autocomplete="tel" />
                     <span class="ck-err" id="err-phone"></span>
                 </div>
             </div>
 
             <label class="f" for="email">Email (không bắt buộc)</label>
-            <input type="email" id="email" autocomplete="email" />
+            <input type="email" id="email" value="@ViewBag.Email" autocomplete="email" />
             <span class="ck-err" id="err-email"></span>
 
             <label class="f" for="address">Địa chỉ nhận hàng *</label>
-            <input type="text" id="address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" autocomplete="street-address" />
+            <input type="text" id="address" value="@ViewBag.Address" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" autocomplete="street-address" />
             <span class="ck-err" id="err-address"></span>
 
             <label class="f" for="note">Ghi chú (không bắt buộc)</label>
@@ -265,6 +266,7 @@
                 <span>Chuyển khoản ngân hàng<small>Nhân viên sẽ gửi thông tin tài khoản khi xác nhận đơn.</small></span>
             </label>
 
+            <span class="ck-err" id="err-form"></span>
             <button type="submit" class="ck-submit">Đặt hàng</button>
         </form>
 
@@ -276,7 +278,8 @@
         <div>Mã đơn hàng của bạn:</div>
         <div class="code" id="ck-code"></div>
         <p>Cảm ơn bạn. GearVN sẽ liên hệ xác nhận đơn hàng sớm nhất.</p>
-        <a href="@Url.Action("Home", "Product")">Tiếp tục mua sắm</a>
+        <a href="@Url.Action("Profile", "Account")">Xem đơn hàng của tôi</a>
+        <a href="@Url.Action("Home", "Product")" style="background:#555;margin-left:8px">Tiếp tục mua sắm</a>
     </div>
 </div>
 
@@ -285,6 +288,8 @@
         var KEY = 'gvn_cart', ORDERS = 'gvn_orders';
         var SHOP = '@Url.Action("Home", "Product")';
         var CART = '@Url.Action("Home", "Cart")';
+        var PLACE = '@Url.Action("PlaceOrder", "Cart")';
+        var LOGIN = '@Url.Action("Login", "Account")';
 
         function getCart() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
         function getOrders() { try { return JSON.parse(localStorage.getItem(ORDERS)) || []; } catch (e) { return []; } }

@@ -1,17 +1,126 @@
-﻿@{
-    Layout = null;
+﻿@model Web_PC_Builder.Models.ViewModel.RegisterVM
+@{
+    ViewBag.Title = "Đăng ký tài khoản";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<!DOCTYPE html>
+<div class="account-page">
+    <div class="account-card">
+        <h2>TẠO TÀI KHOẢN</h2>
+        <p class="account-subtitle">Đăng ký để trải nghiệm PC Builder</p>
 
-<html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title></title>
-</head>
-<body>
-    <div>
-    
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post,
+            new { id = "registerForm", novalidate = "novalidate" }))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="fullName">Họ và tên</label>
+                <input type="text" id="fullName" name="FullName" value="@Model.FullName"
+                       class="form-control" placeholder="Nhập họ và tên" required minlength="2" />
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="Email" value="@Model.Email"
+                       class="form-control" placeholder="Nhập email" required />
+            </div>
+
+            <div class="form-group">
+                <label for="phone">Số điện thoại</label>
+                <input type="tel" id="phone" name="Phone" value="@Model.Phone"
+                       class="form-control" placeholder="VD: 0901234567" required maxlength="10" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" id="password" name="Password"
+                       class="form-control" placeholder="Tối thiểu 6 ký tự" required minlength="6" />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <input type="password" id="confirmPassword" name="ConfirmPassword"
+                       class="form-control" placeholder="Nhập lại mật khẩu" required />
+            </div>
+
+            if (ViewBag.Error != null)
+            {
+                <div class="account-error">@ViewBag.Error</div>
+            }
+
+            <button type="submit" class="account-button">ĐĂNG KÝ</button>
+        }
+
+        <p class="account-footer">
+            Đã có tài khoản?
+            @Html.ActionLink("Đăng nhập", "Login", "Account")
+        </p>
     </div>
-</body>
-</html>
+</div>
+
+@section scripts {
+    <script src="~/Scripts/jquery.validate.min.js"></script>
+    <script>
+        $(function () {
+            // Regex chuẩn SĐT di động Việt Nam: 10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09
+            $.validator.addMethod("vnphone", function (value, element) {
+
+                return this.optional(element) || /^0(3|5|7|8|9)\d{8}$/.test(value);
+            }, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03/05/07/08/09).");
+
+
+            $.validator.addMethod("trimmedMin", function (value, element, min) {
+                return $.trim(value).length >= min;
+            }, "Họ tên phải có ít nhất 2 ký tự (không tính khoảng trắng).");
+
+            $.validator.addMethod("nospace", function (value) {
+                return !/\s/.test(value);
+            }, "Không được chứa khoảng trắng.");
+
+            // Tự cắt khoảng trắng thừa khi rời khỏi ô nhập
+            $("#fullName").on("blur", function () {
+                $(this).val($.trim($(this).val()).replace(/\s+/g, " "));
+            });
+            $("#email, #phone").on("blur", function () {
+                $(this).val($.trim($(this).val()));
+            });
+
+            $("#registerForm").validate({
+                errorClass: "field-error",
+                rules: {
+                    FullName: { required: true, trimmedMin: 2 },
+                    Email: { required: true, email: true },
+                    Phone: { required: true, vnphone: true },
+                    Password: { required: true, minlength: 6, nospace: true },
+                    ConfirmPassword: { required: true, equalTo: "#password" }
+                },
+                messages: {
+                    FullName: {
+                        required: "Vui lòng nhập họ tên.",
+                        trimmedMin: "Họ tên phải có ít nhất 2 ký tự (không tính khoảng trắng)."
+                    },
+                    Email: {
+                        required: "Vui lòng nhập email.",
+                        email: "Email không hợp lệ."
+                    },
+
+                    Phone: {
+                        required: "Vui lòng nhập số điện thoại.",
+                        vnphone: "Số điện thoại không hợp lệ (10 số, VD: 0901234567)."
+                    },
+
+                    Password: {
+                        required: "Vui lòng nhập mật khẩu.",
+                        minlength: "Mật khẩu tối thiểu 6 ký tự.",
+                        nospace: "Mật khẩu không được chứa khoảng trắng."
+                    },
+                    ConfirmPassword: {
+                        required: "Vui lòng xác nhận mật khẩu.",
+                        equalTo: "Hai mật khẩu không khớp."
+                    }
+                }
+            });
+        });
+    </script>
+}

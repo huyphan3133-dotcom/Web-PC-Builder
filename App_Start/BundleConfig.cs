@@ -19,8 +19,10 @@ namespace Web_PC_Builder
             bundles.Add(new ScriptBundle("~/bundles/modernizr").Include(
                         "~/Scripts/modernizr-*"));
 
+            // Bootstrap 5: dùng bản bundle (đã gồm Popper cho dropdown/tooltip).
+            // Dùng Bundle (không ScriptBundle) để không bị WebGrease nén lỗi cú pháp ES6 của Bootstrap 5.
             bundles.Add(new Bundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js"));
+                      "~/Scripts/bootstrap.bundle.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
