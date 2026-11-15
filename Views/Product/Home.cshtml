@@ -173,6 +173,7 @@
             var old = b.textContent;
             b.textContent = 'Đã thêm ✓';
             setTimeout(function () { b.textContent = old; }, 900);
+            location.href = P.urls.cart;
         });
 
         render();
