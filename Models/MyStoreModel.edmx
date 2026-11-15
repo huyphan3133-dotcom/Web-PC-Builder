@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="My_StoreModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="My_StoreModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="Category">
           <Key>
             <PropertyRef Name="CategoryID" />
@@ -62,6 +62,7 @@
           <Property Name="ProductImage" Type="nvarchar(max)" />
           <Property Name="OldPrice" Type="decimal" Precision="18" Scale="2" />
           <Property Name="Brand" Type="nvarchar" MaxLength="100" />
+          <Property Name="Stock" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -71,7 +72,7 @@
           <Property Name="Password" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="UserRole" Type="nchar" MaxLength="1" Nullable="false" />
         </EntityType>
-        <Association Name="FK__Order__CustomerI__5441852A">
+        <Association Name="FK__Order__CustomerI__412EB0B6">
           <End Role="Customer" Type="Self.Customer" Multiplicity="1" />
           <End Role="Order" Type="Self.Order" Multiplicity="*" />
           <ReferentialConstraint>
@@ -83,7 +84,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__OrderDeta__Order__5812160E">
+        <Association Name="FK__OrderDeta__Order__44FF419A">
           <End Role="Order" Type="Self.Order" Multiplicity="1" />
           <End Role="OrderDetail" Type="Self.OrderDetail" Multiplicity="*" />
           <ReferentialConstraint>
@@ -95,7 +96,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__OrderDeta__Produ__571DF1D5">
+        <Association Name="FK__OrderDeta__Produ__440B1D61">
           <End Role="Product" Type="Self.Product" Multiplicity="1" />
           <End Role="OrderDetail" Type="Self.OrderDetail" Multiplicity="*" />
           <ReferentialConstraint>
@@ -138,15 +139,15 @@
           <EntitySet Name="OrderDetail" EntityType="Self.OrderDetail" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Product" EntityType="Self.Product" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__Order__CustomerI__5441852A" Association="Self.FK__Order__CustomerI__5441852A">
+          <AssociationSet Name="FK__Order__CustomerI__412EB0B6" Association="Self.FK__Order__CustomerI__412EB0B6">
             <End Role="Customer" EntitySet="Customer" />
             <End Role="Order" EntitySet="Order" />
           </AssociationSet>
-          <AssociationSet Name="FK__OrderDeta__Order__5812160E" Association="Self.FK__OrderDeta__Order__5812160E">
+          <AssociationSet Name="FK__OrderDeta__Order__44FF419A" Association="Self.FK__OrderDeta__Order__44FF419A">
             <End Role="Order" EntitySet="Order" />
             <End Role="OrderDetail" EntitySet="OrderDetail" />
           </AssociationSet>
-          <AssociationSet Name="FK__OrderDeta__Produ__571DF1D5" Association="Self.FK__OrderDeta__Produ__571DF1D5">
+          <AssociationSet Name="FK__OrderDeta__Produ__440B1D61" Association="Self.FK__OrderDeta__Produ__440B1D61">
             <End Role="Product" EntitySet="Product" />
             <End Role="OrderDetail" EntitySet="OrderDetail" />
           </AssociationSet>
@@ -159,8 +160,7 @@
             <End Role="Customer" EntitySet="Customer" />
           </AssociationSet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="My_StoreModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
@@ -199,9 +199,9 @@
           <Property Name="PaymentMethod" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="OrderStatus" Type="String" MaxLength="50" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="Note" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="StatusUpdatedAt" Type="DateTime" Precision="3" />
           <NavigationProperty Name="Customer" Relationship="Self.FK__Order__CustomerI__5441852A" FromRole="Order" ToRole="Customer" />
           <NavigationProperty Name="OrderDetails" Relationship="Self.FK__OrderDeta__Order__5812160E" FromRole="Order" ToRole="OrderDetail" />
+          <Property Name="StatusUpdatedAt" Type="DateTime" Nullable="true" />
         </EntityType>
         <EntityType Name="OrderDetail">
           <Key>
@@ -230,6 +230,7 @@
           <Property Name="Brand" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Category" Relationship="Self.FK_Pro_Category" FromRole="Product" ToRole="Category" />
           <NavigationProperty Name="OrderDetails" Relationship="Self.FK__OrderDeta__Produ__571DF1D5" FromRole="Product" ToRole="OrderDetail" />
+          <Property Name="Stock" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -357,6 +358,7 @@
           <EntitySetMapping Name="Orders">
             <EntityTypeMapping TypeName="My_StoreModel.Order">
               <MappingFragment StoreEntitySet="Order">
+                <ScalarProperty Name="StatusUpdatedAt" ColumnName="StatusUpdatedAt" />
                 <ScalarProperty Name="OrderID" ColumnName="OrderID" />
                 <ScalarProperty Name="CustomerID" ColumnName="CustomerID" />
                 <ScalarProperty Name="OrderDate" ColumnName="OrderDate" />
@@ -367,7 +369,6 @@
                 <ScalarProperty Name="PaymentMethod" ColumnName="PaymentMethod" />
                 <ScalarProperty Name="OrderStatus" ColumnName="OrderStatus" />
                 <ScalarProperty Name="Note" ColumnName="Note" />
-                <ScalarProperty Name="StatusUpdatedAt" ColumnName="StatusUpdatedAt" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -386,6 +387,7 @@
           <EntitySetMapping Name="Products">
             <EntityTypeMapping TypeName="My_StoreModel.Product">
               <MappingFragment StoreEntitySet="Product">
+                <ScalarProperty Name="Stock" ColumnName="Stock" />
                 <ScalarProperty Name="ProductID" ColumnName="ProductID" />
                 <ScalarProperty Name="CategoryID" ColumnName="CategoryID" />
                 <ScalarProperty Name="ProductName" ColumnName="ProductName" />

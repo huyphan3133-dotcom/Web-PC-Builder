@@ -1,12 +1,28 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity;
+using System.Linq;
 using System.Web;
-
-// Các file Category.cs, Product.cs... do EF (T4) sinh ra và sẽ bị ghi đè khi "Update Model from Database".
-// Vì vậy phần nhãn tiếng Việt + validation + trường UploadImg được đặt ở file riêng này (partial class + MetadataType).
 namespace Web_PC_Builder.Models
 {
+    // ------------------------------------------------------------ Chuẩn hóa SĐT (dùng chung)
+    public static class PhoneNormalizer
+    {
+        /// <summary>Bỏ khoảng trắng, dấu chấm, gạch; +84 / 84 (11 số) ở đầu đổi thành 0.</summary>
+        public static string Normalize(string phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return phone;
+
+            string p = new string(phone.Where(c => !char.IsWhiteSpace(c) && c != '.' && c != '-').ToArray());
+
+            if (p.StartsWith("+84")) p = "0" + p.Substring(3);
+            else if (p.StartsWith("84") && p.Length == 11) p = "0" + p.Substring(2);
+
+            return p;
+        }
+    }
+
     // ------------------------------------------------------------ Category
     [MetadataType(typeof(CategoryMetadata))]
     public partial class Category
@@ -50,6 +66,8 @@ namespace Web_PC_Builder.Models
 
         [Display(Name = "Mô tả / thông số")]
         [Required(ErrorMessage = "Vui lòng nhập mô tả sản phẩm.")]
+        [StringLength(2000, ErrorMessage = "Mô tả sản phẩm tối đa 2000 ký tự.")]
+        [DataType(DataType.MultilineText)]
         public string ProductDescription { get; set; }
 
         [Display(Name = "Giá bán")]
@@ -75,6 +93,11 @@ namespace Web_PC_Builder.Models
     [MetadataType(typeof(CustomerMetadata))]
     public partial class Customer
     {
+        /// <summary>Đổi CustomerPhone về dạng 0xxxxxxxxx (gọi tự động trong SaveChanges).</summary>
+        public void NormalizePhone()
+        {
+            CustomerPhone = PhoneNormalizer.Normalize(CustomerPhone);
+        }
     }
 
     public class CustomerMetadata
@@ -87,16 +110,23 @@ namespace Web_PC_Builder.Models
         [StringLength(200, ErrorMessage = "Họ và tên tối đa 200 ký tự.")]
         public string CustomerName { get; set; }
 
+        // SĐT di động VN: 10 số, đầu số 03/05/07/08/09. Cho phép nhập +84 / 84 ở đầu;
+        // khi lưu, SaveChanges tự đổi về dạng 0xxxxxxxxx.
         [Display(Name = "Số điện thoại")]
         [Required(ErrorMessage = "Vui lòng nhập số điện thoại.")]
-        [RegularExpression(@"^(0|\+84)\d{9,10}$", ErrorMessage = "Số điện thoại không hợp lệ (VD: 0901234567).")]
+        [StringLength(15, ErrorMessage = "Số điện thoại quá dài.")]
+        [RegularExpression(@"^(\+84|84|0)(3|5|7|8|9)\d{8}$",
+            ErrorMessage = "Số điện thoại không hợp lệ (10 số, đầu số 03/05/07/08/09, VD: 0901234567).")]
         public string CustomerPhone { get; set; }
 
         [Display(Name = "Email")]
+        [StringLength(100, ErrorMessage = "Email tối đa 100 ký tự.")]
         [EmailAddress(ErrorMessage = "Email không hợp lệ.")]
         public string CustomerEmail { get; set; }
 
         [Display(Name = "Địa chỉ")]
+        [StringLength(200, ErrorMessage = "Địa chỉ tối đa 200 ký tự.")]
+        [DataType(DataType.MultilineText)]
         public string CustomerAddress { get; set; }
 
         [Display(Name = "Tên đăng nhập")]
@@ -146,6 +176,8 @@ namespace Web_PC_Builder.Models
         public string PaymentStatus { get; set; }
 
         [Display(Name = "Địa chỉ giao hàng")]
+        [StringLength(200, ErrorMessage = "Địa chỉ giao hàng tối đa 200 ký tự.")]
+        [DataType(DataType.MultilineText)]
         public string ShippingAddress { get; set; }
 
         [Display(Name = "Hình thức giao hàng")]
@@ -158,6 +190,8 @@ namespace Web_PC_Builder.Models
         public string OrderStatus { get; set; }
 
         [Display(Name = "Ghi chú")]
+        [StringLength(500, ErrorMessage = "Ghi chú tối đa 500 ký tự.")]
+        [DataType(DataType.MultilineText)]
         public string Note { get; set; }
     }
 
@@ -180,5 +214,21 @@ namespace Web_PC_Builder.Models
 
         [Display(Name = "Thành tiền")]
         public Nullable<decimal> TotalPrice { get; set; }
+    }
+
+    // ------------------------------------------------------------ DbContext
+    // Tự chuẩn hóa SĐT khách hàng ngay trước khi lưu, nên mọi nơi (Create, Edit, đăng ký, đặt hàng...)
+    // đều không cần tự xử lý. Tên class phải trùng với DbContext (My_StoreEntities).
+    public partial class My_StoreEntities
+    {
+        public override int SaveChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries<Customer>()
+                .Where(e => e.State == EntityState.Added || e.State == EntityState.Modified))
+            {
+                entry.Entity.NormalizePhone();
+            }
+            return base.SaveChanges();
+        }
     }
 }

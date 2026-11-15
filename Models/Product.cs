@@ -28,6 +28,7 @@ namespace Web_PC_Builder.Models
         public string ProductImage { get; set; }
         public Nullable<decimal> OldPrice { get; set; }
         public string Brand { get; set; }
+        public int Stock { get; set; }
     
         public virtual Category Category { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
