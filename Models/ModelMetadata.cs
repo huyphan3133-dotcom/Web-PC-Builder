@@ -87,6 +87,10 @@ namespace Web_PC_Builder.Models
         [Display(Name = "Thương hiệu")]
         [StringLength(100, ErrorMessage = "Thương hiệu tối đa 100 ký tự.")]
         public string Brand { get; set; }
+
+        [Display(Name = "Tồn kho")]
+        [Range(0, 1000000, ErrorMessage = "Tồn kho phải là số nguyên từ 0 trở lên.")]
+        public int Stock { get; set; }
     }
 
     // ------------------------------------------------------------ Customer
