@@ -291,6 +291,7 @@
     <Content Include="Content\Images\vp5.png" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\pc-builder.css" />
+    <Content Include="Database\My_Store.sql" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
