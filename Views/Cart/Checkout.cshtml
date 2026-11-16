@@ -285,14 +285,15 @@
 
 <script>
     (function () {
-        var KEY = 'gvn_cart', ORDERS = 'gvn_orders';
+        var KEY = 'gvn_cart';
+        var BASE = '@Url.Content("~/")';
         var SHOP = '@Url.Action("Home", "Product")';
         var CART = '@Url.Action("Home", "Cart")';
         var PLACE = '@Url.Action("PlaceOrder", "Cart")';
         var LOGIN = '@Url.Action("Login", "Account")';
 
+        function $(id) { return document.getElementById(id); }
         function getCart() { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch (e) { return []; } }
-        function getOrders() { try { return JSON.parse(localStorage.getItem(ORDERS)) || []; } catch (e) { return []; } }
         function fmt(n) { return Number(n).toLocaleString('vi-VN') + 'đ'; }
         function esc(s) {
             return String(s).replace(/[&<>"']/g, function (c) {
@@ -300,13 +301,17 @@
             });
         }
         function badge() {
-            var el = document.getElementById('cart-count');
-            if (el) el.textContent = getCart().reduce(function (s, x) { return s + x.qty; }, 0);
+            var el = $('cart-count');
+            if (el) el.textContent = getCart().reduce(function (s, x) { return s + (x.qty || 0); }, 0);
         }
-        function $(id) { return document.getElementById(id); }
+        function imgOf(x) {
+            if (x.image) return x.image;
+            return x.file ? BASE + 'Content/Images/' + x.file : BASE + 'Content/Images/no-image.svg';
+        }
 
-        var cart = PD.cartLines().map(function (l) {
-            return { id: l.p.id, name: l.p.name, price: l.p.price, image: PD.img(l.p.img), qty: l.qty, stock: l.p.stock };
+        // Giỏ hàng lưu ở localStorage (do trang sản phẩm thêm vào). Không phụ thuộc đối tượng PD nữa.
+        var cart = getCart().filter(function (x) {
+            return x && x.name && Number(x.price) > 0 && parseInt(x.qty, 10) > 0;
         });
         badge();
 
@@ -322,7 +327,7 @@
         var total = 0;
         var lines = cart.map(function (x) {
             total += x.price * x.qty;
-            return '<div class="ck-line"><img src="' + esc(x.image) + '" alt="">' +
+            return '<div class="ck-line"><img src="' + esc(imgOf(x)) + '" alt="">' +
                 '<div class="n">' + esc(x.name) + '<br><span style="color:#777">Số lượng: ' + x.qty + '</span></div>' +
                 '<div class="p">' + fmt(x.price * x.qty) + '</div></div>';
         }).join('');
@@ -355,52 +360,85 @@
             return ok.every(Boolean);
         }
 
-        $('ck-form').addEventListener('submit', function (e) {
+        var form = $('ck-form');
+        var btn = form.querySelector('.ck-submit');
+        var busy = false;
+
+        function showError(msg) {
+            $('err-form').textContent = msg;
+            busy = false;
+            btn.disabled = false;
+            btn.textContent = 'Đặt hàng';
+        }
+
+        form.addEventListener('submit', function (e) {
             e.preventDefault();
+            if (busy) return;
+            $('err-form').textContent = '';
             if (!validate()) {
                 var bad = document.querySelector('#ck-form .bad');
                 if (bad) bad.focus();
                 return;
             }
-            var raw = [];
-            try { raw = JSON.parse(localStorage.getItem(KEY)) || []; } catch (err) { }
-            var lack = raw.filter(function (x) { var p = PD.byId(x.id); return !p || p.stock < x.qty; });
-            if (lack.length) {
-                alert('Một số sản phẩm không đủ tồn kho. Vui lòng kiểm tra lại giỏ hàng.');
-                location.href = PD.urls.cart;
-                return;
-            }
-            var code = 'GVN' + Date.now().toString().slice(-8);
-            var order = {
-                id: code,
-                date: new Date().toLocaleString('vi-VN'),
-                customer: {
-                    name: $('fullName').value.trim(), phone: $('phone').value.trim(),
-                    email: $('email').value.trim(), address: $('address').value.trim(), note: $('note').value.trim()
-                },
-                payment: document.querySelector('input[name=pay]:checked').value,
-                items: cart,
-                total: total,
-                status: 'Chờ xác nhận'
-            };
 
-            var orders = getOrders();
-            orders.unshift(order);
-            localStorage.setItem(ORDERS, JSON.stringify(orders));
-            var st = {};
-            try { st = JSON.parse(localStorage.getItem('gvn_stock')) || {}; } catch (err) { }
-            cart.forEach(function (x) {
-                var cur = st[x.id] !== undefined ? st[x.id] : PD.byId(x.id).stock;
-                st[x.id] = Math.max(0, cur - x.qty);
+            // Gửi giỏ hàng lên server để lưu đơn vào database (Cart/PlaceOrder).
+            var items = cart.map(function (x) {
+                return { name: x.name, price: x.price, qty: x.qty, cat: x.cat || '', brand: x.brand || '', file: x.file || '', desc: x.desc || '' };
             });
-            localStorage.setItem('gvn_stock', JSON.stringify(st));
-            localStorage.setItem(KEY, '[]');
-            badge();
+            var tokenEl = form.querySelector('input[name=__RequestVerificationToken]');
+            var body = new URLSearchParams();
+            body.append('__RequestVerificationToken', tokenEl ? tokenEl.value : '');
+            body.append('fullName', $('fullName').value.trim());
+            body.append('phone', $('phone').value.trim());
+            body.append('email', $('email').value.trim());
+            body.append('address', $('address').value.trim());
+            body.append('note', $('note').value.trim());
+            body.append('pay', document.querySelector('input[name=pay]:checked').value);
+            body.append('items', JSON.stringify(items));
 
-            $('ck-code').textContent = code;
-            $('ck-main').hidden = true;
-            $('ck-done').hidden = false;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            busy = true;
+            btn.disabled = true;
+            btn.textContent = 'Đang đặt hàng...';
+
+            fetch(PLACE, {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: body.toString()
+            }).then(function (res) {
+                return res.text().then(function (txt) {
+                    var data = null;
+                    try { data = JSON.parse(txt); } catch (err) { }
+                    return data;
+                });
+            }).then(function (data) {
+                if (!data) {
+                    showError('Không thể đặt hàng lúc này (máy chủ trả về lỗi). Vui lòng tải lại trang và thử lại.');
+                    return;
+                }
+                if (data.login) {
+                    alert(data.error || 'Vui lòng đăng nhập lại.');
+                    location.href = LOGIN + '?returnUrl=' + encodeURIComponent(location.pathname);
+                    return;
+                }
+                if (!data.ok) {
+                    showError(data.error || 'Đặt hàng không thành công. Vui lòng thử lại.');
+                    return;
+                }
+
+                // Thành công: xóa giỏ hàng rồi hiện màn hình xác nhận.
+                try { localStorage.setItem(KEY, '[]'); } catch (err) { }
+                badge();
+                $('ck-code').textContent = data.code;
+                $('ck-main').hidden = true;
+                $('ck-done').hidden = false;
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }).catch(function () {
+                showError('Không kết nối được máy chủ. Vui lòng kiểm tra mạng và thử lại.');
+            });
         });
 
         ['fullName', 'phone', 'email', 'address'].forEach(function (id) {
