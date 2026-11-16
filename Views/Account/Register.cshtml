@@ -65,10 +65,8 @@
         $(function () {
             // Regex chuẩn SĐT di động Việt Nam: 10 chữ số, bắt đầu bằng 03, 05, 07, 08, 09
             $.validator.addMethod("vnphone", function (value, element) {
-
                 return this.optional(element) || /^0(3|5|7|8|9)\d{8}$/.test(value);
             }, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 03/05/07/08/09).");
-
 
             $.validator.addMethod("trimmedMin", function (value, element, min) {
                 return $.trim(value).length >= min;
