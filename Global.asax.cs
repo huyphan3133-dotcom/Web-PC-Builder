@@ -18,9 +18,10 @@ namespace Web_PC_Builder
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
 
-            // Tạo sẵn tài khoản quản trị (admin / Admin@123) nếu bảng [User] chưa có tài khoản nào có UserRole = 'A'.
             DbSeeder.EnsureOrderColumns();
+            DbSeeder.EnsureProductColumns();   // thêm cột Product.Stock nếu DB chưa có
             DbSeeder.EnsureAdminAccount();
+            DbSeeder.EnsureProducts();
 
             // Chạy nền: tự chuyển trạng thái đơn hàng theo thời gian.
             OrderAutoUpdater.StartBackground();

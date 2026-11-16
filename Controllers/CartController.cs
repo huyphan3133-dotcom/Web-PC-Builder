@@ -153,6 +153,7 @@ namespace Web_PC_Builder.Controllers
             {
                 string productName = l.name;
                 Product product = db.Products.FirstOrDefault(p => p.ProductName == productName);
+                bool isNewProduct = (product == null);
                 if (product == null)
                 {
                     // Sản phẩm trên web hiện lấy từ danh sách mẫu trong JS nên có thể chưa có trong DB:
@@ -184,6 +185,18 @@ namespace Web_PC_Builder.Controllers
                         Brand = brand.Length > 0 ? brand : null
                     };
                     db.Products.Add(product);
+                }
+
+                // Kiểm tra tồn kho rồi trừ. Sản phẩm vừa được tạo mới ở trên chưa có tồn kho để theo dõi nên bỏ qua.
+                if (!isNewProduct)
+                {
+                    if (product.Stock < l.qty)
+                    {
+                        return Fail(product.Stock <= 0
+                            ? "Sản phẩm \"" + product.ProductName + "\" đã hết hàng."
+                            : "Sản phẩm \"" + product.ProductName + "\" chỉ còn " + product.Stock + " trong kho.");
+                    }
+                    product.Stock -= l.qty;
                 }
 
                 order.OrderDetails.Add(new OrderDetail

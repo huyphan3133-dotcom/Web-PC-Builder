@@ -1,0 +1,90 @@
+﻿@model Web_PC_Builder.Models.ViewModel.OrderDetailVM
+@using Web_PC_Builder.Helpers
+@{
+    ViewBag.Title = "Đơn hàng #" + Model.OrderID;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool cancelled = Model.OrderStatus == OrderConst.Cancelled;
+
+    // Đơn COD vào thẳng "Đang xử lý"; đơn chuyển khoản có thêm bước "Chờ thanh toán".
+    string[] steps = (Model.PaymentMethod == Web_PC_Builder.Controllers.CartController.PayCod
+                      && Model.OrderStatus != OrderConst.WaitingPayment)
+        ? new[] { OrderConst.Processing, OrderConst.Shipping, OrderConst.Delivered }
+        : new[] { OrderConst.WaitingPayment, OrderConst.Processing, OrderConst.Shipping, OrderConst.Delivered };
+
+    int current = System.Array.IndexOf(steps, Model.OrderStatus);
+}
+
+<div class="profile-page">
+    <div class="profile-header">
+        <h2>ĐƠN HÀNG #@Model.OrderID</h2>
+        <p>Ngày đặt: @AppHelper.Date(Model.OrderDate)</p>
+    </div>
+
+    <div class="profile-card">
+        <h3>Trạng thái đơn hàng</h3>
+
+        @if (cancelled)
+        {
+            <div class="od-cancel"><i class="fas fa-times-circle"></i> Đơn hàng này đã bị hủy.</div>
+        }
+        else
+        {
+            <ol class="od-steps">
+                @for (int i = 0; i < steps.Length; i++)
+                {
+                    string cls = i < current ? "done" : (i == current ? "now" : "");
+                    <li class="@cls"><span class="od-dot">@(i < current || (i == current && steps[i] == OrderConst.Delivered) ? "✓" : (i + 1).ToString())</span>@steps[i]</li>
+                }
+            </ol>
+        }
+
+        <p class="od-line"><strong>Thanh toán:</strong> @OrderConst.PaymentText(Model.PaymentStatus)
+            (@(string.IsNullOrEmpty(Model.PaymentMethod) ? "-" : Model.PaymentMethod))</p>
+    </div>
+
+    <div class="profile-card">
+        <h3>Thông tin giao hàng</h3>
+        <p class="od-line"><strong>Giao tới:</strong> @Model.ShippingAddress</p>
+        <p class="od-line"><strong>Hình thức giao:</strong> @(string.IsNullOrEmpty(Model.DeliveryMethod) ? "-" : Model.DeliveryMethod)</p>
+        <p class="od-line"><strong>Ghi chú:</strong> @(string.IsNullOrEmpty(Model.Note) ? "-" : Model.Note)</p>
+    </div>
+
+    <div class="profile-card">
+        <h3>Sản phẩm trong đơn</h3>
+        <div class="table-responsive">
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Sản phẩm</th>
+                        <th>Đơn giá</th>
+                        <th>SL</th>
+                        <th>Thành tiền</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <img class="od-img" src="@Url.ProductImage(it.ProductImage)" alt="" />
+                                @it.ProductName
+                            </td>
+                            <td>@AppHelper.Vnd(it.UnitPrice)</td>
+                            <td>@it.Quantity</td>
+                            <td>@AppHelper.Vnd(it.LineTotal)</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" class="od-sum">Tổng cộng</td>
+                        <td class="od-sum">@AppHelper.Vnd(Model.TotalAmount)</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <p>@Html.ActionLink("« Quay lại hồ sơ", "Profile", "Account", null, new { @class = "order-link" })</p>
+</div>

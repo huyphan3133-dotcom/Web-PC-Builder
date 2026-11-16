@@ -102,7 +102,7 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Create(
-            [Bind(Include = "CategoryID,ProductName,ProductDescription,ProductPrice,ProductImage,OldPrice,Brand")] Product product,
+            [Bind(Include = "CategoryID,ProductName,ProductDescription,ProductPrice,ProductImage,OldPrice,Brand,Stock")] Product product,
             HttpPostedFileBase UploadImg)
         {
             ValidateProduct(product, UploadImg);
@@ -143,7 +143,7 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Edit(
-            [Bind(Include = "ProductID,CategoryID,ProductName,ProductDescription,ProductPrice,ProductImage,OldPrice,Brand")] Product product,
+            [Bind(Include = "ProductID,CategoryID,ProductName,ProductDescription,ProductPrice,ProductImage,OldPrice,Brand,Stock")] Product product,
             HttpPostedFileBase UploadImg)
         {
             ValidateProduct(product, UploadImg);
@@ -162,6 +162,7 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
                 existing.ProductPrice = product.ProductPrice;
                 existing.OldPrice = product.OldPrice;
                 existing.Brand = product.Brand;
+                existing.Stock = product.Stock;
                 if (HasFile(UploadImg))
                 {
                     existing.ProductImage = SaveImage(UploadImg);
