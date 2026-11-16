@@ -1,5 +1,8 @@
---New Database: MyStore
--- Bang User: quan ly ca tai khoan cua Khach hang va Admin
+
+USE [My_Store];
+GO
+SELECT DB_NAME() AS CurrentDB;
+SELECT name FROM sys.tables ORDER BY name;
 CREATE TABLE [dbo].[User] (
     [Username]     NVARCHAR (255) NOT NULL,
     [Password] NCHAR (50)     NOT NULL,
