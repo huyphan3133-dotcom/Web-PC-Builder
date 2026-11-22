@@ -258,7 +258,6 @@
     <Content Include="Content\Images\mh7.png" />
     <Content Include="Content\Images\mh8.png" />
     <Content Include="Content\Images\mh9.png" />
-    <Content Include="Content\Images\no-image.svg" />
     <Content Include="Content\Images\monitor.png" />
     <Content Include="Content\Images\pay-1.png" />
     <Content Include="Content\Images\pay-2.png" />
@@ -291,7 +290,6 @@
     <Content Include="Content\Images\vp5.png" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\pc-builder.css" />
-    <Content Include="Database\My_Store.sql" />
     <Content Include="favicon.ico" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
@@ -350,7 +348,6 @@
     <Content Include="Areas\Admin\Views\Shared\_AdminLayout.cshtml" />
     <Content Include="Areas\Admin\Views\Account\Login.cshtml" />
     <Content Include="Areas\Admin\Views\Categories\_PVCreateEditCategory.cshtml" />
-    <None Include="Scripts\jquery-3.7.0.intellisense.js" />
     <Content Include="Scripts\Java\builder.js" />
     <Content Include="Scripts\Java\cart.js" />
     <Content Include="Scripts\Java\main.js" />
