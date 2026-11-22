@@ -130,7 +130,6 @@ namespace Web_PC_Builder.Controllers
             }
 
             // ---- sản phẩm + chi tiết đơn ----
-            var categoryCache = new Dictionary<string, Category>(StringComparer.OrdinalIgnoreCase);
             var order = new Order
             {
                 Customer = customer,
@@ -148,56 +147,29 @@ namespace Web_PC_Builder.Controllers
             if (note.Length > 0) noteText += " - Ghi chú: " + note;
             order.Note = noteText;
 
+            // Danh sách cần trừ kho: (ProductID, số lượng, tên). Việc trừ thật sự làm ở transaction bên dưới.
+            var toDeduct = new List<Tuple<int, int, string>>();
+
             decimal total = 0m;
             foreach (CartLine l in merged.Values)
             {
                 string productName = l.name;
                 Product product = db.Products.FirstOrDefault(p => p.ProductName == productName);
-                bool isNewProduct = (product == null);
                 if (product == null)
                 {
-                    // Sản phẩm trên web hiện lấy từ danh sách mẫu trong JS nên có thể chưa có trong DB:
-                    // tạo mới để đơn hàng có khóa ngoại hợp lệ.
-                    string catName = string.IsNullOrWhiteSpace(l.cat) ? "Khác" : l.cat.Trim();
-                    Category cat;
-                    if (!categoryCache.TryGetValue(catName, out cat))
-                    {
-                        cat = db.Categories.FirstOrDefault(c => c.CategoryName == catName);
-                        if (cat == null)
-                        {
-                            cat = new Category { CategoryName = catName };
-                            db.Categories.Add(cat);
-                        }
-                        categoryCache[catName] = cat;
-                    }
-
-                    string brand = (l.brand ?? "").Trim();
-                    if (brand.Length > 100) brand = brand.Substring(0, 100);
-                    string desc = (l.desc ?? "").Trim();
-
-                    product = new Product
-                    {
-                        Category = cat,
-                        ProductName = productName,
-                        ProductDescription = desc.Length > 0 ? desc : productName,
-                        ProductPrice = l.price,
-                        ProductImage = string.IsNullOrWhiteSpace(l.file) ? null : l.file.Trim(),
-                        Brand = brand.Length > 0 ? brand : null
-                    };
-                    db.Products.Add(product);
+                    // Chỉ cho đặt sản phẩm đã có trong CSDL. Không tạo sản phẩm mới theo dữ liệu
+                    // trình duyệt gửi lên (tên/giá do client tự khai có thể bị sửa tay trong localStorage).
+                    return Fail("Sản phẩm \"" + productName + "\" không còn bán. Vui lòng xóa khỏi giỏ hàng và thử lại.");
                 }
 
-                // Kiểm tra tồn kho rồi trừ. Sản phẩm vừa được tạo mới ở trên chưa có tồn kho để theo dõi nên bỏ qua.
-                if (!isNewProduct)
+                // Kiểm tra sớm để báo lỗi dễ hiểu. Việc trừ kho (nguyên tử) nằm ở transaction bên dưới.
+                if (product.Stock < l.qty)
                 {
-                    if (product.Stock < l.qty)
-                    {
-                        return Fail(product.Stock <= 0
-                            ? "Sản phẩm \"" + product.ProductName + "\" đã hết hàng."
-                            : "Sản phẩm \"" + product.ProductName + "\" chỉ còn " + product.Stock + " trong kho.");
-                    }
-                    product.Stock -= l.qty;
+                    return Fail(product.Stock <= 0
+                        ? "Sản phẩm \"" + product.ProductName + "\" đã hết hàng."
+                        : "Sản phẩm \"" + product.ProductName + "\" chỉ còn " + product.Stock + " trong kho.");
                 }
+                toDeduct.Add(Tuple.Create(product.ProductID, l.qty, product.ProductName));
 
                 order.OrderDetails.Add(new OrderDetail
                 {
@@ -210,17 +182,39 @@ namespace Web_PC_Builder.Controllers
             order.TotalAmount = total;
             db.Orders.Add(order);
 
-            try
+            // ---- trừ kho + lưu đơn trong CÙNG một transaction ----
+            // UPDATE ... WHERE Stock >= @qty là một câu lệnh nguyên tử: hai khách đặt cùng lúc
+            // không thể cùng qua kiểm tra rồi trừ vượt tồn kho. Hết hàng giữa chừng -> rollback cả đơn.
+            using (var tx = db.Database.BeginTransaction())
             {
-                db.SaveChanges();
-            }
-            catch (DbEntityValidationException)
-            {
-                return Fail("Dữ liệu đơn hàng không hợp lệ. Vui lòng kiểm tra lại thông tin.");
-            }
-            catch (DbUpdateException)
-            {
-                return Fail("Không thể lưu đơn hàng lúc này. Vui lòng thử lại.");
+                try
+                {
+                    foreach (var d in toDeduct)
+                    {
+                        int affected = db.Database.ExecuteSqlCommand(
+                            "UPDATE dbo.[Product] SET Stock = Stock - @p0 WHERE ProductID = @p1 AND Stock >= @p0",
+                            d.Item2, d.Item1);
+
+                        if (affected == 0)
+                        {
+                            tx.Rollback();
+                            return Fail("Sản phẩm \"" + d.Item3 + "\" vừa hết hàng hoặc không đủ số lượng. Vui lòng kiểm tra lại giỏ hàng.");
+                        }
+                    }
+
+                    db.SaveChanges();
+                    tx.Commit();
+                }
+                catch (DbEntityValidationException)
+                {
+                    tx.Rollback();
+                    return Fail("Dữ liệu đơn hàng không hợp lệ. Vui lòng kiểm tra lại thông tin.");
+                }
+                catch (DbUpdateException)
+                {
+                    tx.Rollback();
+                    return Fail("Không thể lưu đơn hàng lúc này. Vui lòng thử lại.");
+                }
             }
 
             return Json(new { ok = true, code = "#" + order.OrderID, total = order.TotalAmount });

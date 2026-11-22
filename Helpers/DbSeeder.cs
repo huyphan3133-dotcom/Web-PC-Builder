@@ -30,17 +30,13 @@ namespace Web_PC_Builder.Helpers
                         "ALTER TABLE dbo.[Order] ADD StatusUpdatedAt datetime NULL");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Không đủ quyền ALTER -> hãy chạy tay câu lệnh SQL trong tài liệu hướng dẫn.
+                System.Diagnostics.Trace.TraceError("EnsureOrderColumns: " + ex);
             }
         }
 
-        /// <summary>
-        /// Tự thêm cột [Product].Stock (tồn kho) nếu database chưa có (chạy an toàn nhiều lần).
-        /// LƯU Ý: sau khi có cột phải "Update Model from Database" trong MyStoreModel.edmx
-        /// để class Product có thuộc tính Stock.
-        /// </summary>
         public static void EnsureProductColumns()
         {
             try
@@ -49,12 +45,13 @@ namespace Web_PC_Builder.Helpers
                 {
                     db.Database.ExecuteSqlCommand(
                         "IF COL_LENGTH('dbo.[Product]', 'Stock') IS NULL " +
-                        "ALTER TABLE dbo.[Product] ADD Stock int NOT NULL CONSTRAINT DF_Product_Stock DEFAULT 0");
+                        "ALTER TABLE dbo.[Product] ADD Stock int NOT NULL CONSTRAINT DF_Product_Stock DEFAULT " + DefaultStock);
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // Không đủ quyền ALTER -> chạy tay câu lệnh trên trong SSMS.
+                System.Diagnostics.Trace.TraceError("EnsureProductColumns: " + ex);
             }
         }
 
@@ -75,22 +72,13 @@ namespace Web_PC_Builder.Helpers
                     db.SaveChanges();
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 // DB chưa sẵn sàng hoặc username 'admin' đã tồn tại với vai trò khác -> bỏ qua,
                 // không để lỗi này làm sập ứng dụng khi khởi động.
+                System.Diagnostics.Trace.TraceError("EnsureAdminAccount: " + ex);
             }
         }
-
-        // ------------------------------------------------------------------
-        //  SEED SẢN PHẨM CỦA WEB (nguồn: mảng products trong _ProductCore.cshtml)
-        //  Tên danh mục TRÙNG chữ với danh mục ở trang chủ.
-        //  GIẢ ĐỊNH (đổi cho khớp model EF):
-        //    Category { CategoryID, CategoryName }
-        //    Product  { ProductName, Price (decimal), Stock (int), CategoryID }
-        //  Nếu Product có các cột khác (Brand, OldPrice, Image, Description...) thì
-        //  bỏ chú thích ở chỗ "THÊM CỘT" bên dưới.
-        // ------------------------------------------------------------------
 
         private class SeedItem
         {
@@ -177,8 +165,9 @@ namespace Web_PC_Builder.Helpers
         }
 
         /// <summary>
-        /// Seed sản phẩm của web: tự tạo danh mục còn thiếu, chỉ thêm sản phẩm chưa có (theo tên),
-        /// nên chạy nhiều lần không bị trùng.
+        /// Seed sản phẩm mẫu CHỈ KHI bảng [Product] đang trống (database mới).
+        /// Nếu đã có sản phẩm thì không làm gì, để sản phẩm mà admin đã xóa hoặc đổi tên
+        /// không bị tạo lại mỗi lần ứng dụng khởi động.
         /// </summary>
         public static void EnsureProducts()
         {
@@ -186,6 +175,8 @@ namespace Web_PC_Builder.Helpers
             {
                 using (var db = new My_StoreEntities())
                 {
+                    if (db.Products.Any()) return;
+
                     var seed = BuildSeedList();
 
                     foreach (var cname in seed.Select(s => s.Category).Distinct())
@@ -196,45 +187,28 @@ namespace Web_PC_Builder.Helpers
                     db.SaveChanges();
 
                     var catIds = db.Categories.ToDictionary(c => c.CategoryName, c => c.CategoryID);
-                    var existing = new HashSet<string>(db.Products.Select(p => p.ProductName));
-                    var added = new List<Product>();
 
                     foreach (var s in seed)
                     {
-                        if (existing.Contains(s.Name)) continue;
-
-                        var newProduct = new Product
+                        db.Products.Add(new Product
                         {
                             ProductName = s.Name,
                             ProductPrice = s.Price,
                             OldPrice = s.OldPrice,
                             Brand = s.Brand,
-                            ProductImage = s.Image,           // file nằm ở Content/Images/
+                            ProductImage = s.Image,
                             ProductDescription = s.Specs,
-                            CategoryID = catIds[s.Category]
-                        };
-                        db.Products.Add(newProduct);
-                        added.Add(newProduct);
+                            CategoryID = catIds[s.Category],
+                            Stock = DefaultStock
+                        });
                     }
                     db.SaveChanges();
-
-                    // Gán tồn kho cho sản phẩm vừa thêm bằng SQL, để file build được kể cả khi
-                    // class Product chưa có thuộc tính Stock. Chỉ chạy nếu cột Stock đã tồn tại.
-                    // Sau khi "Update Model from Database" có thể đổi sang p.Stock = DefaultStock.
-                    foreach (var item in added)
-                    {
-                        db.Database.ExecuteSqlCommand(
-                            "IF COL_LENGTH('dbo.[Product]', 'Stock') IS NOT NULL " +
-                            "EXEC('UPDATE dbo.[Product] SET Stock = ' + CAST(@p0 AS varchar(10)) + " +
-                            "' WHERE ProductID = ' + CAST(@p1 AS varchar(10)))",
-                            DefaultStock, item.ProductID);
-                    }
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // DB chưa sẵn sàng / model chưa có cột Stock -> bỏ qua,
-                // không để lỗi này làm sập ứng dụng khi khởi động.
+                // DB chưa sẵn sàng -> bỏ qua, không để lỗi này làm sập ứng dụng khi khởi động.
+                System.Diagnostics.Trace.TraceError("EnsureProducts: " + ex);
             }
         }
     }

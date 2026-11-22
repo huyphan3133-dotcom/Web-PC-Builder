@@ -36,14 +36,23 @@ namespace Web_PC_Builder.Helpers
             string s = (stored ?? "").Trim();
             if (s.Length == 0 || string.IsNullOrEmpty(password)) return false;
 
-            if (s == Hash(username, password)) return true;
+            if (SafeEquals(s, Hash(username, password))) return true;
 
-            if (s == password)
+            if (SafeEquals(s, password))
             {
                 isLegacy = true;
                 return true;
             }
             return false;
+        }
+
+        /// <summary>So sánh chuỗi trong thời gian không phụ thuộc vị trí ký tự khác nhau (tránh timing attack).</summary>
+        private static bool SafeEquals(string a, string b)
+        {
+            if (a == null || b == null || a.Length != b.Length) return false;
+            int diff = 0;
+            for (int i = 0; i < a.Length; i++) diff |= a[i] ^ b[i];
+            return diff == 0;
         }
     }
 }
