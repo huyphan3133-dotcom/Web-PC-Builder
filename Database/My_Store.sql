@@ -64,3 +64,6 @@ CREATE TABLE [dbo].[OrderDetail] (
 );
 
 ALTER AUTHORIZATION ON DATABASE::MyStore TO sa;
+SELECT TOP 5 ProductName, Stock FROM dbo.[Product];
+UPDATE dbo.[Product] SET Stock = 20 WHERE Stock = 0;
+SELECT TOP 5 ProductName, Stock FROM dbo.[Product];

@@ -25,7 +25,7 @@ namespace Web_PC_Builder.Helpers
 
         /// <summary>
         /// Trả về URL ảnh sản phẩm. Hỗ trợ: rỗng (ảnh mặc định), "~/Content/Images/a.png",
-        /// "/Content/Images/a.png", "http://...", hoặc chỉ tên file "a.png".
+        /// "/Content/Images/a.png", "http://...", "https://...", hoặc chỉ tên file "a.png".
         /// </summary>
         public static string ProductImage(this UrlHelper url, string image)
         {
@@ -33,7 +33,16 @@ namespace Web_PC_Builder.Helpers
 
             string img = image.Trim();
             if (img.StartsWith("~/")) return url.Content(img);
-            if (img.StartsWith("/") || img.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return img;
+
+            // URL tuyệt đối (http://, https://, //cdn...) giữ nguyên. Không dùng StartsWith("http")
+            // vì tên file như "http-logo.png" sẽ bị hiểu nhầm là URL.
+            if (img.StartsWith("//") ||
+                img.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                img.StartsWith("https://", StringComparison.OrdinalIgnoreCase)) return img;
+
+            // "/Content/Images/a.png": đi qua url.Content để đúng cả khi web chạy trong thư mục ảo (IIS Application).
+            if (img.StartsWith("/")) return url.Content("~" + img);
+
             return url.Content(ImageFolder + img);
         }
     }
