@@ -12,6 +12,7 @@ a {
 
 img {
     max-width: 100%;
+    height: auto;
 }
 
 main {
@@ -21,9 +22,10 @@ main {
 }
 /* Khung giữ nội dung ở giữa trang */
 .container {
-    width: 1200px;
+    width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
-    box-sizing: border-box;
+    padding: 0 15px;
 }
 
 /* ===== 1. HEADER (nền đỏ) ===== */
@@ -196,8 +198,8 @@ main {
 /* Lưới 5 cột */
 .product-list {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 15px;
 }
 
 .product {
@@ -477,6 +479,51 @@ main {
 
 .more {
     color: #e30019;
+}
+@media (max-width: 991px) {
+    .menu-category {
+        display: none;
+    }
+    /* ẩn menu danh mục bên trái */
+    .banner-side {
+        display: none;
+    }
+    /* ẩn banner phụ */
+    .product-list {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Điện thoại lớn */
+@media (max-width: 767px) {
+    .header-top {
+        flex-direction: column;
+    }
+
+    .search-box {
+        width: 100%;
+    }
+
+    .product-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .footer-col {
+        width: 100%;
+    }
+    /* footer xếp dọc */
+}
+
+/* Điện thoại nhỏ */
+@media (max-width: 480px) {
+    .product-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .product-name {
+        font-size: 14px;
+    }
 }
 
 /* ===== RESPONSIVE CHO KHU VỰC HERO ===== */
