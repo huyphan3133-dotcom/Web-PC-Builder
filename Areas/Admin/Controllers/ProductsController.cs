@@ -15,7 +15,7 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
     public class ProductsController : AdminBaseController
     {
         private const int MaxUploadBytes = 5 * 1024 * 1024; // 5 MB
-        private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg" };
+        private static readonly string[] AllowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
 
         // GET: Admin/Products?searchTerm=&minPrice=&maxPrice=&sortOrder=&page=
         public ActionResult Index(string searchTerm, decimal? minPrice, decimal? maxPrice, string sortOrder, int page = 1)
@@ -248,7 +248,7 @@ namespace Web_PC_Builder.Areas.Admin.Controllers
                 string ext = (Path.GetExtension(upload.FileName) ?? "").ToLowerInvariant();
                 if (!AllowedExtensions.Contains(ext))
                 {
-                    ModelState.AddModelError("UploadImg", "Chỉ chấp nhận ảnh jpg, png, gif, webp hoặc svg.");
+                    ModelState.AddModelError("UploadImg", "Chỉ chấp nhận ảnh jpg, png, gif hoặc webp.");
                 }
                 else if (upload.ContentLength > MaxUploadBytes)
                 {
